@@ -12,9 +12,30 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/login'); // view('welcome');
 });
 
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+// Admin
+Route::middleware(['auth','admin'])->namespace('Admin')->group(function() {
+    // Operators
+    Route::resource('operators', 'OperatorController');
+
+    // Supervisors
+    Route::resource('supervisors', 'SupervisorController');
+
+    // Machines
+    Route::resource('machines', 'MachineController');
+
+    // Products
+    Route::resource('products', 'ProductController');
+
+    // Codes
+    Route::resource('codes', 'CodeController');
+
+    // Charts
+    Route::get('/charts/appointments/line', 'ChartsController@appointments');
+});
