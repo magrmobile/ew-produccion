@@ -67,7 +67,7 @@
             </div>
             <div class="form-group">
                 <label for="type_stop">Tipo de Paro</label>
-                <input name="type_stop" id="type_stop" type="text" class="form-control">
+                <input name="type_stop" id="type_stop" type="text" class="form-control" readonly>
             </div>
             <div class="form-group">
                 <label for="meters">Metros Producidos</label>

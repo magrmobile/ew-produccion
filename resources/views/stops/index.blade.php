@@ -7,6 +7,11 @@
             <div class="col">
                 <h3 class="mb-0">Mis Paros</h3>
             </div>
+            <div class="col text-right">
+                <a href="{{ url('stops/create') }}" class="btn btn-sm btn-success">
+                    Nuevo Paro
+                </a>
+            </div>
         </div>
     </div>
     <div class="card-body">
@@ -24,29 +29,24 @@
                 <th scope="col">Inicio Paro</th>
                 <th scope="col">Fecha Inicio</th>
                 @if($role == "supervisor" || $role == "admin")
-                <th scope="col">Fin Paro</th>
-                <th scope="col">Fecha Fin</th>
                 <th scope="col">Operador</th>
                 <th scope="col">Status</th>
                 @endif
                 <th scope="col">Maquina</th>
                 <th scope="col">Motivo Paro</th>
-                <th scope="col">Tipo Paro</th>
                 <th scope="col">Opciones</th>
             </tr>
         </thead>
         <tbody>
             @foreach($stops as $stop)
             <tr>
-            <th scope="row">
+            <td scope="row">
                 {{ $stop->stop_time_start }}
-            </th>
+            </td>
             <td>
                 {{ $stop->stop_date_start }}
             </td>
             @if($role == "supervisor" || $role == "admin")
-                <td>{{ $stop->stop_time_end }}</td>
-                <td>{{ $stop->stop_date_end }}</td>
                 <td>{{ $stop->operator->name }}</td>
                 <td>
                     @if($stop->stop_time_end != null) 
@@ -63,17 +63,11 @@
                 {{ $stop->code->description }}
             </td>
             <td>
-                {{ $stop->code->type }}
-            </td>
-            <td>
                 @if($role == 'admin')
                 <a class="btn btn-sm btn-primary" title="Ver Cita" href="{{ url('/stops/'.$stop->id) }}">
                     Ver
                 </a>
                 @endif
-                <a class="btn btn-sm btn-danger" title="Cancelar Cita" href="{{ url('/stops/'.$stop->id.'/cancel') }}">
-                    Cancelar
-                </a>
             </td>
             </tr>
             @endforeach

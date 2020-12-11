@@ -43,6 +43,11 @@
                         @if($product->metal_type == 'CU') checked @endif value="CU">
                     <label for="metal_type2" class="custom-control-label">CU</label>
                 </div>
+                <div class="custom-control custom-radio mb-3">
+                    <input name="metal_type" class="custom-control-input" id="metal_type3" type="radio"
+                        @if($product->metal_type == 'CCA') checked @endif value="CCA">
+                    <label for="metal_type3" class="custom-control-label">CCA</label>
+                </div>
             </div>
             <div class="form-group">
                 <label for="stock">PP o PT</label>

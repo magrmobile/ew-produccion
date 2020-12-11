@@ -68,7 +68,7 @@ class StopController extends Controller
         $data['operator_id'] = auth()->id();
 
         $date = Carbon::now();
-        $current_date = $date->format('d/m/y');
+        $current_date = $date->format('Y-m-d');
         $current_time = $date->format('H:i:s');
 
         $data['stop_date_start'] = $current_date;
