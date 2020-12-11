@@ -50,9 +50,9 @@
                 <td>{{ $stop->operator->name }}</td>
                 <td>
                     @if($stop->stop_time_end != null) 
-                    <span class="badge badge-pill badge-success">Activo</span> 
+                    <span class="badge badge-pill badge-success">Finalizado</span> 
                     @else 
-                    <span class="badge badge-pill badge-info">Finalizado</span> 
+                    <span class="badge badge-pill badge-info">Activo</span> 
                     @endif
                 </td>
             @endif
