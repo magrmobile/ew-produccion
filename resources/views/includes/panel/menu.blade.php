@@ -21,7 +21,7 @@
 {{-- Divider --}}
 <hr class="my-3">
 {{-- Heading --}}
-<h6 class="navbar-heading text-muted">Reportes</h6>
+<!--<h6 class="navbar-heading text-muted">Reportes</h6>
 {{-- Navigation --}}
 <ul class="navbar-nav mb-md-3">
     <li class="nav-item">
@@ -34,5 +34,5 @@
             <i class="ni ni-spaceship text-orange"></i> Médicos más activos
         </a>
     </li>
-</ul>
+</ul>-->
 @endif

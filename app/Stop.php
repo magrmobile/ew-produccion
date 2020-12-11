@@ -12,7 +12,6 @@ class Stop extends Model
         'product_id',
         'color_id',
         'code_id',
-        'type',
         'meters',
         'comment',
         'stop_date_start',

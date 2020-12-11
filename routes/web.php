@@ -36,6 +36,27 @@ Route::middleware(['auth','admin'])->namespace('Admin')->group(function() {
     // Codes
     Route::resource('codes', 'CodeController');
 
+    // Colors
+    Route::resource('colors', 'ColorController');
+
     // Charts
     Route::get('/charts/appointments/line', 'ChartsController@appointments');
+});
+
+Route::middleware('auth')->group(function(){
+    Route::get('/stops/create', 'StopController@create');
+    Route::post('/stops', 'StopController@store');
+
+    /*
+    /appointments -> Verificar
+    -> que variables pasar a la vista
+    -> 1 unico blade (condiciones)
+    */
+    Route::get('/stops', 'StopController@index');
+    Route::get('/stops/{stop}', 'StopController@show');
+
+    Route::get('/stops/{stop}/cancel', 'StopController@showCancelForm');
+    Route::post('/stops/{stop}/cancel', 'StopController@postCancel');
+
+    Route::post('/stops/{stop}/confirm', 'StopController@postConfirm');
 });

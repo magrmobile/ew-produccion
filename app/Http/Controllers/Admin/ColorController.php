@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-use App\Product;
+use App\Color;
 
-class ProductController extends Controller
+class ColorController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,8 +16,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::latest()->paginate(5);
-        return view('products.index', compact('products'));
+        $colors = Color::latest()->paginate(5);
+        return view('colors.index', compact('colors'));
     }
 
     /**
@@ -27,7 +27,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('products.create');
+        return view('colors.create');
     }
 
     /**
@@ -39,19 +39,18 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'product_name' => 'required|min:3',
-            'metal_type' => 'required',
-            'stock' => 'required'
+            'name' => 'required|min:3',
+            'hex_code' => ['required','regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/']
         ];
 
         $this->validate($request, $rules);
 
-        Product::create(
-            $request->only('product_name','metal_type','stock')
+        Color::create(
+            $request->only('name','hex_code')
         );
 
-        $notification = 'El Producto se ha registrado correctamente';
-        return redirect('/products')->with(compact('notification'));
+        $notification = 'El Color se ha registrado correctamente';
+        return redirect('/colors')->with(compact('notification'));
     }
 
     /**
@@ -71,9 +70,9 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Product $product)
+    public function edit(Color $color)
     {
-        return view('products.edit', compact('product'));
+        return view('colors.edit', compact('color'));
     }
 
     /**
@@ -83,22 +82,21 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Color $color)
     {
         $rules = [
-            'product_name' => 'required|min:3',
-            'metal_type' => 'required',
-            'stock' => 'required'
+            'name' => 'required|min:3',
+            'hex_code' => ['required','regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/']
         ];
 
         $this->validate($request, $rules);
-        $data = $request->only('product_name','metal_type','stock');
+        $data = $request->only('name','hex_code');
 
-        $product->fill($data);
-        $product->save(); // UPDATE
+        $color->fill($data);
+        $color->save(); // UPDATE
 
-        $notification = 'La información del producto se ha registrado correctamente';
-        return redirect('/products')->with(compact('notification'));
+        $notification = 'El color se ha registrado correctamente';
+        return redirect('/colors')->with(compact('notification'));
     }
 
     /**
@@ -107,12 +105,12 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Product $product)
+    public function destroy(Color $color)
     {
-        $productName = $product->product_name;
-        $product->delete();
+        $colorName = $color->color;
+        $color->delete();
 
-        $notification = "El Producto $productName ha sido eliminado correctamente";
-        return redirect('/products')->with(compact('notification'));
+        $notification = "El Color $colorName ha sido eliminado correctamente";
+        return redirect('/colors')->with(compact('notification'));
     }
 }

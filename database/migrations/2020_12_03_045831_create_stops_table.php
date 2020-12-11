@@ -36,10 +36,7 @@ class CreateStopsTable extends Migration
             $table->unsignedInteger('code_id');
             $table->foreign('code_id')->references('id')->on('codes');
 
-            $table->string('type'); // Programado, No Programado
-
             $table->integer('meters')->nullable();
-
             $table->string('comment')->nullable();
 
             // Fecha y Hora de Inicio de Stop
@@ -47,8 +44,8 @@ class CreateStopsTable extends Migration
             $table->time('stop_time_start');
 
             // Fecha y Hora de Fin de Stop
-            $table->date('stop_date_end');
-            $table->time('stop_time_end');
+            $table->date('stop_date_end')->nullable();
+            $table->time('stop_time_end')->nullable();
 
             $table->timestamps();
         });

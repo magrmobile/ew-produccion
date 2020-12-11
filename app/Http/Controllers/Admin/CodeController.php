@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+use App\Code;
+
 class CodeController extends Controller
 {
     /**
@@ -14,7 +16,8 @@ class CodeController extends Controller
      */
     public function index()
     {
-        //
+        $codes = Code::latest()->paginate(5);
+        return view('codes.index', compact('codes'));
     }
 
     /**
@@ -24,7 +27,7 @@ class CodeController extends Controller
      */
     public function create()
     {
-        //
+        return view('codes.create');
     }
 
     /**
@@ -35,7 +38,19 @@ class CodeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $rules = [
+            'description' => 'required|min:3',
+            'type' => 'required'
+        ];
+
+        $this->validate($request, $rules);
+
+        Code::create(
+            $request->only('description','type')
+        );
+
+        $notification = 'El Motivo se ha registrado correctamente';
+        return redirect('/codes')->with(compact('notification'));
     }
 
     /**
@@ -55,9 +70,9 @@ class CodeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Code $code)
     {
-        //
+        return view('codes.edit', compact('code'));
     }
 
     /**
@@ -67,9 +82,21 @@ class CodeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Code $code)
     {
-        //
+        $rules = [
+            'description' => 'required|min:3',
+            'type' => 'required'
+        ];
+
+        $this->validate($request, $rules);
+        $data = $request->only('description','type');
+
+        $code->fill($data);
+        $code->save(); // UPDATE
+
+        $notification = 'La información del motivo se ha registrado correctamente';
+        return redirect('/codes')->with(compact('notification'));
     }
 
     /**
@@ -78,8 +105,12 @@ class CodeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Code $code)
     {
-        //
+        $codeDesc = $code->description;
+        $code->delete();
+
+        $notification = "El Motivo $codeDesc ha sido eliminado correctamente";
+        return redirect('/codes')->with(compact('notification'));
     }
 }

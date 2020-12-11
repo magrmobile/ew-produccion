@@ -16,10 +16,12 @@ class CreateProductsTable extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->increments('id');
 
-            $table->string('product_name')->unique();
+            $table->string('product_name');
             $table->string('metal_type'); // AL(Aluminio), CU(Cobre)
             $table->string('stock'); // PP, PT
             
+            $table->unique(['product_name', 'metal_type', 'stock']);
+
             $table->timestamps();
         });
     }
