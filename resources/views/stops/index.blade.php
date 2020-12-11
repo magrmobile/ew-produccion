@@ -22,9 +22,12 @@
         <thead class="thead-light">
             <tr>
                 <th scope="col">Inicio Paro</th>
-                <th scope="col">Fecha</th>
-                @if($role == "supervisor")
+                <th scope="col">Fecha Inicio</th>
+                @if($role == "supervisor" || $role == "admin")
+                <th scope="col">Fin Paro</th>
+                <th scope="col">Fecha Fin</th>
                 <th scope="col">Operador</th>
+                <th scope="col">Status</th>
                 @endif
                 <th scope="col">Maquina</th>
                 <th scope="col">Motivo Paro</th>
@@ -41,8 +44,17 @@
             <td>
                 {{ $stop->stop_date_start }}
             </td>
-            @if($role == "supervisor")
+            @if($role == "supervisor" || $role == "admin")
+                <td>{{ $stop->stop_time_end }}</td>
+                <td>{{ $stop->stop_date_end }}</td>
                 <td>{{ $stop->operator->name }}</td>
+                <td>
+                    @if($stop->stop_time_end != null) 
+                    <span class="badge badge-pill badge-success">Activo</span> 
+                    @else 
+                    <span class="badge badge-pill badge-info">Finalizado</span> 
+                    @endif
+                </td>
             @endif
             <td>
                 {{ $stop->machine->machine_name }}
