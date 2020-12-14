@@ -29,7 +29,6 @@
             <th scope="col">Nombre</th>
             <th scope="col">E-mail</th>
             <th scope="col">DNI</th>
-            <th scope="col">Supervisor</th>
             <th scope="col">Opciones</th>
             </tr>
         </thead>
@@ -41,9 +40,6 @@
             </th>
             <td>
                 {{ $supervisor-> email }}
-            </td>
-            <td>
-                {{ $supervisor-> dni }}
             </td>
             <td>
                 {{ $supervisor-> dni }}

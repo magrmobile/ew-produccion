@@ -28,7 +28,7 @@
             <tr>
             <th scope="col">Nombre</th>
             <th scope="col">Codigo</th>
-            <th scope="col">Bodega</th>
+            <th scope="col">Nave</th>
             <th scope="col">Opciones</th>
             </tr>
         </thead>

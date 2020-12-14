@@ -40,7 +40,6 @@ class UserTableSeeder extends Seeder
         ]);
 
         factory(User::class, 20)->states('operator')->create();
-
         factory(User::class, 5)->states('supervisor')->create();
     }
 }

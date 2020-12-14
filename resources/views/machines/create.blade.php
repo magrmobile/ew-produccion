@@ -35,7 +35,7 @@
                 <input type="text" name="machine_code" class="form-control" value="{{ old('machine_code') }}">
             </div>
             <div class="form-group">
-                <label for="warehouse">Bodega</label>
+                <label for="warehouse">Nave</label>
                 <div class="custom-control custom-radio mb-3">
                     <input name="warehouse" class="custom-control-input" id="warehouse1" type="radio"
                         @if(old('warehouse', 'AL') == 'AL') checked @endif value="AL">

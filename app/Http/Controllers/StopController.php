@@ -21,7 +21,7 @@ class StopController extends Controller
     public function index()
     {
         $role = auth()->user()->role;
-        $stops = Stop::latest()->paginate(5);
+        $stops = Stop::where('stop_date_start',date('Y-m-d'))->orderBy('stop_time_start','ASC')->paginate(5);
 
         return view('stops.index', compact('stops','role'));
     }
@@ -48,12 +48,48 @@ class StopController extends Controller
      */
     public function store(Request $request)
     {
-        $rules = [
-            'machine_id' => 'exists:machines,id',
-            'product_id' => 'exists:products,id',
-            'code_id' => 'exists:codes,id',
-        ];
+        $code_id = Code::find($request['code_id'])->code;
 
+        switch($code_id) {
+            case 0:
+                $rules = [
+                    'code_id' => 'exists:codes,id',
+                    'machine_id' => 'exists:machines,id|required',
+                    'product_id' => 'exists:products,id|required',
+                    'color_id' => 'exists:color,id|required',
+                    'meters' => 'required',
+                ];
+            break;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+                $rules = [
+                    'code_id' => 'exists:codes,id',
+                    'machine_id' => 'exists:machines,id|required',
+                ];
+            break;
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+                $rules = [
+                    'code_id' => 'exists:codes,id',
+                    'machine_id' => 'exists:machines,id|required',
+                    'comment' => 'required'
+                ];
+            break;
+            default:
+                $rules = [
+                    'code_id' => 'exists:codes,id',
+                    'machine_id' => 'exists:machines,id|required',
+                ];
+            break;
+        }
+        
         $this->validate($request, $rules);
 
         $data = $request->only([
@@ -71,14 +107,11 @@ class StopController extends Controller
         $current_date = $date->format('Y-m-d');
         $current_time = $date->format('H:i:s');
 
-        $data['stop_date_start'] = $current_date;
-        $data['stop_time_start'] = $current_time;
-
-
-        //dd($data);
+        $data['stop_date_end'] = $current_date;
+        $data['stop_time_end'] = $current_time;
 
         $lastStop = Stop::where('operator_id',auth()->id())->max('id');
-        Stop::where('id',$lastStop)->update(['stop_date_end' => $current_date, 'stop_time_end' => $current_time]);
+        Stop::where('id',$lastStop)->update(['stop_date_start' => $current_date, 'stop_time_start' => $current_time]);
 
         //dd($lastStop);
 
@@ -94,9 +127,20 @@ class StopController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Stop $stop)
     {
-        //
+        $role = auth()->user()->role;
+
+        if($stop->stop_date_end != null){
+            $start = new Carbon($stop->stop_date_start.' '.$stop->stop_time_start);
+            $end = new Carbon($stop->stop_date_end.' '.$stop->stop_time_end);
+
+            $duration = $start->diff($end)->format('%H:%I:%S');
+        } else {
+            $duration = null;
+        }
+
+        return view('stops.show', compact('stop', 'role', 'duration'));
     }
 
     /**

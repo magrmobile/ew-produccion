@@ -50,9 +50,9 @@
                 <td>{{ $stop->operator->name }}</td>
                 <td>
                     @if($stop->stop_time_end != null) 
-                    <span class="badge badge-pill badge-success">Finalizado</span> 
+                    <span class="badge badge-pill badge-info">Finalizado</span> 
                     @else 
-                    <span class="badge badge-pill badge-info">Activo</span> 
+                    <span class="badge badge-pill badge-success">Activo</span> 
                     @endif
                 </td>
             @endif
@@ -63,9 +63,12 @@
                 {{ $stop->code->description }}
             </td>
             <td>
-                @if($role == 'admin')
-                <a class="btn btn-sm btn-primary" title="Ver Cita" href="{{ url('/stops/'.$stop->id) }}">
+                <a class="btn btn-sm btn-primary" title="Ver Paro" href="{{ url('/stops/'.$stop->id) }}">
                     Ver
+                </a>
+                @if($role == 'admin')
+                <a class="btn btn-sm btn-primary" title="Ver Paro" href="{{ url('/stops/'.$stop->id.'/edit') }}">
+                    Editar
                 </a>
                 @endif
             </td>

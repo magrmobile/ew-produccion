@@ -16,6 +16,20 @@ use Illuminate\Http\Request;
 Route::post('/login', 'AuthController@login');
 
 // Public Resources
+
+// Machine API
+Route::get('/machines', 'Api\MachineController@index');
+Route::get('/machines/{machine}', 'Api\MachineController@show');
+
+// Product API
+Route::get('/products', 'Api\ProductController@index');
+Route::get('/products/{product}', 'Api\ProductController@show');
+
+// Color API
+Route::get('/colors', 'Api\ColorController@index');
+Route::get('/colors/{color}', 'Api\ColorController@show');
+
+// Code API
 Route::get('/codes', 'Api\CodeController@index');
 Route::get('/codes/{code}', 'Api\CodeController@show');
 
