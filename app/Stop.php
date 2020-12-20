@@ -15,7 +15,9 @@ class Stop extends Model
         'meters',
         'comment',
         'stop_date_start',
-        'stop_time_start'
+        'stop_time_start',
+        'stop_date_end',
+        'stop_time_end'
     ];
 
     // N $stop->machine 1
@@ -47,4 +49,5 @@ class Stop extends Model
     {
         return $this->belongsTo(Code::class);
     }
+
 }

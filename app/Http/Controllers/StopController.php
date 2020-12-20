@@ -49,6 +49,7 @@ class StopController extends Controller
     public function store(Request $request)
     {
         $code_id = Code::find($request['code_id'])->code;
+        //dd($lastLogin);
 
         switch($code_id) {
             case 0:
@@ -104,16 +105,39 @@ class StopController extends Controller
         $data['operator_id'] = auth()->id();
 
         $date = Carbon::now();
+
         $current_date = $date->format('Y-m-d');
         $current_time = $date->format('H:i:s');
 
         $data['stop_date_end'] = $current_date;
         $data['stop_time_end'] = $current_time;
 
-        $lastStop = Stop::where('operator_id',auth()->id())->max('id');
-        Stop::where('id',$lastStop)->update(['stop_date_start' => $current_date, 'stop_time_start' => $current_time]);
+        $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',auth()->user()->lastLoginAt());
+
+        $lastLoginDate = $lastLogin->format('Y-m-d');
+        $lastLoginTime = $lastLogin->format('H:i:s');
+
+        $lastStop = Stop::where('operator_id',auth()->id())
+                        ->latest('id')
+                        ->first();
 
         //dd($lastStop);
+
+        if($lastStop == null) {
+            $data['stop_date_start'] = $lastLoginDate;
+            $data['stop_time_start'] = $lastLoginTime;
+        } else {
+            if($lastStop->stop_date_start == null) {
+                Stop::where('id',$lastStop->id)->update(['stop_date_start' => $current_date, 'stop_time_start' => $current_time]);
+            } else {
+                $data['stop_date_start'] = $lastStop->stop_date_end;
+                $data['stop_time_start'] = $lastStop->stop_time_end;
+                //dd($data);
+            }
+            //dd($lastStop->stop_date_start);
+        }
+
+        //dd($data);
 
         Stop::create($data);
 

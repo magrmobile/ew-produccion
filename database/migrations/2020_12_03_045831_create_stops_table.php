@@ -25,11 +25,11 @@ class CreateStopsTable extends Migration
             $table->foreign('operator_id')->references('id')->on('users');
 
             // fk product
-            $table->unsignedInteger('product_id');
+            $table->unsignedInteger('product_id')->nullable();
             $table->foreign('product_id')->references('id')->on('products');
 
             // fk color
-            $table->unsignedInteger('color_id');
+            $table->unsignedInteger('color_id')->nullable();
             $table->foreign('color_id')->references('id')->on('colors');
 
             // fk code
