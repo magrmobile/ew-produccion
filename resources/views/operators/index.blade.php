@@ -26,9 +26,8 @@
         <table class="table align-items-center table-flush">
         <thead class="thead-light">
             <tr>
+            <th scope="col">Usuario</th>
             <th scope="col">Nombre</th>
-            <th scope="col">E-mail</th>
-            <th scope="col">DNI</th>
             <th scope="col">Supervisor</th>
             <th scope="col">Opciones</th>
             </tr>
@@ -37,16 +36,13 @@
             @foreach($operators as $operator)
             <tr>
             <th scope="row">
+                {{ $operator-> username }}
+            </th>
+            <th scope="row">
                 {{ $operator-> name }}
             </th>
             <td>
-                {{ $operator-> email }}
-            </td>
-            <td>
-                {{ $operator-> dni }}
-            </td>
-            <td>
-                
+                <!-- Supervisor -->
             </td>
             <td>
                 <form action="{{ url('/operators/'.$operator->id) }}" method="POST">

@@ -15,6 +15,7 @@ class UserTableSeeder extends Seeder
         User::create([
             'name' => 'Marco Garcia',
             'email' => 'magrmobile@gmail.com',
+            'username' => 'magrmobile',
             'email_verified_at' => now(),
             'password' => bcrypt('hanoi2979'), // secret
             'active_user' => 'enabled',
@@ -24,6 +25,7 @@ class UserTableSeeder extends Seeder
         User::create([
             'name' => 'Operator 1',
             'email' => 'operator@gmail.com',
+            'username' => 'operator',
             'email_verified_at' => now(),
             'password' => bcrypt('hanoi2979'), // secret
             'active_user' => 'enabled',
@@ -33,6 +35,7 @@ class UserTableSeeder extends Seeder
         User::create([
             'name' => 'Supervisor 1',
             'email' => 'supervisor@gmail.com',
+            'username' => 'supervisor',
             'email_verified_at' => now(),
             'password' => bcrypt('hanoi2979'), // secret
             'active_user' => 'enabled',

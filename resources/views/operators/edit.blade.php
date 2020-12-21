@@ -28,20 +28,12 @@
             @csrf
             @method('PUT')
             <div class="form-group">
+                <label for="name">Usuario</label>
+                <input type="text" name="username" class="form-control" value="{{ old('username', $operator->username) }}" required>
+            </div>
+            <div class="form-group">
                 <label for="name">Nombre del Operador</label>
                 <input type="text" name="name" class="form-control" value="{{ old('name', $operator->name) }}" required>
-            </div>
-            <div class="form-group">
-                <label for="email">E-mail</label>
-                <input type="text" name="email" class="form-control" value="{{ old('email', $operator->email) }}">
-            </div>
-            <div class="form-group">
-                <label for="dni">DNI</label>
-                <input type="text" name="dni" class="form-control" value="{{ old('dni', $operator->dni) }}">
-            </div>
-            <div class="form-group">
-                <label for="phone">Teléfono / Móvil</label>
-                <input type="text" name="phone" class="form-control" value="{{ old('phone', $operator->phone) }}">
             </div>
             <div class="form-group">
                 <label for="password">Contraseña</label>

@@ -18,13 +18,11 @@ class CreateUsersTable extends Migration
 
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('dni')->nullable();
+            $table->string('username', 10)->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('active_user', ['enabled', 'disabled'])->nullable()->default('enabled');
             
-            $table->string('phone')->nullable();
-
             $table->string('role'); // 'admin', 'operator', 'supervisor', 'guest'
 
             $table->integer('supervisor_id')->nullable();

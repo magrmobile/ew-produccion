@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3d934ae2f576de7ec8d9dcf28e65308f",
+    "content-hash": "dde5bc702a7eb35f27b3f775c9b213c9",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -1040,16 +1040,16 @@
         },
         {
             "name": "lcobucci/jwt",
-            "version": "3.4.1",
+            "version": "3.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lcobucci/jwt.git",
-                "reference": "958a9873a63b0244a72f6e354ccc86019ee674a5"
+                "reference": "c1123697f6a2ec29162b82f170dd4a491f524773"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lcobucci/jwt/zipball/958a9873a63b0244a72f6e354ccc86019ee674a5",
-                "reference": "958a9873a63b0244a72f6e354ccc86019ee674a5",
+                "url": "https://api.github.com/repos/lcobucci/jwt/zipball/c1123697f6a2ec29162b82f170dd4a491f524773",
+                "reference": "c1123697f6a2ec29162b82f170dd4a491f524773",
                 "shasum": ""
             },
             "require": {
@@ -1064,9 +1064,6 @@
                 "phpunit/phpunit": "^5.7 || ^7.3",
                 "squizlabs/php_codesniffer": "~2.3"
             },
-            "suggest": {
-                "lcobucci/clock": "*"
-            },
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -1076,12 +1073,7 @@
             "autoload": {
                 "psr-4": {
                     "Lcobucci\\JWT\\": "src"
-                },
-                "files": [
-                    "compat/class-aliases.php",
-                    "compat/json-exception-polyfill.php",
-                    "compat/lcobucci-clock-polyfill.php"
-                ]
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -1099,7 +1091,21 @@
                 "JWS",
                 "jwt"
             ],
-            "time": "2020-11-27T01:17:14+00:00"
+            "support": {
+                "issues": "https://github.com/lcobucci/jwt/issues",
+                "source": "https://github.com/lcobucci/jwt/tree/3.3.3"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/lcobucci",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.patreon.com/lcobucci",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2020-08-20T13:22:28+00:00"
         },
         {
             "name": "league/flysystem",
@@ -1226,6 +1232,76 @@
             ],
             "description": "Mime-type detection for Flysystem",
             "time": "2020-10-18T11:50:25+00:00"
+        },
+        {
+            "name": "miladrahimi/larajwt",
+            "version": "v2.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/miladrahimi/larajwt.git",
+                "reference": "5b35fe572be772e0df96a34b10bb7a2216370bd4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/miladrahimi/larajwt/zipball/5b35fe572be772e0df96a34b10bb7a2216370bd4",
+                "reference": "5b35fe572be772e0df96a34b10bb7a2216370bd4",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "^5.5",
+                "lcobucci/jwt": "^3.2",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "~1.0",
+                "orchestra/testbench": "^3.5"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "MiladRahimi\\LaraJwt\\Providers\\ServiceProvider"
+                    ],
+                    "aliases": {
+                        "JwtAuth": "MiladRahimi\\LaraJwt\\Facades\\JwtAuth"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MiladRahimi\\LaraJwt\\": "src/MiladRahimi/LaraJwt/",
+                    "MiladRahimi\\LaraJwtTests\\": "tests/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Milad Rahimi",
+                    "email": "info@miladrahimi.com",
+                    "homepage": "http://miladrahimi.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "JWT authentication tools and guard for Laravel projects",
+            "homepage": "http://miladrahimi.github.io/larajwt",
+            "keywords": [
+                "Authentication",
+                "api",
+                "guard",
+                "jwt",
+                "laravel",
+                "rest"
+            ],
+            "support": {
+                "email": "info@miladrahimi.com",
+                "issues": "https://github.com/miladrahimi/larajwt/issues",
+                "source": "https://github.com/miladrahimi/larajwt/issues"
+            },
+            "abandoned": true,
+            "time": "2018-03-26T13:53:57+00:00"
         },
         {
             "name": "monolog/monolog",

@@ -26,9 +26,8 @@
         <table class="table align-items-center table-flush">
         <thead class="thead-light">
             <tr>
+            <th scope="col">Usuario</th>
             <th scope="col">Nombre</th>
-            <th scope="col">E-mail</th>
-            <th scope="col">DNI</th>
             <th scope="col">Opciones</th>
             </tr>
         </thead>
@@ -36,14 +35,11 @@
             @foreach($supervisors as $supervisor)
             <tr>
             <th scope="row">
+                {{ $supervisor-> username }}
+            </th>
+            <th scope="row">
                 {{ $supervisor-> name }}
             </th>
-            <td>
-                {{ $supervisor-> email }}
-            </td>
-            <td>
-                {{ $supervisor-> dni }}
-            </td>
             <td>
                 <form action="{{ url('/supervisors/'.$supervisor->id) }}" method="POST">
                     @csrf

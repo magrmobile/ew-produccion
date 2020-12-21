@@ -28,8 +28,8 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <!-- Brand -->
-      <a class="navbar-brand pt-0" href="./index.html">
-        <img src="{{ asset('img/brand/blue.png') }}" class="navbar-brand-img" alt="...">
+      <a class="navbar-brand pt-0" href="{{ url('/') }}">
+        <img src="{{ asset('img/brand/blue.png') }}" class="navbar-brand-img" style="height:60px" alt="...">
       </a>
       <!-- User -->
       <ul class="nav align-items-center d-md-none">

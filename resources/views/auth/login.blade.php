@@ -19,9 +19,9 @@
             <div class="form-group mb-3">
                 <div class="input-group input-group-alternative">
                     <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="ni ni-email-83"></i></span>
+                        <span class="input-group-text"><i class="ni ni-single-02"></i></span>
                     </div>
-                    <input class="form-control" placeholder="Email" type="email" name="email" value="{{ old('email') }}" required autofocus>
+                    <input class="form-control" placeholder="Usuario" type="text" name="username" value="{{ old('username') }}" required autofocus>
                 </div>
             </div>
             <div class="form-group">
@@ -44,14 +44,14 @@
             </form>
         </div>
         </div>
-        <div class="row mt-3">
+        <!--<div class="row mt-3">
         <div class="col-6">
             <a href="{{ route('password.request') }}" class="text-light"><small>Olvidaste tu contraseña?</small></a>
         </div>
         <div class="col-6 text-right">
             <a href="{{ route('register') }}" class="text-light"><small>Aún no te has registrado?</small></a>
         </div>
-        </div>
+        </div>-->
     </div>
     </div>
 </div>
