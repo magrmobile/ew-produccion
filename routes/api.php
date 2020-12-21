@@ -18,20 +18,20 @@ Route::post('/login', 'AuthController@login');
 // Public Resources
 
 // Machine API
-Route::get('/machines', 'Api\MachineController@index');
-Route::get('/machines/{machine}', 'Api\MachineController@show');
+Route::get('/machines', 'MachineController@index');
+Route::get('/machines/{machine}', 'MachineController@show');
 
 // Product API
-Route::get('/products', 'Api\ProductController@index');
-Route::get('/products/{product}', 'Api\ProductController@show');
+Route::get('/products', 'ProductController@index');
+Route::get('/products/{product}', 'ProductController@show');
 
 // Color API
-Route::get('/colors', 'Api\ColorController@index');
-Route::get('/colors/{color}', 'Api\ColorController@show');
+Route::get('/colors', 'ColorController@index');
+Route::get('/colors/{color}', 'ColorController@show');
 
 // Code API
-Route::get('/codes', 'Api\CodeController@index');
-Route::get('/codes/{code}', 'Api\CodeController@show');
+Route::get('/codes', 'CodeController@index');
+Route::get('/codes/{code}', 'CodeController@show');
 
 Route::group(['middleware' => ['auth:api']], function () {
     
