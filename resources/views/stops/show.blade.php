@@ -41,7 +41,7 @@
                 <strong>Maquina:</strong> {{ $stop->machine->machine_name  }}
             </li>
             <li>
-                <strong>Producto:</strong> {{ $stop->product->product_name  }}
+                <strong>Producto:</strong> {{ isset($stop->product->product_name) ? $stop->product->product_name : ''  }}
             </li>
             <li>
                 <strong>Motivo de Paro:</strong> {{ $stop->code->description  }}
