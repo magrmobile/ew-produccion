@@ -35,6 +35,12 @@ $(function() {
                 case 3:
                 case 4:
                 case 5:
+                    $('#div_product').hide();
+                    $('#product_id').removeAttr('required');
+                    $('#div_color').hide();
+                    $('#color_id').removeAttr('required');
+                    $('#div_meters').hide();
+                    $('#meters').removeAttr('required');
                     $('#div_machine').show();
                     $('#machine_id').attr('required', '');
                     $('#comment').removeAttr('required');
