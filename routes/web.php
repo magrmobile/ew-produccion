@@ -44,19 +44,13 @@ Route::middleware('auth')->group(function(){
     // Products
     Route::resource('products', 'Admin\ProductController');
 
+    /*Route::get('/stops', 'StopController@index');
     Route::get('/stops/create', 'StopController@create');
-    Route::post('/stops', 'StopController@store');
-
-    /*
-    /appointments -> Verificar
-    -> que variables pasar a la vista
-    -> 1 unico blade (condiciones)
-    */
-    Route::get('/stops', 'StopController@index');
     Route::get('/stops/{stop}', 'StopController@show');
+    Route::get('/stops/{stop}/edit', 'StopController@edit');
 
-    Route::get('/stops/{stop}/cancel', 'StopController@showCancelForm');
-    Route::post('/stops/{stop}/cancel', 'StopController@postCancel');
+    Route::post('/stops', 'StopController@store');
+    Route::put('/stops/{stop}', 'StopController@update');*/
 
-    Route::post('/stops/{stop}/confirm', 'StopController@postConfirm');
+    Route::resource('stops', 'StopController');
 });

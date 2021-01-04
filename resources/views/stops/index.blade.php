@@ -28,6 +28,8 @@
             <tr>
                 <th scope="col">Inicio Paro</th>
                 <th scope="col">Fecha Inicio</th>
+                <th scope="col">Fin Paro</th>
+                <th scope="col">Fecha Fin</th>
                 @if($role == "supervisor" || $role == "admin")
                 <th scope="col">Operador</th>
                 <th scope="col">Status</th>
@@ -45,6 +47,12 @@
             </td>
             <td>
                 {{ $stop->stop_date_start }}
+            </td>
+            <td scope="row">
+                {{ $stop->stop_time_end }}
+            </td>
+            <td>
+                {{ $stop->stop_date_end }}
             </td>
             @if($role == "supervisor" || $role == "admin")
                 <td>{{ $stop->operator->name }}</td>
@@ -66,11 +74,9 @@
                 <a class="btn btn-sm btn-primary" title="Ver Paro" href="{{ url('/stops/'.$stop->id) }}">
                     Ver
                 </a>
-                @if($role == 'admin')
                 <a class="btn btn-sm btn-primary" title="Ver Paro" href="{{ url('/stops/'.$stop->id.'/edit') }}">
                     Editar
                 </a>
-                @endif
             </td>
             </tr>
             @endforeach

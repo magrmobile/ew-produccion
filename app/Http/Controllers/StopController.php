@@ -21,7 +21,7 @@ class StopController extends Controller
     public function index()
     {
         $role = auth()->user()->role;
-        $stops = Stop::where('stop_date_start',date('Y-m-d'))->orderBy('stop_time_start','ASC')->paginate(5);
+        $stops = Stop::where('stop_date_end',date('Y-m-d'))->orderBy('stop_time_end','ASC')->paginate(5);
 
         return view('stops.index', compact('stops','role'));
     }
@@ -173,9 +173,13 @@ class StopController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Stop $stop)
     {
-        //
+        $machines = Machine::all();
+        $products = Product::all();
+        $codes = Code::all();
+        $colors = Color::all();
+        return view('stops.edit', compact('stop','machines','products','codes','colors'));
     }
 
     /**
@@ -185,9 +189,66 @@ class StopController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Stop $stop)
     {
-        //
+        $code_id = Code::find($request['code_id'])->code;
+
+        switch($code_id) {
+            case 0:
+                $rules = [
+                    'code_id' => 'exists:codes,id',
+                    'machine_id' => 'exists:machines,id|required',
+                    'product_id' => 'exists:products,id|required',
+                    'color_id' => 'exists:colors,id|required',
+                    'meters' => 'required',
+                ];
+            break;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+                $rules = [
+                    'code_id' => 'exists:codes,id',
+                    'machine_id' => 'exists:machines,id|required',
+                ];
+            break;
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+                $rules = [
+                    'code_id' => 'exists:codes,id',
+                    'machine_id' => 'exists:machines,id|required',
+                    'comment' => 'required'
+                ];
+            break;
+            default:
+                $rules = [
+                    'code_id' => 'exists:codes,id',
+                    'machine_id' => 'exists:machines,id|required',
+                ];
+            break;
+        }
+        
+        $this->validate($request, $rules);
+
+        $data = $request->only([
+            'machine_id',
+            'product_id',
+            'color_id',
+            'code_id',
+            'meters',
+            'comment',
+        ]);
+
+        $stop->fill($data);
+        $stop->save(); // UPDATE
+
+        $notification = 'La informacion del Paro se ha registrado correctamente';
+        return redirect('/stops')->with(compact('notification'));
     }
 
     /**

@@ -50,7 +50,7 @@
                 <strong>Tipo de Paro:</strong> {{ $stop->code->type  }}
             </li>
             <li>
-                <strong>Metros Producidos:</strong> {{ $stop->meters  }} Mts.
+                <strong>Metros Producidos:</strong> {{ isset($stop->meters) ? $stop->meters.' Mts.' : ''  }}
             </li>
             <li>
                 <strong>Observaciones:</strong> {{ $stop->comment  }}
