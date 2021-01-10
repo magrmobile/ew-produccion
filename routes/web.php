@@ -43,6 +43,8 @@ Route::middleware(['auth','admin'])->namespace('Admin')->group(function() {
 Route::middleware('auth')->group(function(){
     // Products
     Route::resource('products', 'Admin\ProductController');
+    Route::get('/search', 'Select2SearchController@index');
+    Route::get('/ajax-autocomplete-search', 'Select2SearchController@selectSearch');
 
     /*Route::get('/stops', 'StopController@index');
     Route::get('/stops/create', 'StopController@create');

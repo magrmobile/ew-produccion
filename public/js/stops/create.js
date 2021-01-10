@@ -2,7 +2,6 @@ let $code_id, $div_machine, $div_product, $div_color, $div_meters, $div_comment,
     $machine_id, $product_id, $color_id, $meters, $comment;
 
 $(document).ready(function() {
-    console.log("hola");
     cargarFormulario();
 });
 
@@ -32,7 +31,7 @@ function cargarFormulario() {
                 $('#div_color').show();
                 $('#color_id').attr('required', '');
                 $('#div_meters').show();
-                $('#meters').attr('required', '');
+                $('#meters').removeAttr('required');
                 $('#comment').removeAttr('required');
                 break;
             case 1:
