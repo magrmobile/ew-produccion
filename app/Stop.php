@@ -77,6 +77,7 @@ class Stop extends Model
 
     static public function createForOperator(Request $request, $operatorId) 
     {
+
         $data = $request->only([
             'machine_id',
             'product_id',
