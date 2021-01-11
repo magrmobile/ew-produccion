@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Auth;
 Use JwtAuth;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -16,16 +17,20 @@ class AuthController extends Controller
         if(Auth::guard('api')->attempt($credentials)) {
             $user = Auth::guard('api')->user();
             $jwt = JwtAuth::generateToken($user);
-            $error = false;
+            $success = true;
 
+            $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',$user->lastLoginAt());
+            $lastLoginDate = $lastLogin->format('Y-m-d');
+            $lastLoginTime = $lastLogin->format('H:i:s');
+
+            //$lastlogin = $user->lastloginAt();
             // Return successfull sign in response with generated jwt.
-            $data = compact('user','jwt');
-            return compact('error','data');
+            return compact('success','user','jwt','lastLoginDate','lastLoginTime');
         } else {
             // Return response for failed attempt...
-            $error = true;
+            $success = false;
             $message = 'Invalid Credentials';
-            return compact('error','message');
+            return compact('success','message');
         }
     }
 
