@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Stop extends Model
 {
@@ -18,6 +19,14 @@ class Stop extends Model
         'stop_time_start',
         'stop_date_end',
         'stop_time_end'
+    ];
+
+    protected $hidden = [
+        'code_id', 'machine_id', 'product_id', 'color_id', 'stop_time_start', 'stop_time_end'
+    ];
+
+    protected $appends = [
+        'stop_time_start_12', 'stop_time_end_12'
     ];
 
     // N $stop->machine 1
@@ -50,4 +59,18 @@ class Stop extends Model
         return $this->belongsTo(Code::class);
     }
 
+    // accesor
+    // $stop->stop_time_start_12
+    public function getStopTimeStart12Attribute()
+    {
+        return(new Carbon($this->stop_time_start))
+            ->format('g:i A');
+    }
+
+    // $stop->stop_time_end_12
+    public function getStopTimeEnd12Attribute()
+    {
+        return(new Carbon($this->stop_time_end))
+            ->format('g:i A');
+    }
 }

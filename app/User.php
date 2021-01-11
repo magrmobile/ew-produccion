@@ -38,15 +38,23 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function scopeSupervisors($query) {
+    public function scopeSupervisors($query) 
+    {
         return $query->where('role','supervisor');
     }
 
-    public function scopeOperators($query) {
+    public function scopeOperators($query) 
+    {
         return $query->where('role','operator');
     }
 
-    public function scopeGuests($query) {
+    public function scopeGuests($query) 
+    {
         return $query->where('role','guest');
+    }
+
+    public function asOperatorStops() 
+    {
+        return $this->hasMany(Stop::class, 'operator_id');
     }
 }
