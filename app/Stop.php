@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class Stop extends Model
 {
@@ -72,5 +73,50 @@ class Stop extends Model
     {
         return(new Carbon($this->stop_time_end))
             ->format('g:i A');
+    }
+
+    static public function createForOperator(Request $request, $operatorId) 
+    {
+        $data = $request->only([
+            'machine_id',
+            'product_id',
+            'color_id',
+            'code_id',
+            'meters',
+            'comment',
+        ]);
+
+        $data['operator_id'] = $operatorId;
+
+        $date = Carbon::now();
+
+        $current_date = $date->format('Y-m-d');
+        $current_time = $date->format('H:i:s');
+
+        $data['stop_date_end'] = $current_date;
+        $data['stop_time_end'] = $current_time;
+
+        $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',auth()->user()->lastLoginAt());
+
+        $lastLoginDate = $lastLogin->format('Y-m-d');
+        $lastLoginTime = $lastLogin->format('H:i:s');
+
+        $lastStop = Stop::where('operator_id', $operatorId)
+                        ->latest('id')
+                        ->first();
+
+        if($lastStop == null) {
+            $data['stop_date_start'] = $lastLoginDate;
+            $data['stop_time_start'] = $lastLoginTime;
+        } else {
+            if($lastStop->stop_date_start == null) {
+                Stop::where('id',$lastStop->id)->update(['stop_date_start' => $current_date, 'stop_time_start' => $current_time]);
+            } else {
+                $data['stop_date_start'] = $lastStop->stop_date_end;
+                $data['stop_time_start'] = $lastStop->stop_time_end;
+            }
+        }
+
+        return self::create($data);
     }
 }

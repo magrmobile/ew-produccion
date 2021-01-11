@@ -10,6 +10,7 @@ use App\Code;
 use App\Color;
 use Carbon\Carbon;
 use App\Stop;
+use App\Http\Requests\StoreStop;
 
 class StopController extends Controller
 {
@@ -46,102 +47,16 @@ class StopController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreStop $request)
     {
-        $code_id = Code::find($request['code_id'])->code;
-        //dd($lastLogin);
+    
+        $created = Stop::createForOperator($request, auth()->id());
 
-        switch($code_id) {
-            case 0:
-                $rules = [
-                    'code_id' => 'exists:codes,id',
-                    'machine_id' => 'exists:machines,id|required',
-                    'product_id' => 'exists:products,id|required',
-                    'color_id' => 'exists:colors,id|required',
-                    'meters' => 'required',
-                ];
-            break;
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-                $rules = [
-                    'code_id' => 'exists:codes,id',
-                    'machine_id' => 'exists:machines,id|required',
-                ];
-            break;
-            case 6:
-            case 7:
-            case 8:
-            case 9:
-            case 10:
-            case 11:
-                $rules = [
-                    'code_id' => 'exists:codes,id',
-                    'machine_id' => 'exists:machines,id|required',
-                    'comment' => 'required'
-                ];
-            break;
-            default:
-                $rules = [
-                    'code_id' => 'exists:codes,id',
-                    'machine_id' => 'exists:machines,id|required',
-                ];
-            break;
-        }
-        
-        $this->validate($request, $rules);
+        if($created)
+            $notification = 'El Paro se ha registrado correctamente';
+        else
+            $notification = 'Ocurrio un problema al registrar el paro';
 
-        $data = $request->only([
-            'machine_id',
-            'product_id',
-            'color_id',
-            'code_id',
-            'meters',
-            'comment',
-        ]);
-
-        $data['operator_id'] = auth()->id();
-
-        $date = Carbon::now();
-
-        $current_date = $date->format('Y-m-d');
-        $current_time = $date->format('H:i:s');
-
-        $data['stop_date_end'] = $current_date;
-        $data['stop_time_end'] = $current_time;
-
-        $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',auth()->user()->lastLoginAt());
-
-        $lastLoginDate = $lastLogin->format('Y-m-d');
-        $lastLoginTime = $lastLogin->format('H:i:s');
-
-        $lastStop = Stop::where('operator_id',auth()->id())
-                        ->latest('id')
-                        ->first();
-
-        //dd($lastStop);
-
-        if($lastStop == null) {
-            $data['stop_date_start'] = $lastLoginDate;
-            $data['stop_time_start'] = $lastLoginTime;
-        } else {
-            if($lastStop->stop_date_start == null) {
-                Stop::where('id',$lastStop->id)->update(['stop_date_start' => $current_date, 'stop_time_start' => $current_time]);
-            } else {
-                $data['stop_date_start'] = $lastStop->stop_date_end;
-                $data['stop_time_start'] = $lastStop->stop_time_end;
-                //dd($data);
-            }
-            //dd($lastStop->stop_date_start);
-        }
-
-        //dd($data);
-
-        Stop::create($data);
-
-        $notification = 'El Paro se ha registrado correctamente';
         return redirect('/stops')->with(compact('notification'));
     }
 

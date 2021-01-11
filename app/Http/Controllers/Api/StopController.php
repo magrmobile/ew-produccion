@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-
 use Auth;
+
+use App\Http\Requests\StoreStop;
+use App\Stop;
 
 class StopController extends Controller
 {
@@ -40,8 +42,9 @@ class StopController extends Controller
         ]);
     }
 
-    public function store()
+    public function store(StoreStop $request)
     {
-
+        $success = Stop::createForOperator($request, auth()->id());
+        return compact('success');
     }
 }
