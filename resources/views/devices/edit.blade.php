@@ -28,8 +28,12 @@
             @csrf
             @method('PUT')
             <div class="form-group">
+                <label for="serial_number">Numero de Serie</label>
+                <input type="text" id="serial_number" name="serial_number" class="form-control" value="{{ old('serial_number', $device->serial_number ) }}" required>
+            </div>
+            <div class="form-group">
                 <label for="mac_address">MAC Address</label>
-                <input type="text" id="mac_address" name="mac_address" class="form-control" value="{{ old('mac_address', $device->mac_address ) }}" required>
+                <input type="text" id="mac_address" name="mac_address" class="form-control" value="{{ old('mac_address', $device->mac_address ) }}">
             </div>
             <div class="form-group">
                 <label for="device_name">Nombre Dispositivo</label>

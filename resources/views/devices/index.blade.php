@@ -26,6 +26,7 @@
         <table class="table align-items-center table-flush">
         <thead class="thead-light">
             <tr>
+            <th scope="col">Numero de Serie</th>
             <th scope="col">MAC Address</th>
             <th scope="col">Nombre</th>
             <th scope="col">Maquinas</th>
@@ -35,6 +36,9 @@
         <tbody>
             @foreach($devices as $device)
             <tr>
+            <th scope="row">
+                {{ $device-> serial_number }}
+            </th>
             <th scope="row">
                 {{ $device-> mac_address }}
             </th>

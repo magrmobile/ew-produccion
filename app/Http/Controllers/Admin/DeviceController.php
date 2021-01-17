@@ -43,14 +43,15 @@ class DeviceController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'mac_address' => ['required', 'min:3', new MacAddress ],
+            'serial_number' => 'required|min:8',
+            'mac_address' => ['min:3', new MacAddress ],
             'device_name' => 'required',
         ];
 
         $this->validate($request, $rules);
 
         Device::create(
-            $request->only('mac_address','device_name','description')
+            $request->only('serial_number','mac_address','device_name','description')
         );
 
         $notification = 'El Dispositivo se ha registrado correctamente';
@@ -89,12 +90,13 @@ class DeviceController extends Controller
     public function update(Request $request, Device $device)
     {
         $rules = [
-            'mac_address' => ['required', 'min:3', new MacAddress ],
+            'serial_number' => 'required|min:8',
+            'mac_address' => ['min:3', new MacAddress ],
             'device_name' => 'required',
         ];
 
         $this->validate($request, $rules);
-        $data = $request->only('mac_address','device_name','description');
+        $data = $request->only('serial_number','mac_address','device_name','description');
 
         $device->fill($data);
         $device->save(); // UPDATE
