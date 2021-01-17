@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 
 use App\User;
 
+use Exception;
+
 class SupervisorController extends Controller
 {
     /**
@@ -123,9 +125,20 @@ class SupervisorController extends Controller
     public function destroy(User $supervisor)
     {
         $SupervisorName = $supervisor->name;
-        $supervisor->delete();
 
-        $notification = "El Supervisor $SupervisorName ha sido eliminado correctamente";
+        try {
+            $supervisor->delete();
+            $notification = "El Supervisor $SupervisorName ha sido eliminado correctamente";
+        } catch(Exception $e) {
+            $error = "";
+            
+            switch($e->getCode()) {
+                case 23000 : $error = "Eliminacion del Supervisor no permitido ya que tiene Paros Asociados."; break;
+            }
+
+            $notification = $error;
+        }
+
         return redirect('/supervisors')->with(compact('notification'));
     }
 }

@@ -47,7 +47,7 @@
             </div>
             </div>
             <div id="div_machine" class="form-group">
-                <label for="machine">Maquina</label>
+                <label for="machine_id">Maquina</label>
                 <select name="machine_id" id="machine_id" class="form-control" data-live-search="true">
                     <option value="">Seleccionar Maquina</option>
                     @foreach($machines as $machine)
@@ -57,7 +57,7 @@
             </div>
             <div class="form-row">
                 <div id="div_product" class="form-group col-md-6" style="display:none;">
-                    <label for="product">Producto</label>
+                    <label for="product_id">Producto</label>
                     <select name="product_id" id="product_id" class="form-control" style="height:100%">
                         @foreach($products as $product)
                             <option value="{{ $product->id }}" @if(old('product_id') == $product->id) selected @endif>{{ $product->product_name }}</option>
@@ -97,7 +97,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.min.js"></script>
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min.js"></script>-->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
-</html>
 <script>
     $('.colorpicker').colorpicker();
     $('#product_id').select2({

@@ -20,6 +20,9 @@ class CreateMachinesTable extends Migration
             $table->string('machine_code')->nullable();
             $table->string('warehouse'); // AL(Aluminio), CU(Cobre)
 
+            $table->unsignedInteger('device_id')->nullable();
+            $table->foreign('device_id')->references('id')->on('devices');
+
             $table->timestamps();
         });
     }

@@ -14,6 +14,11 @@
     </a>
 </li>
 <li class="nav-item">
+    <a class="nav-link" href="/devices">
+        <i class="fas fa-tablet-alt text-black"></i> Dispositivos
+    </a>
+</li>
+<li class="nav-item">
     <a class="nav-link" href="/machines">
         <i class="fas fa-cogs text-purple"></i> Maquinas
     </a>

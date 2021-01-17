@@ -45,7 +45,12 @@ class StopController extends Controller
     public function store(StoreStop $request)
     {
         $patientId = Auth::guard('api')->id();
-        $success = Stop::createForOperator($request, $patientId);
+        $stop = Stop::createForOperator($request, $patientId);
+
+        if($stop)
+            $success = true
+        else
+            $success = false
         
         return compact('success');
     }

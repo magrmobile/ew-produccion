@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 
 use App\Product;
 
+use Exception;
+
 class ProductController extends Controller
 {
     /**
@@ -110,9 +112,20 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $productName = $product->product_name;
-        $product->delete();
 
-        $notification = "El Producto $productName ha sido eliminado correctamente";
+        try {
+            $product->delete();
+            $notification = "El Producto $productName ha sido eliminado correctamente";
+        } catch(Exception $e) {
+            $error = "";
+            
+            switch($e->getCode()) {
+                case 23000 : $error = "Eliminacion del Producto no permitido ya que tiene Paros Asociados."; break;
+            }
+
+            $notification = $error;
+        }
+
         return redirect('/products')->with(compact('notification'));
     }
 }

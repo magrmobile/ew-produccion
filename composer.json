@@ -10,6 +10,7 @@
         "laravel/framework": "5.7.*",
         "laravel/tinker": "^1.0",
         "lcobucci/jwt": "3.3.3",
+        "mattkingshott/axiom": "^2.1",
         "miladrahimi/larajwt": "2.*",
         "yadahan/laravel-authentication-log": "^1.3"
     },

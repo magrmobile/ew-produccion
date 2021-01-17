@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Machine;
+use App\Device;
+
+use Exception;
 
 class MachineController extends Controller
 {
@@ -27,7 +30,8 @@ class MachineController extends Controller
      */
     public function create()
     {
-        return view('machines.create');
+        $devices = Device::all();
+        return view('machines.create', compact('devices'));
     }
 
     /**
@@ -41,13 +45,14 @@ class MachineController extends Controller
         $rules = [
             'machine_name' => 'required|min:3',
             'machine_code' => 'required',
-            'warehouse' => 'required'
+            'warehouse' => 'required',
+            'device_id' => 'required|exists:devices,id'
         ];
 
         $this->validate($request, $rules);
 
         Machine::create(
-            $request->only('machine_name','machine_code','warehouse')
+            $request->only('machine_name','machine_code','warehouse','device_id')
         );
 
         $notification = 'La Maquina se ha registrado correctamente';
@@ -73,7 +78,8 @@ class MachineController extends Controller
      */
     public function edit(Machine $machine)
     {
-        return view('machines.edit', compact('machine'));
+        $devices = Device::all();
+        return view('machines.edit', compact('machine','devices'));
     }
 
     /**
@@ -88,11 +94,12 @@ class MachineController extends Controller
         $rules = [
             'machine_name' => 'required|min:3',
             'machine_code' => 'required',
-            'warehouse' => 'required'
+            'warehouse' => 'required',
+            'device_id' => 'required|exists:devices,id'
         ];
 
         $this->validate($request, $rules);
-        $data = $request->only('machine_name','machine_code','warehouse');
+        $data = $request->only('machine_name','machine_code','warehouse','device_id');
 
         $machine->fill($data);
         $machine->save(); // UPDATE
@@ -110,9 +117,19 @@ class MachineController extends Controller
     public function destroy(Machine $machine)
     {
         $machineName = $machine->machine_name;
-        $machine->delete();
+        try {
+            $machine->delete();
+            $notification = "La Maquina $machineName ha sido eliminada correctamente";
+        } catch(Exception $e) {
+            $error = "";
+            
+            switch($e->getCode()) {
+                case 23000 : $error = "Eliminacion de Maquina no permitido ya que tiene Paros Asociados."; break;
+            }
 
-        $notification = "La Maquina $machineName ha sido eliminada correctamente";
+            $notification = $error;
+        }
+        
         return redirect('/machines')->with(compact('notification'));
     }
 }

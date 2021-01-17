@@ -47,6 +47,15 @@
                     <label for="warehouse2" class="custom-control-label">Cobre (CU)</label>
                 </div>
             </div>
+            <div id="div_device" class="form-group">
+                <label for="device_id">Dispositivo</label>
+                <select name="device_id" id="device_id" class="form-control">
+                    <option value="">Seleccionar Dispositivo</option>
+                    @foreach($devices as $device)
+                        <option value="{{ $device->id }}" @if(old('device_id') == $device->id) selected @endif>{{ $device->device_name }}</option>
+                    @endforeach
+                </select>
+            </div>
             <button class="btn btn-primary" type="submit">
                 Guardar
             </button>

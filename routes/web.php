@@ -19,6 +19,11 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
+Route::get('/getmacexec', function() {
+    $mac = gethostbyname(gethostname());
+    dd($mac);
+});
+
 // Admin
 Route::middleware(['auth','admin'])->namespace('Admin')->group(function() {
     // Operators
@@ -26,6 +31,9 @@ Route::middleware(['auth','admin'])->namespace('Admin')->group(function() {
 
     // Supervisors
     Route::resource('supervisors', 'SupervisorController');
+
+    // Machines
+    Route::resource('devices', 'DeviceController');
 
     // Machines
     Route::resource('machines', 'MachineController');

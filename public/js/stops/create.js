@@ -28,8 +28,10 @@ function cargarFormulario() {
                 $('#machine_id').attr('required', '');
                 $('#div_product').show();
                 $('#product_id').attr('required', '');
+                $('#product_id').empty();
                 $('#div_color').show();
                 $('#color_id').attr('required', '');
+                $('#color_id').empty();
                 $('#div_meters').show();
                 $('#meters').removeAttr('required');
                 $('#comment').removeAttr('required');
@@ -41,12 +43,15 @@ function cargarFormulario() {
             case 5:
                 $('#div_product').hide();
                 $('#product_id').removeAttr('required');
+                $('#product_id').empty();
                 $('#div_color').hide();
                 $('#color_id').removeAttr('required');
+                $('#color_id').empty();
                 $('#div_meters').hide();
                 $('#meters').removeAttr('required');
                 $('#div_machine').show();
                 $('#machine_id').attr('required', '');
+                $('#machine_id').empty();
                 $('#comment').removeAttr('required');
                 break;
             case 6:
@@ -57,22 +62,28 @@ function cargarFormulario() {
             case 11:
                 $('#div_machine').show();
                 $('#machine_id').attr('required', '');
+                $('#machine_id').empty();
                 $('#div_comment').show();
                 $('#comment').attr('required', '');
                 $('#div_product').hide();
                 $('#product_id').removeAttr('required');
+                $('#product_id').empty();
                 $('#div_color').hide();
                 $('#color_id').removeAttr('required');
+                $('#color_id').empty();
                 $('#div_meters').hide();
                 $('#meters').removeAttr('required');
                 break;
             default:
                 $('#div_machine').show();
                 $('#machine_id').attr('required', '');
+                $('#machine_id').empty();
                 $('#div_product').hide();
                 $('#product_id').removeAttr('required');
+                $('#product_id').empty();
                 $('#div_color').hide();
                 $('#color_id').removeAttr('required');
+                $('#color_id').empty();
                 $('#div_meters').hide();
                 $('#meters').removeAttr('required');
                 $('#comment').removeAttr('required');

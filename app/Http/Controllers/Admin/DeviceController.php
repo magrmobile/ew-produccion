@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-use App\Code;
+use App\Device;
+
+use Alphametric\Validation\Rules\MacAddress;
 
 use Exception;
 
-class CodeController extends Controller
+class DeviceController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,8 +20,8 @@ class CodeController extends Controller
      */
     public function index()
     {
-        $codes = Code::latest()->paginate(5);
-        return view('codes.index', compact('codes'));
+        $devices = Device::with('machines')->latest()->paginate(5);
+        return view('devices.index', compact('devices'));
     }
 
     /**
@@ -29,7 +31,7 @@ class CodeController extends Controller
      */
     public function create()
     {
-        return view('codes.create');
+        return view('devices.create');
     }
 
     /**
@@ -41,18 +43,18 @@ class CodeController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'description' => 'required|min:3',
-            'type' => 'required'
+            'mac_address' => ['required', 'min:3', new MacAddress ],
+            'device_name' => 'required',
         ];
 
         $this->validate($request, $rules);
 
-        Code::create(
-            $request->only('description','type')
+        Device::create(
+            $request->only('mac_address','device_name','description')
         );
 
-        $notification = 'El Motivo se ha registrado correctamente';
-        return redirect('/codes')->with(compact('notification'));
+        $notification = 'El Dispositivo se ha registrado correctamente';
+        return redirect('/devices')->with(compact('notification'));
     }
 
     /**
@@ -72,9 +74,9 @@ class CodeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Code $code)
+    public function edit(Device $device)
     {
-        return view('codes.edit', compact('code'));
+        return view('devices.edit', compact('device'));
     }
 
     /**
@@ -84,21 +86,21 @@ class CodeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Code $code)
+    public function update(Request $request, Device $device)
     {
         $rules = [
-            'description' => 'required|min:3',
-            'type' => 'required'
+            'mac_address' => ['required', 'min:3', new MacAddress ],
+            'device_name' => 'required',
         ];
 
         $this->validate($request, $rules);
-        $data = $request->only('description','type');
+        $data = $request->only('mac_address','device_name','description');
 
-        $code->fill($data);
-        $code->save(); // UPDATE
+        $device->fill($data);
+        $device->save(); // UPDATE
 
-        $notification = 'La información del motivo se ha registrado correctamente';
-        return redirect('/codes')->with(compact('notification'));
+        $notification = 'La informacion del Dispositivo se ha registrado correctamente';
+        return redirect('/devices')->with(compact('notification'));
     }
 
     /**
@@ -107,23 +109,23 @@ class CodeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Code $code)
+    public function destroy(Device $device)
     {
-        $codeDesc = $code->description;
-        
+        $deviceName = $device->device_name;
+
         try {
-            $code->delete();
-            $notification = "El Motivo $codeDesc ha sido eliminado correctamente";
+            $device->delete();
+            $notification = "El Dispositivo $deviceName ha sido eliminado correctamente";
         } catch(Exception $e) {
             $error = "";
             
             switch($e->getCode()) {
-                case 23000 : $error = "Eliminacion del Motivo no permitido ya que tiene Paros Asociados."; break;
+                case 23000 : $error = "Eliminacion del Dispositivo no permitido ya que tiene Maquinas Asociadas."; break;
             }
 
             $notification = $error;
         }
 
-        return redirect('/codes')->with(compact('notification'));
+        return redirect('/devices')->with(compact('notification'));
     }
 }

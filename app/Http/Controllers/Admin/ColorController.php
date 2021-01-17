@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 
 use App\Color;
 
+use Exception;
+
 class ColorController extends Controller
 {
     /**
@@ -108,9 +110,20 @@ class ColorController extends Controller
     public function destroy(Color $color)
     {
         $colorName = $color->color;
-        $color->delete();
 
-        $notification = "El Color $colorName ha sido eliminado correctamente";
+        try {
+            $color->delete();
+            $notification = "El Color $colorName ha sido eliminado correctamente";
+        } catch(Exception $e) {
+            $error = "";
+            
+            switch($e->getCode()) {
+                case 23000 : $error = "Eliminacion del Color no permitido ya que tiene Paros Asociados."; break;
+            }
+
+            $notification = $error;
+        }
+
         return redirect('/colors')->with(compact('notification'));
     }
 }

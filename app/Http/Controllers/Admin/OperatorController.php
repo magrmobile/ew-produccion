@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 
 use App\User;
 
+use Exception;
+
 class OperatorController extends Controller
 {
     /**
@@ -123,9 +125,20 @@ class OperatorController extends Controller
     public function destroy(User $operator)
     {
         $OperatorName = $operator->name;
-        $operator->delete();
 
-        $notification = "El Operador $OperatorName ha sido eliminado correctamente";
+        try {
+            $operator->delete();
+            $notification = "El Operador $OperatorName ha sido eliminado correctamente";
+        } catch(Exception $e) {
+            $error = "";
+            
+            switch($e->getCode()) {
+                case 23000 : $error = "Eliminacion del Operador no permitido ya que tiene Paros Asociados."; break;
+            }
+
+            $notification = $error;
+        }
+
         return redirect('/operators')->with(compact('notification'));
     }
 }
