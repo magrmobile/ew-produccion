@@ -33,7 +33,7 @@ Route::get('/colors/{color}', 'ColorController@show');
 Route::get('/codes', 'CodeController@index');
 Route::get('/codes/{code}', 'CodeController@show');
 
-Route::group(['middleware' => ['auth:api']], function () {
+Route::group(['middleware' => ['auth:web,api']], function () {
     
     Route::get('/user', 'UserController@show');
     Route::post('/logout', 'AuthController@logout');
