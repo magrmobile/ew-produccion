@@ -7,6 +7,10 @@ use App\Http\Controllers\Controller;
 use Auth;
 Use JwtAuth;
 use Carbon\Carbon;
+use App\Stop;
+
+use Illuminate\Auth\Events\Logout;
+use Yadahan\AuthenticationLog\AuthenticationLog;
 
 class AuthController extends Controller
 {
@@ -14,41 +18,88 @@ class AuthController extends Controller
     {
         $credentials = $request->only('username','password');
 
-        $web_attempt = Auth::guard('web')->attempt($credentials);
-        if($web_attempt) {
-            $userw = Auth::guard('web')->user();
-            $api_attempt = Auth::guard('api')->attempt($credentials);
-            if($api_attempt) {
-                $user = Auth::guard('api')->user();
-                $jwt = JwtAuth::generateToken($user);
-                $success = true;
+        $api_attempt = Auth::guard('api')->attempt($credentials);
+
+        if($api_attempt) {
+
+            $user = Auth::guard('api')->user();
+            $jwt = JwtAuth::generateToken($user);
+
+            $date = Carbon::now();
+
+            $current_date = $date->format('Y-m-d');
+            $current_time = $date->format('H:i:s');
+
+            $ip = $request->ip();
+            $userAgent = $request->userAgent();
+            $known = $user->authentications()->whereIpAddress($ip)->whereUserAgent($userAgent)->first();
+
+            $authenticationLog = new AuthenticationLog([
+                'ip_address' => $ip,
+                'user_agent' => $userAgent,
+                'login_at' => Carbon::now(),
+            ]);
     
-                if($userw->lastLoginAt()) {
-                    $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',$userw->lastLoginAt());
-                } else {
-                    $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',date('Y-m-d H:i:s'));
-                }
-    
-                $lastLoginDate = $lastLogin->format('d M, Y');
-                $lastLoginTime = $lastLogin->format('H:i:s A');
-    
-                //$lastlogin = $user->lastloginAt();
-                // Return successfull sign in response with generated jwt.
-                return compact('success','user','jwt','lastLoginDate','lastLoginTime');
+            $user->authentications()->save($authenticationLog);
+
+            if($user->lastLoginAt()) {
+                $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',$user->lastLoginAt());
             } else {
-                // Return response for failed attempt...
-                $success = false;
-                $message = 'Invalid Credentials';
-                return compact('success','message');
+                $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',date('Y-m-d H:i:s'));
             }
+
+            $lastLoginDate = $lastLogin->format('d M, Y');
+            $lastLoginTime = $lastLogin->format('H:i:s A');
+
+            $lastStop = Stop::where('operator_id', $user->id)
+                    ->latest('id')
+                    ->first();
+
+            if($lastStop == null) {
+                $lastStopDateStart = $lastLoginDate;
+                $lastStopTimeStart = $lastLoginTime;
+            } else {
+                if($lastStop->stop_date_start == null) {
+                    Stop::where('id',$lastStop->id)->update(['stop_date_start' => $current_date, 'stop_time_start' => $current_time]);
+                } else {
+                    $lastStopDateStart = $lastStop->stop_date_end;
+                    $lastStopTimeStart = $lastStop->stop_time_end;
+                }
+            }
+
+            $success = true;
+            // Return successfull sign in response with generated jwt.
+            return compact('success','user','jwt','lastStopDateStart','lastStopTimeStart');
+        } else {
+            // Return response for failed attempt...
+            $success = false;
+            $message = 'Invalid Credentials';
+            return compact('success','message');
         }
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
+        $user = Auth::guard('api')->user();
+        $ip = $request->ip();
+        $userAgent = $request->userAgent();
+        $authenticationLog = $user->authentications()->whereIpAddress($ip)->whereUserAgent($userAgent)->first();
+
+        if (! $authenticationLog) {
+            $authenticationLog = new AuthenticationLog([
+                'ip_address' => $ip,
+                'user_agent' => $userAgent,
+            ]);
+        }
+
+        $authenticationLog->logout_at = Carbon::now();
+
+        $user->authentications()->save($authenticationLog);
+
         Auth::guard('api')->logout();
-        Auth::guard('web')->logout();
+
         $success = true;
+
         return compact('success');
     }
 }
