@@ -14,31 +14,33 @@ class AuthController extends Controller
     {
         $credentials = $request->only('username','password');
 
-        if(Auth::guard('api')->attempt($credentials)) {
-            $user = Auth::guard('api')->user();
-            $jwt = JwtAuth::generateToken($user);
-
-            $userw = Auth::guard('web')->attempt($credentials);
-
-            $success = true;
-
-            if($userw->lastLoginAt()) {
-                $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',$userw->lastLoginAt());
+        $web_attempt = Auth::guard('web')->attempt($credentials);
+        if($web_attempt) {
+            $userw = Auth::guard('web')->user();
+            $api_attempt = Auth::guard('api')->attempt($credentials);
+            if($api_attempt) {
+                $user = Auth::guard('api')->user();
+                $jwt = JwtAuth::generateToken($user);
+                $success = true;
+    
+                if($userw->lastLoginAt()) {
+                    $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',$userw->lastLoginAt());
+                } else {
+                    $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',date('Y-m-d H:i:s'));
+                }
+    
+                $lastLoginDate = $lastLogin->format('Y-m-d');
+                $lastLoginTime = $lastLogin->format('H:i:s');
+    
+                //$lastlogin = $user->lastloginAt();
+                // Return successfull sign in response with generated jwt.
+                return compact('success','user','jwt','lastLoginDate','lastLoginTime');
             } else {
-                $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',date('Y-m-d H:i:s'));
+                // Return response for failed attempt...
+                $success = false;
+                $message = 'Invalid Credentials';
+                return compact('success','message');
             }
-
-            $lastLoginDate = $lastLogin->format('Y-m-d');
-            $lastLoginTime = $lastLogin->format('H:i:s');
-
-            //$lastlogin = $user->lastloginAt();
-            // Return successfull sign in response with generated jwt.
-            return compact('success','user','jwt','lastLoginDate','lastLoginTime');
-        } else {
-            // Return response for failed attempt...
-            $success = false;
-            $message = 'Invalid Credentials';
-            return compact('success','message');
         }
     }
 
