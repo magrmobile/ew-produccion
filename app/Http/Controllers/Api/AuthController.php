@@ -29,8 +29,8 @@ class AuthController extends Controller
                     $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',date('Y-m-d H:i:s'));
                 }
     
-                $lastLoginDate = $lastLogin->format('Y-m-d');
-                $lastLoginTime = $lastLogin->format('H:i:s');
+                $lastLoginDate = $lastLogin->format('d M, Y');
+                $lastLoginTime = $lastLogin->format('H:i:s A');
     
                 //$lastlogin = $user->lastloginAt();
                 // Return successfull sign in response with generated jwt.
