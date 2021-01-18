@@ -114,8 +114,7 @@ class StopController extends Controller
                     'code_id' => 'exists:codes,id',
                     'machine_id' => 'exists:machines,id|required',
                     'product_id' => 'exists:products,id|required',
-                    'color_id' => 'exists:colors,id|required',
-                    'meters' => 'required',
+                    'color_id' => 'exists:colors,id|required'
                 ];
             break;
             case 1:

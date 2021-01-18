@@ -9,53 +9,58 @@
             </div>
         </div>
     </div>
-    <div class="card-body">
-        <ul>
-            <li>
-                <strong>Fecha Inicio Paro:</strong> {{ $stop->stop_date_start }}
-            </li>
-            <li>
-                <strong>Hora Inicio Paro:</strong> {{ $stop->stop_time_start  }}
-            </li>
-            <li>
-                <strong>Fecha Fin Paro:</strong> {{ $stop->stop_date_end }}
-            </li>
-            <li>
-                <strong>Hora Fin Paro:</strong> {{ $stop->stop_time_end  }}
-            </li>
-            <li>
-                <strong>Duracion de Paro:</strong> {{ $duration  }}
-            </li>
-            <li>
-                <strong>Operador:</strong> {{ $stop->operator->name  }}
-            </li>
-            <li>
-                <strong>Estado:</strong> 
+    <div class="table-responsive">
+        <table class="table align-items-center table-flush">
+            <tbody>
+            <tr>
+                <th>Fecha Inicio Paro:</th><td>{{ $stop->stop_date_start }}</td>
+            </tr>
+            <tr>
+                <th>Hora Inicio Paro:</th><td>{{ $stop->stop_time_start  }}</td>
+            </tr>
+            <tr>
+                <th>Fecha Fin Paro:</th><td>{{ $stop->stop_date_end }}</td>
+            </tr>
+            <tr>
+                <th>Hora Fin Paro:</th><td>{{ $stop->stop_time_end  }}</td>
+            </tr>
+            <tr>
+                <th>Duracion de Paro:</th><td>{{ $duration  }}</td>
+            </tr>
+            <tr>
+                <th>Operador:</th><td>{{ $stop->operator->name  }}</td>
+            </tr>
+            <tr>
+                <th>Estado:</th> 
                 @if ($stop->stop_date_end != null)
-                    <span class="badge badge-success">Finalizada</span>
+                    <td><span class="badge badge-pill badge-success">Finalizada</span></td>
                 @else
-                    <span class="badge badge-info">Activa</span>
+                    <td><span class="badge badge-pill badge-info">Activa</span></td>
                 @endif
-            </li>
-            <li>
-                <strong>Maquina:</strong> {{ $stop->machine->machine_name  }}
-            </li>
-            <li>
-                <strong>Producto:</strong> {{ isset($stop->product->product_name) ? $stop->product->product_name : ''  }}
-            </li>
-            <li>
-                <strong>Motivo de Paro:</strong> {{ $stop->code->description  }}
-            </li>
-            <li>
-                <strong>Tipo de Paro:</strong> {{ $stop->code->type  }}
-            </li>
-            <li>
-                <strong>Metros Producidos:</strong> {{ isset($stop->meters) ? $stop->meters.' Mts.' : ''  }}
-            </li>
-            <li>
-                <strong>Observaciones:</strong> {{ $stop->comment  }}
-            </li>
-        </ul>
+            </tr>
+            <tr>
+                <th>Maquina:</th><td>{{ $stop->machine->machine_name  }}</td>
+            </tr>
+            <tr>
+                <th>Producto:</th><td>{{ isset($stop->product->product_name) ? $stop->product->product_name : ''  }}</td>
+            </tr>
+            <tr>
+                <th>Color:</th><td style="background: {{ isset($stop->color->hex_code) ? $stop->color->hex_code : '' }}"> {{ isset($stop->color->name) ? $stop->color->name : ''  }} </td>
+            </tr>
+            <tr>
+                <th>Motivo de Paro:</th><td>{{ $stop->code->description  }}</td>
+            </tr>
+            <tr>
+                <th>Tipo de Paro:</th><td>{{ $stop->code->type  }}</td>
+            </tr>
+            <tr>
+                <th>Metros Producidos:</th><td>{{ isset($stop->meters) ? $stop->meters.' Mts.' : ''  }}</td>
+            </tr>
+            <tr>
+                <th>Observaciones:</th><td>{{ $stop->comment  }}</td>
+            </tr>
+            </tbody>
+        </table>
 
         <a href="{{ url('/stops') }}" class="btn btn-default">
             Volver

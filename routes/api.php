@@ -41,4 +41,6 @@ Route::group(['middleware' => ['auth:api']], function () {
     // Post Appointment
     Route::get('/stops', 'StopController@index');
     Route::post('/stops', 'StopController@store');
+
+    Route::get('/dev_machines', 'DeviceController@machines');
 });

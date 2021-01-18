@@ -28,8 +28,10 @@ function cargarFormulario() {
                 $('#machine_id').attr('required', '');
                 $('#div_product').show();
                 $('#product_id').attr('required', '');
+                $('#product_id').val(null);
                 $('#div_color').show();
                 $('#color_id').attr('required', '');
+                $('#color_id').val(null);
                 $('#div_meters').show();
                 $('#meters').removeAttr('required');
                 $('#comment').removeAttr('required');
@@ -41,8 +43,10 @@ function cargarFormulario() {
             case 5:
                 $('#div_product').hide();
                 $('#product_id').removeAttr('required');
+                $('#product_id').val(null);
                 $('#div_color').hide();
                 $('#color_id').removeAttr('required');
+                $('#color_id').val(null);
                 $('#div_meters').hide();
                 $('#meters').removeAttr('required');
                 $('#div_machine').show();
@@ -61,8 +65,10 @@ function cargarFormulario() {
                 $('#comment').attr('required', '');
                 $('#div_product').hide();
                 $('#product_id').removeAttr('required');
+                $('#product_id').val(null);
                 $('#div_color').hide();
                 $('#color_id').removeAttr('required');
+                $('#color_id').val(null);
                 $('#div_meters').hide();
                 $('#meters').removeAttr('required');
                 break;
@@ -71,8 +77,10 @@ function cargarFormulario() {
                 $('#machine_id').attr('required', '');
                 $('#div_product').hide();
                 $('#product_id').removeAttr('required');
+                $('#product_id').val(null);
                 $('#div_color').hide();
                 $('#color_id').removeAttr('required');
+                $('#color_id').val(null);
                 $('#div_meters').hide();
                 $('#meters').removeAttr('required');
                 $('#comment').removeAttr('required');
