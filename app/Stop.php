@@ -65,14 +65,14 @@ class Stop extends Model
     public function getStopTimeStart12Attribute()
     {
         return(new Carbon($this->stop_time_start))
-            ->format('g:i A');
+            ->format('g:i:s a');
     }
 
     // $stop->stop_time_end_12
     public function getStopTimeEnd12Attribute()
     {
         return(new Carbon($this->stop_time_end))
-            ->format('g:i A');
+            ->format('g:i:s a');
     }
 
     static public function createForOperator(Request $request, $operatorId) 
