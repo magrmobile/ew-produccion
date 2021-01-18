@@ -17,10 +17,13 @@ class AuthController extends Controller
         if(Auth::guard('api')->attempt($credentials)) {
             $user = Auth::guard('api')->user();
             $jwt = JwtAuth::generateToken($user);
+
+            $userw = Auth::guard('web')->attempt($credentials);
+
             $success = true;
 
-            if($user->lastLoginAt()) {
-                $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',$user->lastLoginAt());
+            if($userw->lastLoginAt()) {
+                $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',$userw->lastLoginAt());
             } else {
                 $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',date('Y-m-d H:i:s'));
             }
