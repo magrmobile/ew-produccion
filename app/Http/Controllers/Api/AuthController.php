@@ -19,7 +19,12 @@ class AuthController extends Controller
             $jwt = JwtAuth::generateToken($user);
             $success = true;
 
-            $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',$user->lastLoginAt());
+            if($user->lastLoginAt()) {
+                $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',$user->lastLoginAt());
+            } else {
+                $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',date('Y-m-d H:i:s'));
+            }
+
             $lastLoginDate = $lastLogin->format('Y-m-d');
             $lastLoginTime = $lastLogin->format('H:i:s');
 
