@@ -16,7 +16,7 @@ class StopController extends Controller
         $user = Auth::guard('api')->user();
         return $user->asOperatorStops()->with([
             'code' => function($query) {
-                $query->select('id', 'description','type');
+                $query->select('id', 'code', 'description','type');
             }, 
             'machine' => function($query) {
                 $query->select('id', 'machine_name');
