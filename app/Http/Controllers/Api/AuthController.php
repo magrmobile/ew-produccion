@@ -47,6 +47,7 @@ class AuthController extends Controller
     public function logout()
     {
         Auth::guard('api')->logout();
+        Auth::guard('web')->logout();
         $success = true;
         return compact('success');
     }
