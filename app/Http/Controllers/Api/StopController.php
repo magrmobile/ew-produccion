@@ -35,10 +35,8 @@ class StopController extends Controller
             "color_id",
             "meters",
             "comment",
-            "stop_date_start",
-            "stop_time_start",
-            "stop_date_end",
-            "stop_time_end"
+            "stop_datetime_start",
+            "stop_datetime_end"
         ]);
     }
 
