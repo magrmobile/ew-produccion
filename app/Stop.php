@@ -60,7 +60,7 @@ class Stop extends Model
 
     // accesor
     // $stop->stop_time_start_12
-    public function getStopTimeStart12Attribute()
+    public function getStopDateTimeStart12Attribute()
     {
         setlocale(LC_ALL, 'es_ES');
         $date = new Carbon($this->stop_datetime_start);
@@ -68,7 +68,7 @@ class Stop extends Model
     }
 
     // $stop->stop_time_end_12
-    public function getStopTimeEnd12Attribute()
+    public function getStopDateTimeEnd12Attribute()
     {
         setlocale(LC_ALL, 'es_ES');
         $date = new Carbon($this->stop_datetime_end);
