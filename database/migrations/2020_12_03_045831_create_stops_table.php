@@ -40,12 +40,10 @@ class CreateStopsTable extends Migration
             $table->string('comment')->nullable();
 
             // Fecha y Hora de Inicio de Stop
-            $table->date('stop_date_start')->nullable();
-            $table->time('stop_time_start')->nullable();
+            $table->dateTime('stop_datetime_start')->nullable();
 
             // Fecha y Hora de Fin de Stop
-            $table->date('stop_date_end')->nullable();
-            $table->time('stop_time_end')->nullable();
+            $table->dateTime('stop_datetime_end')->nullable();
 
             $table->timestamps();
         });

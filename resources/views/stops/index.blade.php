@@ -27,9 +27,7 @@
         <thead class="thead-light">
             <tr>
                 <th scope="col">Inicio Paro</th>
-                <th scope="col">Fecha Inicio</th>
                 <th scope="col">Fin Paro</th>
-                <th scope="col">Fecha Fin</th>
                 @if($role == "supervisor" || $role == "admin")
                 <th scope="col">Operador</th>
                 <th scope="col">Status</th>
@@ -43,21 +41,15 @@
             @foreach($stops as $stop)
             <tr>
             <td scope="row">
-                {{ $stop->stop_time_start }}
-            </td>
-            <td>
-                {{ $stop->stop_date_start }}
+                {{ $stop->stop_datetime_start }}
             </td>
             <td scope="row">
-                {{ $stop->stop_time_end }}
-            </td>
-            <td>
-                {{ $stop->stop_date_end }}
+                {{ $stop->stop_datetime_end }}
             </td>
             @if($role == "supervisor" || $role == "admin")
                 <td>{{ $stop->operator->name }}</td>
                 <td>
-                    @if($stop->stop_time_end != null) 
+                    @if($stop->stop_datetime_end != null) 
                     <span class="badge badge-pill badge-info">Finalizado</span> 
                     @else 
                     <span class="badge badge-pill badge-success">Activo</span> 

@@ -21,14 +21,8 @@ class AuthController extends Controller
         $api_attempt = Auth::guard('api')->attempt($credentials);
 
         if($api_attempt) {
-
             $user = Auth::guard('api')->user();
             $jwt = JwtAuth::generateToken($user);
-
-            $date = Carbon::now();
-
-            $current_date = $date->format('Y-m-d');
-            $current_time = $date->format('H:i:s');
 
             $ip = $request->ip();
             $userAgent = $request->userAgent();
@@ -42,34 +36,20 @@ class AuthController extends Controller
     
             $user->authentications()->save($authenticationLog);
 
-            if($user->lastLoginAt()) {
-                $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',$user->lastLoginAt());
-            } else {
-                $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',date('Y-m-d H:i:s'));
-            }
-
-            $lastLoginDate = $lastLogin->format('d M, Y');
-            $lastLoginTime = $lastLogin->format('H:i:s A');
-
             $lastStop = Stop::where('operator_id', $user->id)
                     ->latest('id')
                     ->first();
 
             if($lastStop == null) {
-                $lastStopDateStart = $lastLoginDate;
-                $lastStopTimeStart = $lastLoginTime;
+                $lastStopDateTimeStart = $user->lastLoginAt();
             } else {
-                if($lastStop->stop_date_start == null) {
-                    Stop::where('id',$lastStop->id)->update(['stop_date_start' => $current_date, 'stop_time_start' => $current_time]);
-                } else {
-                    $lastStopDateStart = $lastStop->stop_date_end;
-                    $lastStopTimeStart = $lastStop->stop_time_end;
-                }
+                $lastStopDateTimeStart = $lastStop->stop_datetime_end;
             }
 
             $success = true;
+            
             // Return successfull sign in response with generated jwt.
-            return compact('success','user','jwt','lastStopDateStart','lastStopTimeStart');
+            return compact('success','user','jwt','lastStopDateTimeStart');
         } else {
             // Return response for failed attempt...
             $success = false;

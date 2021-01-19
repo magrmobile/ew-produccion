@@ -16,18 +16,16 @@ class Stop extends Model
         'code_id',
         'meters',
         'comment',
-        'stop_date_start',
-        'stop_time_start',
-        'stop_date_end',
-        'stop_time_end'
+        'stop_datetime_start',
+        'stop_datetime_end'
     ];
 
     protected $hidden = [
-        'code_id', 'machine_id', 'product_id', 'color_id', 'stop_time_start', 'stop_time_end'
+        'code_id', 'machine_id', 'product_id', 'color_id', 'stop_datetime_start', 'stop_datetime_end'
     ];
 
     protected $appends = [
-        'stop_time_start_12', 'stop_time_end_12'
+        'stop_datetime_start_12', 'stop_datetime_end_12'
     ];
 
     // N $stop->machine 1
@@ -64,15 +62,17 @@ class Stop extends Model
     // $stop->stop_time_start_12
     public function getStopTimeStart12Attribute()
     {
-        return(new Carbon($this->stop_time_start))
-            ->format('g:i:s a');
+        setlocale(LC_ALL, 'es_ES');
+        $date = new Carbon($this->stop_datetime_start);
+        return $date->formatLocalized('%d %B, %Y').' '.$date->format('g:i:s a');
     }
 
     // $stop->stop_time_end_12
     public function getStopTimeEnd12Attribute()
     {
-        return(new Carbon($this->stop_time_end))
-            ->format('g:i:s a');
+        setlocale(LC_ALL, 'es_ES');
+        $date = new Carbon($this->stop_datetime_end);
+        return $date->formatLocalized('%d %B, %Y').' '.$date->format('g:i:s a');
     }
 
     static public function createForOperator(Request $request, $operatorId) 
@@ -87,36 +87,28 @@ class Stop extends Model
             'comment',
         ]);
 
+        $machine_id = $request->machine_id;
+
         $data['operator_id'] = $operatorId;
 
         $date = Carbon::now();
 
-        $current_date = $date->format('Y-m-d');
-        $current_time = $date->format('H:i:s');
-
-        $data['stop_date_end'] = $current_date;
-        $data['stop_time_end'] = $current_time;
-
-        $lastLogin = Carbon::createFromFormat('Y-m-d H:i:s',auth()->user()->lastLoginAt());
-
-        $lastLoginDate = $lastLogin->format('Y-m-d');
-        $lastLoginTime = $lastLogin->format('H:i:s');
-
         $lastStop = Stop::where('operator_id', $operatorId)
+                        //->where('machine_id', $machine_id)
                         ->latest('id')
                         ->first();
 
         if($lastStop == null) {
-            $data['stop_date_start'] = $lastLoginDate;
-            $data['stop_time_start'] = $lastLoginTime;
+            $data['stop_datetime_start'] = auth()->user()->lastLoginAt();
         } else {
-            if($lastStop->stop_date_start == null) {
-                Stop::where('id',$lastStop->id)->update(['stop_date_start' => $current_date, 'stop_time_start' => $current_time]);
-            } else {
-                $data['stop_date_start'] = $lastStop->stop_date_end;
-                $data['stop_time_start'] = $lastStop->stop_time_end;
-            }
+            /*if($lastStop->stop_date_start == null) {
+                Stop::where('id',$lastStop->id)->update(['stop_datetime_start' => $date]);
+            } else {*/
+                $data['stop_datetime_start'] = $lastStop->stop_datetime_end;
+            //}
         }
+
+        $data['stop_datetime_end'] = $date;
 
         return self::create($data);
     }

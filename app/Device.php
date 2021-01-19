@@ -10,6 +10,10 @@ class Device extends Model
         'serial_number', 'mac_address', 'device_name', 'description'
     ];
 
+    protected $hidden = [
+        'created_at', 'updated_at'
+    ];
+
     public function machines()
     {
         return $this->hasMany(Machine::class);

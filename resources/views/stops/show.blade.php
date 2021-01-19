@@ -1,70 +1,79 @@
 @extends('layouts.panel')
 
-@section('content')
-<div class="card shadow">
-    <div class="card-header border-0">
-        <div class="row align-items-center">
-            <div class="col">
-                <h3 class="mb-0">Paro #{{ $stop -> id }}</h3>
-            </div>
-        </div>
-    </div>
-    <div class="table-responsive">
-        <table class="table align-items-center table-flush">
-            <tbody>
-            <tr>
-                <th>Fecha Inicio Paro:</th><td>{{ $stop->stop_date_start }}</td>
-            </tr>
-            <tr>
-                <th>Hora Inicio Paro:</th><td>{{ $stop->stop_time_start  }}</td>
-            </tr>
-            <tr>
-                <th>Fecha Fin Paro:</th><td>{{ $stop->stop_date_end }}</td>
-            </tr>
-            <tr>
-                <th>Hora Fin Paro:</th><td>{{ $stop->stop_time_end  }}</td>
-            </tr>
-            <tr>
-                <th>Duracion de Paro:</th><td>{{ $duration  }}</td>
-            </tr>
-            <tr>
-                <th>Operador:</th><td>{{ $stop->operator->name  }}</td>
-            </tr>
-            <tr>
-                <th>Estado:</th> 
-                @if ($stop->stop_date_end != null)
-                    <td><span class="badge badge-pill badge-success">Finalizada</span></td>
-                @else
-                    <td><span class="badge badge-pill badge-info">Activa</span></td>
-                @endif
-            </tr>
-            <tr>
-                <th>Maquina:</th><td>{{ $stop->machine->machine_name  }}</td>
-            </tr>
-            <tr>
-                <th>Producto:</th><td>{{ isset($stop->product->product_name) ? $stop->product->product_name : ''  }}</td>
-            </tr>
-            <tr>
-                <th>Color:</th><td style="background: {{ isset($stop->color->hex_code) ? $stop->color->hex_code : '' }}"> {{ isset($stop->color->name) ? $stop->color->name : ''  }} </td>
-            </tr>
-            <tr>
-                <th>Motivo de Paro:</th><td>{{ $stop->code->description  }}</td>
-            </tr>
-            <tr>
-                <th>Tipo de Paro:</th><td>{{ $stop->code->type  }}</td>
-            </tr>
-            <tr>
-                <th>Metros Producidos:</th><td>{{ isset($stop->meters) ? $stop->meters.' Mts.' : ''  }}</td>
-            </tr>
-            <tr>
-                <th>Observaciones:</th><td>{{ $stop->comment  }}</td>
-            </tr>
-            </tbody>
-        </table>
+@section('styles')
+<style>
+    .row-title {
+        font-weight: bold;
+    }
+</style>
+@endsection
 
+@section('content')
+<div class="card shadow border-0">
+    <div class="card-header row-title" style="background-color:{{ isset($stop->color->hex_code) ? $stop->color->hex_code : '#ffffff' }}; color:black;">
+        Paro #{{ $stop -> id }}
+    </div>
+    <div class="card-body">
+        <p class="card-text">
+            <div class="row">
+                <div class="col-6 row-title">Inicio Paro:</div>
+                <div class="col-6">{{ $stop->getStopTimeStart12Attribute() }}</div>
+                <div class="w-100"></div>
+                <div class="col-6 row-title">Fin Paro:</div>
+                <div class="col-6">{{ $stop->getStopTimeEnd12Attribute() }}</div>
+                <div class="w-100"></div>
+                <div class="col-6 row-title">Duracion de Paro:</div>
+                <div class="col-6">{{ $duration }}</div>
+                <div class="w-100"></div>
+                <div class="col-6 row-title">Operador:</div>
+                <div class="col-6">{{ $stop->operator->name }}</div>
+                <div class="w-100"></div>
+                <div class="col-6 row-title">Estado:</div>
+                <div class="col-6">
+                    @if ($stop->stop_datetime_end != null)
+                        <span class="badge badge-pill badge-success">Finalizada</span>
+                    @else
+                        <span class="badge badge-pill badge-info">Activa</span>
+                    @endif
+                </div>
+                <div class="w-100"></div>
+                <div class="col-6 row-title">Machine:</div>
+                <div class="col-6">{{ $stop->machine->machine_name }}</div>
+                <div class="w-100"></div>
+                @if(isset($stop->product->product_name))
+                <div class="col-6 row-title">Product:</div>
+                <div class="col-6">{{ $stop->product->product_name }}</div>
+                <div class="w-100"></div>
+                @endif
+                @if(isset($stop->color->name))
+                <div class="col-6 row-title">Color:</div>
+                <div class="col-6 row-title" style="color:{{ $stop->color->hex_code }};">    
+                    <i class="fas fa-circle"></i>
+                    {{ $stop->color->name }}
+                </div>
+                <div class="w-100"></div>
+                @endif
+                <div class="col-6 row-title">Motivo de Paro:</div>
+                <div class="col-6">{{ $stop->code->description }}</div>
+                <div class="w-100"></div>
+                <div class="col-6 row-title">Tipo de Paro:</div>
+                <div class="col-6">{{ $stop->code->type }}</div>
+                <div class="w-100"></div>
+                @if(isset($stop->meters))
+                <div class="col-6 row-title">Metros Producidos:</div>
+                <div class="col-6">{{ $stop->meters.' Mts.' }}</div>
+                <div class="w-100"></div>
+                @endif
+                @if(isset($stop->comment))
+                <div class="col-6 row-title">Observaciones:</div>
+                <div class="col-6">{{ $stop->comment }}</div>
+                <div class="w-100"></div>
+                @endif
+            </div>
+        </p>
         <a href="{{ url('/stops') }}" class="btn btn-default">
             Volver
         </a>
-    </div>
+    </div>  
 </div>
 @endsection

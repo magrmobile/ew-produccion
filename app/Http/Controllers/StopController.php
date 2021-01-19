@@ -22,7 +22,8 @@ class StopController extends Controller
     public function index()
     {
         $role = auth()->user()->role;
-        $stops = Stop::where('stop_date_end',date('Y-m-d'))->orderBy('stop_time_end','ASC')->paginate(5);
+        $stops = Stop::whereDate('stop_datetime_end','=',Carbon::now()->toDateString())
+            ->orderBy('stop_datetime_end','ASC')->paginate(5);
 
         return view('stops.index', compact('stops','role'));
     }
@@ -38,7 +39,13 @@ class StopController extends Controller
         $products = Product::all();
         $codes = Code::all();
         $colors = Color::all();
-        return view('stops.create', compact('machines','products','codes','colors'));
+        $lastStop = Stop::where('operator_id', auth()->user()->id)
+                        //->where('machine_id', $machine_id)
+                        ->latest('id')
+                        ->first();
+        $dateInit = $lastStop->stop_datetime_end;
+
+        return view('stops.create', compact('machines','products','codes','colors','dateInit'));
     }
 
     /**
@@ -68,13 +75,15 @@ class StopController extends Controller
      */
     public function show(Stop $stop)
     {
+        Carbon::setLocale('es');
+
         $role = auth()->user()->role;
 
-        if($stop->stop_date_end != null){
-            $start = new Carbon($stop->stop_date_start.' '.$stop->stop_time_start);
-            $end = new Carbon($stop->stop_date_end.' '.$stop->stop_time_end);
+        if($stop->stop_datetime_end != null){
+            $start = new Carbon($stop->stop_datetime_start);
+            $end = new Carbon($stop->stop_datetime_end);
 
-            $duration = $start->diff($end)->format('%H:%I:%S');
+            $duration = $start->diffForHumans($end);
         } else {
             $duration = null;
         }

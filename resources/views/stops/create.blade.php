@@ -11,6 +11,18 @@
         <div class="row align-items-center">
         <div class="col">
             <h3 class="mb-0">Registrar Paro</h3>
+            <table style="font-size:10pt;width:100%">
+                <tr>
+                    <td>Inicio de Paro: </td>
+                    <td>{{ $dateInit }}</td>
+                    <td>Fin de Paro: </td>
+                    <td>
+                        <div class="clock">
+                        {{ date('Y-m-d') }} <span id="hr">00</span><span>:</span><span id="min">00</span><span>:</span><span id="sec">00</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </div>
         <div class="col text-right">
             <a href="{{ url('stops') }}" class="btn btn-sm btn-default">
@@ -95,6 +107,7 @@
 @section('scripts')
 <!--<script src="{{ asset('/vendor/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js') }}"></script>-->
 <script src="{{ asset('/js/stops/create.js') }}"></script>
+<script src="{{ asset('/js/stops/clock.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.min.js"></script>
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min.js"></script>-->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
