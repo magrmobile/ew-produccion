@@ -63,6 +63,7 @@ class Stop extends Model
     public function getStopDateTimeStart12Attribute()
     {
         setlocale(LC_ALL, 'es_ES');
+        Carbon::setlocale('es');
         $date = new Carbon($this->stop_datetime_start);
         return $date->formatLocalized('%d %B, %Y').' '.$date->format('g:i:s a');
     }
@@ -71,6 +72,7 @@ class Stop extends Model
     public function getStopDateTimeEnd12Attribute()
     {
         setlocale(LC_ALL, 'es_ES');
+        Carbon::setlocale('es');
         $date = new Carbon($this->stop_datetime_end);
         return $date->formatLocalized('%d %B, %Y').' '.$date->format('g:i:s a');
     }
