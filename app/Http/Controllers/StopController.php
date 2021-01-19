@@ -87,7 +87,7 @@ class StopController extends Controller
             $start = new Carbon($stop->stop_datetime_start);
             $end = new Carbon($stop->stop_datetime_end);
 
-            $duration = $start->diff($end)->format('%H:%i:%s');
+            $duration = $start->diff($end)->format('%H:%I:%S');
         } else {
             $duration = null;
         }
