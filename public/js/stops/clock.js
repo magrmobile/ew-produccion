@@ -1,4 +1,4 @@
-var d, h, m, s, animate;
+var d, h, m, s, animate, sec, min, hr;
 
 function init() {
     d = new Date();
@@ -9,6 +9,10 @@ function init() {
 };
  
 function clock() {
+    sec = $('#sec');
+    min = $('#min');
+    hr = $('#hr');
+
     s++;
     if(s == 60) {
         s = 0;
@@ -22,19 +26,11 @@ function clock() {
         }
     }
 
-    $('sec', s);
-    $('min', m);
-    $('hr', h);
+    s < 10 ? sec.html('0' + s) : sec.html(s);
+    m < 10 ? min.html('0' + m) : min.html(m);
+    h < 10 ? hr.html('0' + h) : hr.html(h);
 
     animate = setTimeout(clock, 1000);
-};
-
-function $(id, val) {
-    if(val < 10 ) {
-        val = '0' + val;
-    }
-
-    document.getElementById(id).innerHTML = val;
 };
 
 window.onload = init;
