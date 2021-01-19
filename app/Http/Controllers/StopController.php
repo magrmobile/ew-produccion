@@ -43,8 +43,12 @@ class StopController extends Controller
                         //->where('machine_id', $machine_id)
                         ->latest('id')
                         ->first();
-        $dateInit = $lastStop->stop_datetime_end;
-
+        if($lastStop) {
+            $dateInit = $lastStop->stop_datetime_end;
+        } else {
+            $dateInit = auth()->user()->lastLoginAt();
+        }
+        
         return view('stops.create', compact('machines','products','codes','colors','dateInit'));
     }
 
