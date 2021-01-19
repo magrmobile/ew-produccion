@@ -17,10 +17,10 @@
         <p class="card-text">
             <div class="row">
                 <div class="col-6 row-title">Inicio Paro:</div>
-                <div class="col-6">{{ $stop->getStopTimeStart12Attribute() }}</div>
+                <div class="col-6">{{ $stop->getStopDateTimeStart12Attribute() }}</div>
                 <div class="w-100"></div>
                 <div class="col-6 row-title">Fin Paro:</div>
-                <div class="col-6">{{ $stop->getStopTimeEnd12Attribute() }}</div>
+                <div class="col-6">{{ $stop->getStopDateTimeEnd12Attribute() }}</div>
                 <div class="w-100"></div>
                 <div class="col-6 row-title">Duracion de Paro:</div>
                 <div class="col-6">{{ $duration }}</div>
