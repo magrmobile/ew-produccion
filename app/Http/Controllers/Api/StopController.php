@@ -65,7 +65,9 @@ class StopController extends Controller
                     ->where('operator_id', $operatorId)
                     ->latest('id')
                     ->first();
+        
+        $success = $stop->stop_datetime_end_12;
 
-        return $stop;
+        return compact('success');
     }
 }

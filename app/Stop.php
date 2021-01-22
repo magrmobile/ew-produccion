@@ -59,7 +59,7 @@ class Stop extends Model
     }
 
     // accesor
-    // $stop->stop_time_start_12
+    // $stop->stop_datetime_start_12
     public function getStopDateTimeStart12Attribute()
     {
         setlocale(LC_ALL, 'es_ES');
@@ -68,7 +68,7 @@ class Stop extends Model
         return $date->formatLocalized('%d %B, %Y').' '.$date->format('g:i:s a');
     }
 
-    // $stop->stop_time_end_12
+    // $stop->stop_datetime_end_12
     public function getStopDateTimeEnd12Attribute()
     {
         setlocale(LC_ALL, 'es_ES');
