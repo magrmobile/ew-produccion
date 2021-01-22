@@ -36,7 +36,7 @@ class AuthController extends Controller
     
             $user->authentications()->save($authenticationLog);
 
-            $lastStop = Stop::where('operator_id', $user->id)
+            /*$lastStop = Stop::where('operator_id', $user->id)
                     ->latest('id')
                     ->first();
 
@@ -44,12 +44,12 @@ class AuthController extends Controller
                 $lastStopDateTimeStart = $user->lastLoginAt();
             } else {
                 $lastStopDateTimeStart = $lastStop->stop_datetime_end;
-            }
+            }*/
 
             $success = true;
             
             // Return successfull sign in response with generated jwt.
-            return compact('success','user','jwt','lastStopDateTimeStart');
+        return compact('success','user','jwt'/*,'lastStopDateTimeStart'*/);
         } else {
             // Return response for failed attempt...
             $success = false;

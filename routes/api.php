@@ -43,4 +43,5 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::post('/stops', 'StopController@store');
 
     Route::get('/dev_machines', 'DeviceController@machines');
+    Route::get('/last_datetime_stop', 'StopController@last_datetime_stop');
 });

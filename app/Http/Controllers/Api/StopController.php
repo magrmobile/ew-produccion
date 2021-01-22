@@ -42,8 +42,8 @@ class StopController extends Controller
 
     public function store(StoreStop $request)
     {
-        $patientId = Auth::guard('api')->id();
-        $stop = Stop::createForOperator($request, $patientId);
+        $operatorId = Auth::guard('api')->id();
+        $stop = Stop::createForOperator($request, $operatorId);
 
         if($stop) {
             $success = true;
@@ -52,5 +52,20 @@ class StopController extends Controller
         }
 
         return compact('success');
+    }
+
+    public function last_datetime_stop(Request $request) {
+        $operatorId = Auth::guard('api')->id();
+
+        $data = $request->only([
+            'machine_id'
+        ]);
+
+        $stop = Stop::where('machine_id', $data['machine_id'])
+                    ->where('operator_id', $operatorId)
+                    ->latest('id')
+                    ->first();
+
+        return $stop;
     }
 }
