@@ -96,7 +96,7 @@ class Stop extends Model
         $date = Carbon::now();
 
         $lastStop = Stop::where('operator_id', $operatorId)
-                        //->where('machine_id', $machine_id)
+                        ->where('machine_id', $machine_id)
                         ->latest('id')
                         ->first();
 
