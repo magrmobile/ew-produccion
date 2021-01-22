@@ -6,13 +6,18 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Device;
+use App\Machine;
 
 class DeviceController extends Controller
 {
     public function machines(Request $request)
     {
         $serial_number = $request->only('serialNumber');
+        $device = Device::where('serial_number', $serial_number)->get();
+        $device_id = $device[0]->id;
 
-        return $dev_machines = Device::where('serial_number', $serial_number)->with('machines')->get();
+        $machines = Machine::where('device_id', $device_id)->get();
+
+        return $machines;
     }
 }
