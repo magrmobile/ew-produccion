@@ -15,11 +15,11 @@ class DeviceController extends Controller
         $serial_number = $request->only('serialNumber');
         $device = Device::where('serial_number', $serial_number)->get();
 
-        if($device) {
+        $machines = [];
+
+        if(count($device) > 0) {
             $device_id = $device[0]->id;
             $machines = Machine::where('device_id', $device_id)->get();
-        } else {
-            $machines = "";
         }
 
         return $machines;
