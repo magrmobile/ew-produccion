@@ -14,9 +14,9 @@ class DeviceController extends Controller
     {
         $serial_number = $request->only('serialNumber');
         $device = Device::where('serial_number', $serial_number)->get();
-        $device_id = $device[0]->id;
 
-        if(isset($device)) {
+        if($device) {
+            $device_id = $device[0]->id;
             $machines = Machine::where('device_id', $device_id)->get();
         } else {
             $machines = "";
