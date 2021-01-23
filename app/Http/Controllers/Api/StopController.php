@@ -27,7 +27,7 @@ class StopController extends Controller
             'color' => function($query) {
                 $query->select('id', 'name','hex_code');
             }
-        ])->get([
+        ])->orderBy('id', 'DESC')->get([
             "id",
             "code_id",
             "machine_id",

@@ -12,6 +12,8 @@ class MachineTableSeeder extends Seeder
      */
     public function run()
     {
+        Machine::create ([ 'machine_name' => 'Cab Disco #1', 'warehouse' => 'AL', 'device_id' => 17 ]);
+        Machine::create ([ 'machine_name' => 'Cab Disco #2', 'warehouse' => 'AL', 'device_id' => 17 ]);
         Machine::create ([ 'machine_name' => 'Cab Disco #4', 'warehouse' => 'AL', 'device_id' => 1 ]);
         Machine::create ([ 'machine_name' => 'Cab Disco 400 #1', 'warehouse' => 'AL', 'device_id' => 1 ]);
         Machine::create ([ 'machine_name' => 'Cab Disco 400 #2', 'warehouse' => 'AL', 'device_id' => 1 ]);
@@ -44,8 +46,7 @@ class MachineTableSeeder extends Seeder
         Machine::create ([ 'machine_name' => 'VILA', 'warehouse' => 'AL', 'device_id' => 16 ]);
         Machine::create ([ 'machine_name' => 'Ya-sih #1', 'warehouse' => 'CU', 'device_id' => 16 ]);
         Machine::create ([ 'machine_name' => 'Ya-sih #2', 'warehouse' => 'CU', 'device_id' => 17 ]);
-        Machine::create ([ 'machine_name' => 'Cab Disco #1', 'warehouse' => 'AL', 'device_id' => 17 ]);
-        Machine::create ([ 'machine_name' => 'Cab Disco #2', 'warehouse' => 'AL', 'device_id' => 17 ]);
+        
 
         //factory(Machine::class, 5)->states('aluminio')->create();
         //factory(Machine::class, 5)->states('cobre')->create();
