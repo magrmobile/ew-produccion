@@ -27,7 +27,7 @@
         <thead class="thead-light">
             <tr>
             <th scope="col">Nombre</th>
-            <th scope="col">Codigo</th>
+            <th scope="col">Proceso</th>
             <th scope="col">Nave</th>
             <th scope="col">Opciones</th>
             </tr>
@@ -39,7 +39,7 @@
                 {{ $machine-> machine_name }}
             </th>
             <td>
-                {{ $machine-> machine_code }}
+                {{ $machine-> process }}
             </td>
             <td>
                 @if($machine-> warehouse == "AL")

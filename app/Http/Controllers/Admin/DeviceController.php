@@ -44,7 +44,7 @@ class DeviceController extends Controller
     {
         $rules = [
             'serial_number' => 'required|min:8',
-            'mac_address' => ['min:3', new MacAddress ],
+            //'mac_address' => [new MacAddress ],
             'device_name' => 'required',
         ];
 

@@ -17,7 +17,7 @@ class CreateMachinesTable extends Migration
             $table->increments('id');
 
             $table->string('machine_name')->unique();
-            $table->string('machine_code')->nullable();
+            $table->string('process'); // Trefilado, Cableado, Fraccionado
             $table->string('warehouse'); // AL(Aluminio), CU(Cobre)
 
             $table->unsignedInteger('device_id')->nullable();

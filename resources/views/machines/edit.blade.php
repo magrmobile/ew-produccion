@@ -36,6 +36,24 @@
                 <input type="text" name="machine_code" class="form-control" value="{{ old('machine_code', $machine->machine_code) }}">
             </div>
             <div class="form-group">
+                <label for="process">Nave</label>
+                <div class="custom-control custom-radio mb-3">
+                    <input name="process" class="custom-control-input" id="process1" type="radio"
+                        @if($machine->process == 'Trifilado') checked @endif value="Trifilado">
+                    <label for="process1" class="custom-control-label">Trifilado</label>
+                </div>
+                <div class="custom-control custom-radio mb-3">
+                    <input name="process" class="custom-control-input" id="process2" type="radio"
+                        @if($machine->process == 'Cableado') checked @endif value="Cableado">
+                    <label for="process2" class="custom-control-label">Cableado</label>
+                </div>
+                <div class="custom-control custom-radio mb-3">
+                    <input name="process" class="custom-control-input" id="process3" type="radio"
+                        @if($machine->process == 'Fraccionado') checked @endif value="Fraccionado">
+                    <label for="process3" class="custom-control-label">Fraccionado</label>
+                </div>
+            </div>
+            <div class="form-group">
                 <label for="warehouse">Nave</label>
                 <div class="custom-control custom-radio mb-3">
                     <input name="warehouse" class="custom-control-input" id="warehouse1" type="radio"
@@ -53,7 +71,7 @@
                 <select name="device_id" id="device_id" class="form-control">
                     <option value="">Seleccionar Dispositivo</option>
                     @foreach($devices as $device)
-                        <option value="{{ $device->id }}" @if(old('device_id') == $device->id) selected @endif>{{ $device->device_name }}</option>
+                        <option value="{{ $device->id }}" @if(old('device_id',$machine->device_id) == $device->id) selected @endif>{{ $device->device_name }}</option>
                     @endforeach
                 </select>
             </div>

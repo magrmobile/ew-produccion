@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Device extends Model
 {
     protected $fillable = [
-        'serial_number', 'mac_address', 'device_name', 'description'
+        'serial_number', 'device_name', 'description'
     ];
 
     protected $hidden = [

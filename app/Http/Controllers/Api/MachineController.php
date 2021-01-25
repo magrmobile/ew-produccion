@@ -16,7 +16,7 @@ class MachineController extends Controller
      */
     public function index()
     {
-        return Machine::all(['id','machine_name','machine_code','warehouse']);
+        return Machine::all(['id','machine_name','process','warehouse']);
     }
 
     /**

@@ -27,7 +27,6 @@
         <thead class="thead-light">
             <tr>
             <th scope="col">Numero de Serie</th>
-            <th scope="col">MAC Address</th>
             <th scope="col">Nombre</th>
             <th scope="col">Maquinas</th>
             <th scope="col">Opciones</th>
@@ -38,9 +37,6 @@
             <tr>
             <th scope="row">
                 {{ $device-> serial_number }}
-            </th>
-            <th scope="row">
-                {{ $device-> mac_address }}
             </th>
             <td>
                 {{ $device-> device_name }}

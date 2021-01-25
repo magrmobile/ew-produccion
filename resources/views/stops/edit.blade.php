@@ -62,7 +62,7 @@
                     <select name="product_id" id="product_id" class="form-control" style="height:100%">
                         <option value="">Seleccionar Producto</option>
                         @foreach($products as $product)
-                            <option value="{{ $product->id }}" @if(old('product_id') == $product->id) selected @endif>{{ $product->product_name }}</option>
+                            <option value="{{ $product->id }}" @if(old('product_id',$stop->product_id) == $product->id) selected @endif>{{ $product->product_name }}</option>
                         @endforeach
                     </select>
                 </div>

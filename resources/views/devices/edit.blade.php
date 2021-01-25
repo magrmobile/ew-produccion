@@ -32,10 +32,6 @@
                 <input type="text" id="serial_number" name="serial_number" class="form-control" value="{{ old('serial_number', $device->serial_number ) }}" required>
             </div>
             <div class="form-group">
-                <label for="mac_address">MAC Address</label>
-                <input type="text" id="mac_address" name="mac_address" class="form-control" value="{{ old('mac_address', $device->mac_address ) }}">
-            </div>
-            <div class="form-group">
                 <label for="device_name">Nombre Dispositivo</label>
                 <input type="text" name="device_name" class="form-control" value="{{ old('device_name', $device->device_name) }}">
             </div>
