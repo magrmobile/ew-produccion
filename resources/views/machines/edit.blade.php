@@ -36,7 +36,7 @@
                 <input type="text" name="machine_code" class="form-control" value="{{ old('machine_code', $machine->machine_code) }}">
             </div>
             <div class="form-group">
-                <label for="process">Nave</label>
+                <label for="process">Proceso</label>
                 <div class="custom-control custom-radio mb-3">
                     <input name="process" class="custom-control-input" id="process1" type="radio"
                         @if($machine->process == 'Trifilado') checked @endif value="Trifilado">
