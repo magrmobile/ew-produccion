@@ -7,6 +7,8 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Yadahan\AuthenticationLog\AuthenticationLogable;
 
+use Carbon\Carbon;
+
 class User extends Authenticatable
 {
     use Notifiable, AuthenticationLogable;
@@ -55,6 +57,7 @@ class User extends Authenticatable
 
     public function asOperatorStops() 
     {
-        return $this->hasMany(Stop::class, 'operator_id');
+        return $this->hasMany(Stop::class, 'operator_id')
+                    ->whereDate('stop_datetime_end','=',Carbon::now()->toDateString());
     }
 }
