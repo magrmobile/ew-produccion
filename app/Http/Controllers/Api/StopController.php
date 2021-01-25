@@ -11,10 +11,12 @@ use App\Stop;
 
 class StopController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $machine_id = $request->only("machine_id");
+
         $user = Auth::guard('api')->user();
-        return $user->asOperatorStops()->with([
+        return $user->asOperatorStops()->where('machine_id',$machine_id)->with([
             'code' => function($query) {
                 $query->select('id', 'code', 'description','type');
             }, 
