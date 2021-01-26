@@ -28,6 +28,9 @@ class StopController extends Controller
             }, 
             'color' => function($query) {
                 $query->select('id', 'name','hex_code');
+            },
+            'operator' => function($query) {
+                $query->select('id', 'name', 'username');
             }
         ])->orderBy('id', 'DESC')->get([
             "id",
@@ -35,6 +38,7 @@ class StopController extends Controller
             "machine_id",
             "product_id",
             "color_id",
+            "operator_id",
             "meters",
             "comment",
             "stop_datetime_start",
