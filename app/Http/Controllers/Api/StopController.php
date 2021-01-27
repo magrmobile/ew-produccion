@@ -16,14 +16,6 @@ class StopController extends Controller
         $machine_id = $request->only("machine_id");
         $order = $request->only("order");
 
-        if($order == 1) {
-            $sort = "ASC";
-        } else {
-            if($order == 2) {
-                $sort = "DESC";
-            }
-        }
-
         $user = Auth::guard('api')->user();
         return $user->asOperatorStops()->where('machine_id',$machine_id)->with([
             'code' => function($query) {
@@ -41,7 +33,7 @@ class StopController extends Controller
             'operator' => function($query) {
                 $query->select('id', 'name', 'username');
             }
-        ])->orderBy('id', $sort)->get([
+        ])->orderBy('id', 'ASC')->get([
             "id",
             "code_id",
             "machine_id",
