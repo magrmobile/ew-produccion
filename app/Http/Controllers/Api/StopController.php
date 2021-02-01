@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Auth;
+use Carbon\Carbon;
 
 use App\Http\Requests\StoreStop;
 use App\Stop;
@@ -111,17 +112,20 @@ class StopController extends Controller
                     ->latest('id')
                     ->first();
         
-        /*if(isset($stop->stop_datetime_end_12)){
+        if(isset($stop->stop_datetime_end_12)){
             $success = $stop->stop_datetime_end_12;
-        }else {*/
+        }else {
             $user = Auth::guard('api')->user();
 
             $ip = $request->ip();
             $userAgent = $request->userAgent();
             $known = $user->authentications()->whereIpAddress($ip)->whereUserAgent($userAgent)->first();
 
-            $success = $known->login_at;
-        //}
+            setlocale(LC_ALL, 'es_ES');
+            Carbon::setlocale('es');
+            $date = new Carbon($known->login_at);
+            $success = $date->formatLocalized('%d %B, %Y').' '.$date->format('g:i:s a');
+        }
 
         return compact('success');
     }
