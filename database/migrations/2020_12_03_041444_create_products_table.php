@@ -22,6 +22,10 @@ class CreateProductsTable extends Migration
             
             $table->unique(['product_name', 'metal_type', 'stock']);
 
+            // fk family
+            $table->unsignedInteger('family_id')->nullable();
+            $table->foreign('family_id')->references('id')->on('families');
+
             $table->timestamps();
         });
     }

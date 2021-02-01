@@ -5,12 +5,11 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-use App\Product;
 use App\Family;
 
 use Exception;
 
-class ProductController extends Controller
+class FamilyController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,8 +18,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::latest()->paginate(5);
-        return view('products.index', compact('products'));
+        $families = Family::latest()->paginate(5);
+        return view('families.index', compact('families'));
     }
 
     /**
@@ -30,8 +29,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $families = Family::all();
-        return view('products.create', compact('families'));
+        return view('families.create');
     }
 
     /**
@@ -43,19 +41,17 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'product_name' => 'required|min:3',
-            'metal_type' => 'required',
-            'stock' => 'required'
+            'family_name' => 'required',
         ];
 
         $this->validate($request, $rules);
 
-        Product::create(
-            $request->only('product_name','metal_type','stock')
+        Family::create(
+            $request->only('family_name')
         );
 
-        $notification = 'El Producto se ha registrado correctamente';
-        return redirect('/products')->with(compact('notification'));
+        $notification = 'La Familia de Producto se ha registrado correctamente';
+        return redirect('/families')->with(compact('notification'));
     }
 
     /**
@@ -75,10 +71,9 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Product $product)
+    public function edit(Family $family)
     {
-        $families = Family::all();
-        return view('products.edit', compact('product','families'));
+        return view('families.edit', compact('family'));
     }
 
     /**
@@ -88,22 +83,20 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Family $family)
     {
         $rules = [
-            'product_name' => 'required|min:3',
-            'metal_type' => 'required',
-            'stock' => 'required'
+            'family_name' => 'required',
         ];
 
         $this->validate($request, $rules);
-        $data = $request->only('product_name','metal_type','stock');
+        $data = $request->only('family_name');
 
-        $product->fill($data);
-        $product->save(); // UPDATE
+        $family->fill($data);
+        $family->save(); // UPDATE
 
-        $notification = 'La información del producto se ha registrado correctamente';
-        return redirect('/products')->with(compact('notification'));
+        $notification = 'La informacion de la Familia se ha registrado correctamente';
+        return redirect('/families')->with(compact('notification'));
     }
 
     /**
@@ -112,23 +105,23 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Product $product)
+    public function destroy(Family $family)
     {
-        $productName = $product->product_name;
+        $familyName = $family->family_name;
 
         try {
-            $product->delete();
-            $notification = "El Producto $productName ha sido eliminado correctamente";
+            $family->delete();
+            $notification = "la Familia $familyName ha sido eliminada correctamente";
         } catch(Exception $e) {
             $error = "";
             
             switch($e->getCode()) {
-                case 23000 : $error = "Eliminacion del Producto no permitido ya que tiene Paros Asociados."; break;
+                case 23000 : $error = "Eliminacion de la Familia no permitido ya que tiene Productos Asociados."; break;
             }
 
             $notification = $error;
         }
 
-        return redirect('/products')->with(compact('notification'));
+        return redirect('/families')->with(compact('notification'));
     }
 }

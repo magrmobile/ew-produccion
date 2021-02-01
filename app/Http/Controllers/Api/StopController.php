@@ -61,6 +61,44 @@ class StopController extends Controller
         return compact('success');
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        return Stop::findOrFail($id)->with([
+            'code' => function($query) {
+                $query->select('id', 'code', 'description','type');
+            }, 
+            'machine' => function($query) {
+                $query->select('id', 'machine_name');
+            }, 
+            'product' => function($query) {
+                $query->select('id', 'product_name');
+            }, 
+            'color' => function($query) {
+                $query->select('id', 'name','hex_code');
+            },
+            'operator' => function($query) {
+                $query->select('id', 'name', 'username');
+            }
+        ])->get([
+            "id",
+            "code_id",
+            "machine_id",
+            "product_id",
+            "color_id",
+            "operator_id",
+            "meters",
+            "comment",
+            "stop_datetime_start",
+            "stop_datetime_end"
+        ]);
+    }
+
     public function last_datetime_stop(Request $request) {
         $operatorId = Auth::guard('api')->id();
 

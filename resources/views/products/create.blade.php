@@ -61,6 +61,15 @@
                     <label for="stock2" class="custom-control-label">PT</label>
                 </div>
             </div>
+            <div id="div_family" class="form-group">
+                <label for="family_id">Familia de Producto</label>
+                <select name="family_id" id="family_id" class="form-control">
+                    <option value="">Seleccionar Familia</option>
+                    @foreach($families as $family)
+                        <option value="{{ $family->id }}" @if(old('family_id') == $family->id) selected @endif>{{ $family->family_name }}</option>
+                    @endforeach
+                </select>
+            </div>
             <button class="btn btn-primary" type="submit">
                 Guardar
             </button>

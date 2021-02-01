@@ -44,6 +44,9 @@ Route::middleware(['auth','admin'])->namespace('Admin')->group(function() {
     // Colors
     Route::resource('colors', 'ColorController');
 
+    // Families
+    Route::resource('families', 'FamilyController');
+
     // Charts
     Route::get('/charts/appointments/line', 'ChartsController@appointments');
 });

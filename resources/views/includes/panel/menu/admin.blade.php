@@ -24,6 +24,11 @@
     </a>
 </li>
 <li class="nav-item">
+    <a class="nav-link" href="/families">
+        <i class="fas fa-layer-group text-blue"></i> Familias de Producto
+    </a>
+</li>
+<li class="nav-item">
     <a class="nav-link" href="/products">
         <i class="fas fa-cube text-orange"></i> Productos
     </a>
