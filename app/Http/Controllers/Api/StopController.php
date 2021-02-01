@@ -70,7 +70,7 @@ class StopController extends Controller
      */
     public function show($id)
     {
-        return Stop::findOrFail($id)->with([
+        return Stop::whereId($id)->with([
             'code' => function($query) {
                 $query->select('id', 'code', 'description','type');
             }, 
