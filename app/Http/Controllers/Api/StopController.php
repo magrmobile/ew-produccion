@@ -111,7 +111,11 @@ class StopController extends Controller
                     ->latest('id')
                     ->first();
         
-        $success = $stop->stop_datetime_end_12;
+        if($stop){
+            $success = $stop->stop_datetime_end_12;
+        }else {
+            $success = auth()->user()->lastLoginAt();
+        }
 
         return compact('success');
     }
