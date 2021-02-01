@@ -114,7 +114,13 @@ class StopController extends Controller
         if($stop){
             $success = $stop->stop_datetime_end_12;
         }else {
-            $success = auth()->user()->lastLoginAt();
+            $user = Auth::guard('api')->user();
+
+            $ip = $request->ip();
+            $userAgent = $request->userAgent();
+            $known = $user->authentications()->whereIpAddress($ip)->whereUserAgent($userAgent)->first();
+
+            $success = $known->lastLoginAt();
         }
 
         return compact('success');
