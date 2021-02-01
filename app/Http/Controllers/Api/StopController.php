@@ -111,9 +111,9 @@ class StopController extends Controller
                     ->latest('id')
                     ->first();
         
-        if(isset($stop->stop_datetime_end_12)){
+        /*if(isset($stop->stop_datetime_end_12)){
             $success = $stop->stop_datetime_end_12;
-        }else {
+        }else {*/
             $user = Auth::guard('api')->user();
 
             $ip = $request->ip();
@@ -121,7 +121,7 @@ class StopController extends Controller
             $known = $user->authentications()->whereIpAddress($ip)->whereUserAgent($userAgent)->first();
 
             $success = $known->login_at;
-        }
+        //}
 
         return compact('success');
     }
