@@ -120,7 +120,7 @@ class StopController extends Controller
             $userAgent = $request->userAgent();
             $known = $user->authentications()->whereIpAddress($ip)->whereUserAgent($userAgent)->first();
 
-            $success = $known['login_at'];
+            $success = $known;
         }
 
         return compact('success');
