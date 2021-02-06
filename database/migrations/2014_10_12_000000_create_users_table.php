@@ -17,8 +17,8 @@ class CreateUsersTable extends Migration
             $table->increments('id');
 
             $table->string('name');
-            $table->string('email')->unique();
-            $table->string('username', 10)->unique();
+            $table->string('email')->nullable();
+            $table->string('username', 50)->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('active_user', ['enabled', 'disabled'])->nullable()->default('enabled');

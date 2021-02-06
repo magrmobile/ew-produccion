@@ -19,7 +19,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'username', 'email', 'password','role'
+        'name', 'username', 'email', 'password','role','machine_id'
     ];
 
     /**
@@ -59,5 +59,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Stop::class, 'operator_id')
                     ->whereDate('stop_datetime_end','=',Carbon::now()->toDateString());
+    }
+
+    public function machines()
+    {
+        return $this->belongsToMany(Machine::class)->withTimestamps();
     }
 }

@@ -18,4 +18,9 @@ class Machine extends Model
     {
         return $this->hasOne(Device::class);
     }
+
+    public function operators()
+    {
+        return $this->belongsToMany(User::class)->withTimestamps();
+    }
 }

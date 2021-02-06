@@ -4,11 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Code extends Model
+class Conversion extends Model
 {
     protected $fillable = [
-        'description',
-        'type'
+        'package', 'factor', 'type'
     ];
 
     protected $hidden = [

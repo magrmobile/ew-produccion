@@ -14,6 +14,8 @@ class Stop extends Model
         'product_id',
         'color_id',
         'code_id',
+        'conversion_id',
+        'quantity',
         'meters',
         'comment',
         'stop_datetime_start',
@@ -21,7 +23,7 @@ class Stop extends Model
     ];
 
     protected $hidden = [
-        'code_id', 'machine_id', 'product_id', 'color_id', 'created_at', 'updated_at'
+        'code_id', 'machine_id', 'product_id', 'color_id', 'conversion_id', 'created_at', 'updated_at'
     ];
 
     protected $appends = [
@@ -56,6 +58,12 @@ class Stop extends Model
     public function code() 
     {
         return $this->belongsTo(Code::class);
+    }
+
+    // N $stop->conversion 1
+    public function conversion() 
+    {
+        return $this->belongsTo(Conversion::class);
     }
 
     // accesor

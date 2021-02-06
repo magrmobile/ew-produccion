@@ -29,6 +29,11 @@
     </a>
 </li>
 <li class="nav-item">
+    <a class="nav-link" href="/conversions">
+        <i class="fas fa-calculator text-magenta"></i> Conversiones
+    </a>
+</li>
+<li class="nav-item">
     <a class="nav-link" href="/products">
         <i class="fas fa-cube text-orange"></i> Productos
     </a>

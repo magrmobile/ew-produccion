@@ -36,7 +36,14 @@ class CreateStopsTable extends Migration
             $table->unsignedInteger('code_id');
             $table->foreign('code_id')->references('id')->on('codes');
 
-            $table->integer('meters')->nullable();
+            // fk conversion
+            $table->unsignedInteger('conversion_id')->nullable();
+            $table->foreign('conversion_id')->references('id')->on('conversions');
+
+            $table->integer('quantity')->nullable();
+
+            $table->float('meters')->nullable();
+
             $table->string('comment')->nullable();
 
             // Fecha y Hora de Inicio de Stop

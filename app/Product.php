@@ -10,6 +10,10 @@ class Product extends Model
         'product_name', 'metal_type', 'stock'
     ];
 
+    protected $hidden = [
+        'created_at', 'updated_at', 'family_id'
+    ];
+
     // N $stop->machine 1
     public function family() 
     {

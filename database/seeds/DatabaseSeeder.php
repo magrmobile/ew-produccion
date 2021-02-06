@@ -18,7 +18,8 @@ class DatabaseSeeder extends Seeder
             //FamilyTableSeeder::class,
             ProductTableSeeder::class,
             ColorTableSeeder::class,
-            CodeTableSeeder::class
+            CodeTableSeeder::class,
+            ConversionTableSeeder::class
         ]);
     }
 }
