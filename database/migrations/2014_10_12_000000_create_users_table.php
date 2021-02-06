@@ -27,6 +27,10 @@ class CreateUsersTable extends Migration
 
             $table->integer('supervisor_id')->nullable();
 
+            // fk machine
+            $table->unsignedInteger('machine_id')->nullable();
+            $table->foreign('family_id')->references('id')->on('families');
+
             $table->rememberToken();
             $table->timestamps();
         });
