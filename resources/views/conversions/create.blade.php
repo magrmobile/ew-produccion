@@ -27,8 +27,8 @@
         <form action="{{ url('conversions') }}" method="post">
             @csrf
             <div class="form-group">
-                <label for="package">Paquete</label>
-                <input type="text" name="package" class="form-control" value="{{ old('package') }}" required>
+                <label for="description">Descripcion</label>
+                <input type="text" name="description" class="form-control" value="{{ old('description') }}" required>
             </div>
             <div class="form-group">
                 <label for="factor">Factor</label>

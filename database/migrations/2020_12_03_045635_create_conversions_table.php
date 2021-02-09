@@ -16,7 +16,7 @@ class CreateConversionsTable extends Migration
         Schema::create('conversions', function (Blueprint $table) {
             $table->increments('id');
 
-            $table->string('package')->unique;
+            $table->string('description')->unique;
             $table->float('factor');
             $table->string('type'); // R (Rollos) / C (Carrete)
             

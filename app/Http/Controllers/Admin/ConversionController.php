@@ -41,7 +41,7 @@ class ConversionController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'package' => 'required|min:3',
+            'description' => 'required|min:3',
             'factor' => 'required|float',
             'type' => 'required'
         ];
@@ -49,7 +49,7 @@ class ConversionController extends Controller
         $this->validate($request, $rules);
 
         Conversion::create(
-            $request->only('package','factor','type')
+            $request->only('description','factor','type')
         );
 
         $notification = 'La Conversion se ha registrado correctamente';
@@ -88,13 +88,13 @@ class ConversionController extends Controller
     public function update(Request $request, Conversion $conversion)
     {
         $rules = [
-            'package' => 'required|min:3',
+            'description' => 'required|min:3',
             'factor' => 'required|float',
             'type' => 'required'
         ];
 
         $this->validate($request, $rules);
-        $data = $request->only('package','factor','type');
+        $data = $request->only('description','factor','type');
 
         $conversion->fill($data);
         $conversion->save(); // UPDATE

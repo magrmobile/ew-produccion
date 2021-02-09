@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Conversion extends Model
 {
     protected $fillable = [
-        'package', 'factor', 'type'
+        'description', 'factor', 'type'
     ];
 
     protected $hidden = [

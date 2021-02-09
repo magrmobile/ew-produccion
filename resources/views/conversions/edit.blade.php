@@ -28,8 +28,8 @@
             @csrf
             @method('PUT')
             <div class="form-group">
-                <label for="package">Paquete</label>
-                <input type="text" name="package" class="form-control" value="{{ old('package', $conversion->package) }}" required>
+                <label for="description">Descripcion</label>
+                <input type="text" name="description" class="form-control" value="{{ old('description', $conversion->description) }}" required>
             </div>
             <div class="form-group">
                 <label for="factor">Factor</label>

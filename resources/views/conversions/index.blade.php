@@ -26,7 +26,7 @@
         <table class="table align-items-center table-flush">
         <thead class="thead-light">
             <tr>
-            <th scope="col">Paquete</th>
+            <th scope="col">Descripcion</th>
             <th scope="col">Factor</th>
             <th scope="col">Tipo</th>
             <th scope="col">Opciones</th>
@@ -36,7 +36,7 @@
             @foreach($conversions as $conversion)
             <tr>
             <th scope="row">
-                {{ $conversion-> package }}
+                {{ $conversion-> description }}
             </th>
             <td>
                 {{ $conversion-> factor }}
