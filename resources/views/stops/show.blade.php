@@ -59,6 +59,16 @@
                 <div class="col-6 row-title">Tipo de Paro:</div>
                 <div class="col-6">{{ $stop->code->type }}</div>
                 <div class="w-100"></div>
+                @if($stop->machine->process == 'Trifilado' || $stop->machine->process == 'Fraccionado')
+                    @if(isset($stop->conversion))
+                    <div class="col-6 row-title">Empaque:</div>
+                    <div class="col-6">{{ $stop->conversion->package }} ({{ $stop->conversion->factor }} Mts.)</div>
+                    <div class="w-100"></div>
+                    <div class="col-6 row-title">Cantidad:</div>
+                    <div class="col-6">{{ $stop->quantity }}</div>
+                    <div class="w-100"></div>
+                    @endif
+                @endif
                 @if(isset($stop->meters))
                 <div class="col-6 row-title">Metros Producidos:</div>
                 <div class="col-6">{{ $stop->meters.' Mts.' }}</div>

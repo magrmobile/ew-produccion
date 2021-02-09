@@ -29,20 +29,24 @@
             <th scope="col">Usuario</th>
             <th scope="col">Nombre</th>
             <th scope="col">Supervisor</th>
+            <th scope="col">Maquina</th>
             <th scope="col">Opciones</th>
             </tr>
         </thead>
         <tbody>
             @foreach($operators as $operator)
             <tr>
-            <th scope="row">
+            <td scope="row">
                 {{ $operator-> username }}
-            </th>
-            <th scope="row">
+            </td>
+            <td scope="row">
                 {{ $operator-> name }}
-            </th>
+            </td>
             <td>
                 <!-- Supervisor -->
+            </td>
+            <td scope="row">
+                {{ $operator->machine['machine_name'] }}
             </td>
             <td>
                 <form action="{{ url('/operators/'.$operator->id) }}" method="POST">

@@ -21,6 +21,6 @@ class Machine extends Model
 
     public function operators()
     {
-        return $this->belongsToMany(User::class)->withTimestamps();
+        return $this->hasMany(User::class);
     }
 }

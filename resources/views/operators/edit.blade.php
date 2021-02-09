@@ -40,6 +40,15 @@
                 <input type="text" name="password" class="form-control" value="">
                 <p>Ingrese un valor solo si desea modificar la contraseña</p>
             </div>
+            <div id="div_machine" class="form-group">
+                <label for="machine">Maquina</label>
+                <select name="machine_id" id="machine_id" class="form-control form-control-sm" data-live-search="true">
+                    <option value="">Seleccionar Maquina</option>
+                    @foreach($machines as $machine)
+                        <option value="{{ $machine->id }}" @if(old('machine_id',$operator->machine_id) == $machine->id) selected @endif>{{ $machine->machine_name }}</option>
+                    @endforeach
+                </select>
+            </div>
             <button class="btn btn-primary" type="submit">
                 Guardar
             </button>

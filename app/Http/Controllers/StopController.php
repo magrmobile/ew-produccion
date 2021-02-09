@@ -10,6 +10,7 @@ use App\Code;
 use App\Color;
 use Carbon\Carbon;
 use App\Stop;
+use App\Conversion;
 use App\Http\Requests\StoreStop;
 
 class StopController extends Controller
@@ -39,6 +40,7 @@ class StopController extends Controller
         $products = Product::all();
         $codes = Code::all();
         $colors = Color::all();
+        $conversions = Conversion::all();
         $lastStop = Stop::where('operator_id', auth()->user()->id)
                         //->where('machine_id', $machine_id)
                         ->latest('id')
@@ -49,7 +51,7 @@ class StopController extends Controller
             $dateInit = auth()->user()->lastLoginAt();
         }
         
-        return view('stops.create', compact('machines','products','codes','colors','dateInit'));
+        return view('stops.create', compact('machines','products','codes','colors','dateInit','conversions'));
     }
 
     /**
@@ -107,7 +109,8 @@ class StopController extends Controller
         $products = Product::all();
         $codes = Code::all();
         $colors = Color::all();
-        return view('stops.edit', compact('stop','machines','products','codes','colors'));
+        $conversions = Conversion::all();
+        return view('stops.edit', compact('stop','machines','products','codes','colors','conversions'));
     }
 
     /**

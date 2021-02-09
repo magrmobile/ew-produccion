@@ -33,6 +33,10 @@ Route::get('/colors/{color}', 'ColorController@show');
 Route::get('/codes', 'CodeController@index');
 Route::get('/codes/{code}', 'CodeController@show');
 
+// Conversion API
+Route::get('/conversions', 'ConversionController@index');
+Route::get('/conversions/{conversion}', 'ConversionController@show');
+
 Route::group(['middleware' => ['auth:api']], function () {
     
     Route::get('/user', 'UserController@show');

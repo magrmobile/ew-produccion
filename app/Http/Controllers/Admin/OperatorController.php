@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\User;
+use App\Machine;
 
 use Exception;
 
@@ -29,7 +30,8 @@ class OperatorController extends Controller
      */
     public function create()
     {
-        return view('operators.create');
+        $machines = Machine::all();
+        return view('operators.create',compact('machines'));
     }
 
     /**
@@ -41,16 +43,15 @@ class OperatorController extends Controller
     public function store(Request $request)
     {
         $rules = [
+            'username' => 'required|min:8',
             'name' => 'required|min:3',
-            'email' => 'required|email',
-            'dni' => 'nullable|digits:8',
-            'phone' => 'nullable|min:6'
+            'machine_id' => 'required'
         ];
 
         $this->validate($request, $rules);
 
         User::create(
-            $request->only('name','email','dni','address','phone')
+            $request->only('username','name','machine_id')
             + [
                 'role' => 'operator',
                 'password' => bcrypt($request->input('password'))
@@ -80,7 +81,8 @@ class OperatorController extends Controller
      */
     public function edit(User $operator)
     {
-        return view('operators.edit', compact('operator'));
+        $machines = Machine::all();
+        return view('operators.edit', compact('operator','machines'));
     }
 
     /**
@@ -93,17 +95,16 @@ class OperatorController extends Controller
     public function update(Request $request, $id)
     {
         $rules = [
+            'username' => 'required|min:8',
             'name' => 'required|min:3',
-            'email' => 'required|email',
-            'dni' => 'nullable|digits:8',
-            'phone' => 'nullable|min:6'
+            'machine_id' => 'required'
         ];
 
         $this->validate($request, $rules);
 
         $user = User::operators()->findOrFail($id);
         
-        $data = $request->only('name','email','dni','phone');
+        $data = $request->only('username','name','machine_id');
         $password = $request->input('password');
 
         if($password)

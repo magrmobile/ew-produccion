@@ -60,10 +60,10 @@
             </div>
             <div id="div_machine" class="form-group">
                 <label for="machine_id">Maquina</label>
-                <select name="machine_id" id="machine_id" class="form-control form-control-sm" data-live-search="true">
+                <select name="machine_id" id="machine_id" class="form-control form-control-sm" data-live-search="true" onchange="cargarFormulario()">
                     <option value="">Seleccionar Maquina</option>
                     @foreach($machines as $machine)
-                        <option value="{{ $machine->id }}" @if(old('machine_id') == $machine->id) selected @endif>{{ $machine->machine_name }}</option>
+                        <option value="{{ $machine->id }}" @if(old('machine_id',auth()->user()->machine->id) == $machine->id) selected @endif>{{ $machine->machine_name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -88,9 +88,24 @@
                     <!--<input type="color" class="form-control" name="color" id="color">-->
                 </div>
             </div>
-            <div id="div_meters" class="form-group" style="display:none;">
-                <label for="meters">Metros Producidos</label>
-                <input name="meters" value="{{ old('meters') }}" id="meters" type="text" class="form-control form-control-sm" placeholder="Ingrese la cantidad de metros producidos">
+            <div class="form-row">
+                <div id="div_conversion" class="form-group col-md-4" style="display:none;">
+                    <label for="conversion_id">Conversión</label>
+                    <select name="conversion_id" id="conversion_id" class="form-control form-control-sm" onchange="calcularConversion()">
+                        <option value="">Seleccionar Conversión</option>
+                        @foreach($conversions as $conversion)
+                            <option value="{{ $conversion->id }}" @if(old('conversion_id') == $conversion->id) selected @endif>{{ $conversion->package }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div id="div_quantity" class="form-group col-md-4" style="display:none;">
+                    <label for="quantity">Cantidad</label>
+                    <input name="quantity" value="{{ old('quantity') }}" id="quantity" type="text" class="form-control form-control-sm" placeholder="Ingrese la Cantidad">
+                </div>
+                <div id="div_meters" class="form-group col-md-4" style="display:inline;">
+                    <label for="meters">Metros Producidos</label>
+                    <input name="meters" value="{{ old('meters') }}" id="meters" type="text" class="form-control form-control-sm" placeholder="Ingrese la cantidad de metros producidos">
+                </div>
             </div>
             <div id="div_comment" class="form-group">
                 <label for="comment">Observaciones</label>

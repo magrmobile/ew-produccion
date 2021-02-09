@@ -61,8 +61,8 @@ class User extends Authenticatable
                     ->whereDate('stop_datetime_end','=',Carbon::now()->toDateString());
     }
 
-    public function machines()
+    public function machine()
     {
-        return $this->belongsToMany(Machine::class)->withTimestamps();
+        return $this->belongsTo(Machine::class);
     }
 }
