@@ -19,8 +19,8 @@ class Machine extends Model
         return $this->hasOne(Device::class);
     }
 
-    public function operators()
+    public function process()
     {
-        return $this->hasMany(User::class);
+        return $this->belongsTo(Process::class);
     }
 }

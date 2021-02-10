@@ -30,23 +30,14 @@
                 <label for="machine_name">Nombre de la Maquina</label>
                 <input type="text" name="machine_name" class="form-control" value="{{ old('machine_name') }}" required>
             </div>
-            <div class="form-group">
-                <label for="process">Proceso</label>
-                <div class="custom-control custom-radio mb-3">
-                    <input name="process" class="custom-control-input" id="process1" type="radio"
-                        @if(old('process', 'Trifilado') == 'Trifilado') checked @endif value="Trifilado">
-                    <label for="process1" class="custom-control-label">Trifilado</label>
-                </div>
-                <div class="custom-control custom-radio mb-3">
-                    <input name="process" class="custom-control-input" id="process2" type="radio"
-                        @if(old('process', 'Cableado') == 'Cableado') checked @endif value="Cableado">
-                    <label for="process2" class="custom-control-label">Cableado</label>
-                </div>
-                <div class="custom-control custom-radio mb-3">
-                    <input name="process" class="custom-control-input" id="process3" type="radio"
-                        @if(old('process', 'Fraccionado') == 'Fraccionado') checked @endif value="Fraccionado">
-                    <label for="process3" class="custom-control-label">Fraccionado</label>
-                </div>
+            <div id="div_process" class="form-group">
+                <label for="process_id">Proceso</label>
+                <select name="process_id" id="process_id" class="form-control">
+                    <option value="">Seleccionar Proceso</option>
+                    @foreach($processes as $process)
+                        <option value="{{ $process->id }}" @if(old('process_id') == $process->id) selected @endif>{{ $process->description }}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="form-group">
                 <label for="warehouse">Nave</label>

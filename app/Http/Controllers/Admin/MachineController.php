@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 
 use App\Machine;
 use App\Device;
+use App\Process;
 
 use Exception;
 
@@ -31,7 +32,8 @@ class MachineController extends Controller
     public function create()
     {
         $devices = Device::all();
-        return view('machines.create', compact('devices'));
+        $processes = Process::all();
+        return view('machines.create', compact('devices','processes'));
     }
 
     /**
@@ -79,7 +81,8 @@ class MachineController extends Controller
     public function edit(Machine $machine)
     {
         $devices = Device::all();
-        return view('machines.edit', compact('machine','devices'));
+        $processes = Process::all();
+        return view('machines.edit', compact('machine','devices','processes'));
     }
 
     /**

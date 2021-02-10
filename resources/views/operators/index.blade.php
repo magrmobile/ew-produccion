@@ -29,7 +29,7 @@
             <th scope="col">Usuario</th>
             <th scope="col">Nombre</th>
             <th scope="col">Supervisor</th>
-            <th scope="col">Maquina</th>
+            <th scope="col">Proceso</th>
             <th scope="col">Opciones</th>
             </tr>
         </thead>
@@ -46,7 +46,7 @@
                 <!-- Supervisor -->
             </td>
             <td scope="row">
-                {{ $operator->machine['machine_name'] }}
+                {{ $operator->process['description'] }}
             </td>
             <td>
                 <form action="{{ url('/operators/'.$operator->id) }}" method="POST">

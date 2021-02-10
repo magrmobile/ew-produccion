@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\User;
-use App\Machine;
+use App\Process;
 
 use Exception;
 
@@ -30,8 +30,8 @@ class OperatorController extends Controller
      */
     public function create()
     {
-        $machines = Machine::all();
-        return view('operators.create',compact('machines'));
+        $processes = Process::all();
+        return view('operators.create',compact('processes'));
     }
 
     /**
@@ -45,13 +45,13 @@ class OperatorController extends Controller
         $rules = [
             'username' => 'required|min:8',
             'name' => 'required|min:3',
-            'machine_id' => 'required'
+            'process_id' => 'required'
         ];
 
         $this->validate($request, $rules);
 
         User::create(
-            $request->only('username','name','machine_id')
+            $request->only('username','name','process_id')
             + [
                 'role' => 'operator',
                 'password' => bcrypt($request->input('password'))
@@ -81,8 +81,8 @@ class OperatorController extends Controller
      */
     public function edit(User $operator)
     {
-        $machines = Machine::all();
-        return view('operators.edit', compact('operator','machines'));
+        $processes = Process::all();
+        return view('operators.edit', compact('operator','processes'));
     }
 
     /**
@@ -97,14 +97,14 @@ class OperatorController extends Controller
         $rules = [
             'username' => 'required|min:8',
             'name' => 'required|min:3',
-            'machine_id' => 'required'
+            'process_id' => 'required'
         ];
 
         $this->validate($request, $rules);
 
         $user = User::operators()->findOrFail($id);
         
-        $data = $request->only('username','name','machine_id');
+        $data = $request->only('username','name','process_id');
         $password = $request->input('password');
 
         if($password)

@@ -38,12 +38,12 @@
                 <label for="password">Contraseña</label>
                 <input type="text" name="password" class="form-control" value="{{ str_random(6) }}">
             </div>
-            <div id="div_machine" class="form-group">
-                <label for="machine_id">Maquina</label>
-                <select name="machine_id" id="machine_id" class="form-control form-control-sm" data-live-search="true">
-                    <option value="">Seleccionar Maquina</option>
-                    @foreach($machines as $machine)
-                        <option value="{{ $machine->id }}" @if(old('machine_id') == $machine->id) selected @endif>{{ $machine->machine_name }}</option>
+            <div id="div_process" class="form-group">
+                <label for="process_id">Proceso</label>
+                <select name="process_id" id="process_id" class="form-control form-control-sm" data-live-search="true">
+                    <option value="">Seleccionar Proceso</option>
+                    @foreach($processes as $process)
+                        <option value="{{ $process->id }}" @if(old('process_id') == $process->id) selected @endif>{{ $process->description }}</option>
                     @endforeach
                 </select>
             </div>

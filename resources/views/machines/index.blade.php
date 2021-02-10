@@ -29,7 +29,6 @@
             <th scope="col">Nombre</th>
             <th scope="col">Proceso</th>
             <th scope="col">Nave</th>
-            <th scope="col">Operadores</th>
             <th scope="col">Opciones</th>
             </tr>
         </thead>
@@ -40,7 +39,7 @@
                 {{ $machine-> machine_name }}
             </th>
             <td>
-                {{ $machine-> process }}
+                {{ $machine-> process['description'] }}
             </td>
             <td>
                 @if($machine-> warehouse == "AL")
@@ -48,13 +47,6 @@
                 @elseif($machine-> warehouse == "CU")
                     Cobre (CU)
                 @endif
-            </td>
-            <td>
-                <ul>
-                @foreach($machine->operators as $operator)
-                    <li>{{ $operator->name }}</li>
-                @endforeach
-                </ul>
             </td>
             <td>
                 <form action="{{ url('/machines/'.$machine->id) }}" method="POST">
