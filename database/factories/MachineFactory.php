@@ -5,7 +5,7 @@ use Faker\Generator as Faker;
 $factory->define(App\Machine::class, function (Faker $faker) {
     return [
         'machine_name' => $faker->unique()->name,
-        'process' => $faker->randomElement(['Trifilado', 'Cableado', 'Fraccionado']),
+        'process_id' => $faker->randomElement([1,2,3,4]),
         'warehouse' => $faker->randomElement(['AL', 'CU']),
     ];
 });

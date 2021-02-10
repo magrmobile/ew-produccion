@@ -4,19 +4,19 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Machine extends Model
+class Process extends Model
 {
     protected $fillable = [
-        'machine_name', 'process_id', 'warehouse', 'device_id'
+        'description'
     ];
 
     protected $hidden = [
-        'created_at','updated_at','device_id'
+        'created_at','updated_at'
     ];
 
-    public function device()
+    public function machines()
     {
-        return $this->hasOne(Device::class);
+        return $this->hasMany(Machine::class);
     }
 
     public function operators()

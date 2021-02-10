@@ -17,11 +17,16 @@ class CreateMachinesTable extends Migration
             $table->increments('id');
 
             $table->string('machine_name')->unique();
-            $table->string('process'); // Trefilado, Cableado, Fraccionado
+            //$table->string('process'); // Trefilado, Cableado, Fraccionado
             $table->string('warehouse'); // AL(Aluminio), CU(Cobre)
 
+            // fk - device
             $table->unsignedInteger('device_id')->nullable();
             $table->foreign('device_id')->references('id')->on('devices');
+
+            // fk - process
+            $table->unsignedInteger('process_id')->nullable();
+            $table->foreign('process_id')->references('id')->on('processes');
 
             $table->timestamps();
         });

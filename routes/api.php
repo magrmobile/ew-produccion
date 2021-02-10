@@ -41,6 +41,7 @@ Route::group(['middleware' => ['auth:api']], function () {
     
     Route::get('/user', 'UserController@show');
     Route::post('/logout', 'AuthController@logout');
+    Route::get('/user/process/{machine_id}', 'UserController@operatorsByProcess');
 
     // Post Appointment
     Route::get('/stops', 'StopController@index');
