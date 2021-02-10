@@ -96,7 +96,7 @@ class MachineController extends Controller
     {
         $rules = [
             'machine_name' => 'required|min:3',
-            'process' => 'required',
+            'process_id' => 'required',
             'warehouse' => 'required',
             'device_id' => 'required|exists:devices,id'
         ];
