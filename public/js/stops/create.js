@@ -87,9 +87,9 @@ function cargarFormulario() {
                 $div_color.hide();
                 $color_id.removeAttr('required');
                 $product_id.val(null);
-                $div_conversion.show();
+                $div_conversion.hide();
                 $conversion_id.val(null);
-                $div_quantity.show();
+                $div_quantity.hide();
                 $quantity.val(null);
                 $div_meters.hide();
                 $meters.removeAttr('required');
@@ -114,9 +114,9 @@ function cargarFormulario() {
                 $div_color.hide();
                 $color_id.removeAttr('required');
                 $color_id.val(null);
-                $div_conversion.show();
+                $div_conversion.hide();
                 $conversion_id.val(null);
-                $div_quantity.show();
+                $div_quantity.hide();
                 $quantity.val(null);
                 $div_meters.hide();
                 $meters.removeAttr('required');
@@ -129,9 +129,9 @@ function cargarFormulario() {
                 $product_id.removeAttr('required');
                 $div_color.hide();
                 $color_id.removeAttr('required');
-                $div_conversion.show();
+                $div_conversion.hide();
                 $conversion_id.val(null);
-                $div_quantity.show();
+                $div_quantity.hide();
                 $quantity.val(null);
                 $div_meters.hide();
                 $meters.removeAttr('required');

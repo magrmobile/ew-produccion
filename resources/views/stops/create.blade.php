@@ -63,7 +63,7 @@
                 <select name="machine_id" id="machine_id" class="form-control form-control-sm" data-live-search="true" onchange="cargarFormulario()">
                     <option value="">Seleccionar Maquina</option>
                     @foreach($machines as $machine)
-                        <option value="{{ $machine->id }}" @if(old('machine_id',auth()->user()->machine->id) == $machine->id) selected @endif>{{ $machine->machine_name }}</option>
+                        <option value="{{ $machine->id }}" @if(old('machine_id') == $machine->id) selected @endif>{{ $machine->machine_name }}</option>
                     @endforeach
                 </select>
             </div>
