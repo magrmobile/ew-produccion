@@ -27,6 +27,7 @@
         <thead class="thead-light">
             <tr>
             <th scope="col">Descripcion</th>
+            <th scope="col">Opciones</th>
             </tr>
         </thead>
         <tbody>

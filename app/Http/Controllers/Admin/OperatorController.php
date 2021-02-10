@@ -20,6 +20,7 @@ class OperatorController extends Controller
     public function index()
     {
         $operators = User::operators()->paginate(5);
+        //$operators = User::all();
         return view('operators.index', compact('operators'));
     }
 

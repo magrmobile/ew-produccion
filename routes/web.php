@@ -32,6 +32,9 @@ Route::middleware(['auth','admin'])->namespace('Admin')->group(function() {
     // Supervisors
     Route::resource('supervisors', 'SupervisorController');
 
+    // Processes
+    Route::resource('processes', 'ProcessController');
+
     // Machines
     Route::resource('devices', 'DeviceController');
 

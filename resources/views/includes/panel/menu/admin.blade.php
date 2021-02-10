@@ -19,6 +19,11 @@
     </a>
 </li>
 <li class="nav-item">
+    <a class="nav-link" href="/processes">
+        <i class="fas fa-calculator text-magenta"></i> Procesos
+    </a>
+</li>
+<li class="nav-item">
     <a class="nav-link" href="/machines">
         <i class="fas fa-cogs text-purple"></i> Maquinas
     </a>

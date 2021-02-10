@@ -16,7 +16,8 @@ class ProcessController extends Controller
      */
     public function index()
     {
-        //
+        $processes = Process::latest()->paginate(5);
+        return view('processes.index', compact('processes'));
     }
 
     /**
@@ -26,7 +27,7 @@ class ProcessController extends Controller
      */
     public function create()
     {
-        //
+        return view('processes.create');
     }
 
     /**
@@ -37,7 +38,18 @@ class ProcessController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $rules = [
+            'description' => 'required|min:3',
+        ];
+
+        $this->validate($request, $rules);
+
+        Process::create(
+            $request->only('description')
+        );
+
+        $notification = 'El Proceso se ha registrado correctamente';
+        return redirect('/processes')->with(compact('notification'));
     }
 
     /**
@@ -59,7 +71,7 @@ class ProcessController extends Controller
      */
     public function edit(Process $process)
     {
-        //
+        return view('processes.edit', compact('process'));
     }
 
     /**
@@ -71,7 +83,18 @@ class ProcessController extends Controller
      */
     public function update(Request $request, Process $process)
     {
-        //
+        $rules = [
+            'description' => 'required|min:3'
+        ];
+
+        $this->validate($request, $rules);
+        $data = $request->only('description');
+
+        $color->fill($data);
+        $color->save(); // UPDATE
+
+        $notification = 'El Proceso se ha registrado correctamente';
+        return redirect('/processes')->with(compact('notification'));
     }
 
     /**
@@ -82,6 +105,21 @@ class ProcessController extends Controller
      */
     public function destroy(Process $process)
     {
-        //
+        $processName = $process->description;
+
+        try {
+            $process->delete();
+            $notification = "El Proces $processName ha sido eliminado correctamente";
+        } catch(Exception $e) {
+            $error = "";
+            
+            switch($e->getCode()) {
+                case 23000 : $error = "Eliminacion del Proceso no permitido ya que tiene Paros Asociados."; break;
+            }
+
+            $notification = $error;
+        }
+
+        return redirect('/processes')->with(compact('notification'));
     }
 }
