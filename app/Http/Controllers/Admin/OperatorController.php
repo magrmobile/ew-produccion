@@ -45,13 +45,14 @@ class OperatorController extends Controller
         $rules = [
             'username' => 'required|min:8',
             'name' => 'required|min:3',
+            'email' => 'email',
             'process_id' => 'required'
         ];
 
         $this->validate($request, $rules);
 
         User::create(
-            $request->only('username','name','process_id')
+            $request->only('username','name','email','process_id')
             + [
                 'role' => 'operator',
                 'password' => bcrypt($request->input('password'))
@@ -97,6 +98,7 @@ class OperatorController extends Controller
         $rules = [
             'username' => 'required|min:8',
             'name' => 'required|min:3',
+            'email' => 'email',
             'process_id' => 'required'
         ];
 
@@ -104,7 +106,7 @@ class OperatorController extends Controller
 
         $user = User::operators()->findOrFail($id);
         
-        $data = $request->only('username','name','process_id');
+        $data = $request->only('username','name','email','process_id');
         $password = $request->input('password');
 
         if($password)
