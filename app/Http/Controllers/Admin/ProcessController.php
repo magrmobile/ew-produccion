@@ -90,8 +90,8 @@ class ProcessController extends Controller
         $this->validate($request, $rules);
         $data = $request->only('description');
 
-        $color->fill($data);
-        $color->save(); // UPDATE
+        $process->fill($data);
+        $process->save(); // UPDATE
 
         $notification = 'El Proceso se ha registrado correctamente';
         return redirect('/processes')->with(compact('notification'));
