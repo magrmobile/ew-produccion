@@ -48,7 +48,7 @@ class MachineController extends Controller
      */
     public function show($id)
     {
-        return Machine::whereId($id)->get();
+        return Machine::findOrFail($id);
     }
 
     /**
