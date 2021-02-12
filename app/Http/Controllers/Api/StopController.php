@@ -32,7 +32,7 @@ class StopController extends Controller
                 $query->select('id', 'name','hex_code');
             },
             'conversion' => function($query) {
-                $query->select('id', 'description');
+                $query->select('id', 'description', 'factor', 'type');
             },
             'operator' => function($query) {
                 $query->select('id', 'name', 'username');
@@ -44,6 +44,7 @@ class StopController extends Controller
             "product_id",
             "color_id",
             "operator_id",
+            "conversion_id",
             "meters",
             "comment",
             "stop_datetime_start",
