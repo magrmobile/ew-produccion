@@ -20,7 +20,7 @@ class MachineController extends Controller
      */
     public function index()
     {
-        $machines = Machine::latest()->paginate(5);
+        $machines = Machine::latest()->paginate(10);
         return view('machines.index', compact('machines'));
     }
 
