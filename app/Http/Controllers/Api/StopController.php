@@ -17,8 +17,9 @@ class StopController extends Controller
         $machine_id = $request->only("machine_id");
         $order = $request->only("order");
 
-        $user = Auth::guard('api')->user();
-        return $user->asOperatorStops()->where('machine_id',$machine_id)->with([
+        //$user = Auth::guard('api')->user();
+        //return $user->asOperatorStops()->where('machine_id',$machine_id)->with([
+        return Stop::where('machine_id',$machine_id)->with([
             'code' => function($query) {
                 $query->select('id', 'code', 'description','type');
             }, 
