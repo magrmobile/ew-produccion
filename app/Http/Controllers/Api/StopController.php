@@ -31,6 +31,9 @@ class StopController extends Controller
             'color' => function($query) {
                 $query->select('id', 'name','hex_code');
             },
+            'conversion' => function($query) {
+                $query->select('id', 'description');
+            },
             'operator' => function($query) {
                 $query->select('id', 'name', 'username');
             }
