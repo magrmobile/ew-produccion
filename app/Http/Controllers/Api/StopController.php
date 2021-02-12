@@ -45,6 +45,7 @@ class StopController extends Controller
             "color_id",
             "operator_id",
             "conversion_id",
+            "quantity",
             "meters",
             "comment",
             "stop_datetime_start",
