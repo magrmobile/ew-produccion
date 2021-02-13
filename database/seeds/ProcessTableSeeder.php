@@ -14,7 +14,7 @@ class ProcessTableSeeder extends Seeder
     {
         Process::create([ 'description' => 'Cableado']);
         Process::create([ 'description' => 'Extrusion']);
-        Process::create([ 'description' => 'Trifilado']);
+        Process::create([ 'description' => 'Trefilado']);
         Process::create([ 'description' => 'Fraccionado']);
     }
 }
