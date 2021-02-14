@@ -91,7 +91,7 @@ class StopController extends Controller
                 $query->select('id', 'name','hex_code');
             },
             'operator' => function($query) {
-                $query->select('id', 'name', 'username');
+                $query->select('id', 'name', 'username', 'process_id');
             }
         ])->get([
             "id",
