@@ -82,7 +82,7 @@ class StopController extends Controller
                 $query->select('id', 'code', 'description','type');
             }, 
             'machine' => function($query) {
-                $query->select('id', 'machine_name');
+                $query->select('id', 'machine_name', 'process_id');
             }, 
             'product' => function($query) {
                 $query->select('id', 'product_name');
