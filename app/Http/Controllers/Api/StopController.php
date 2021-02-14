@@ -24,7 +24,7 @@ class StopController extends Controller
                 $query->select('id', 'code', 'description','type');
             }, 
             'machine' => function($query) {
-                $query->select('id', 'machine_name');
+                $query->select('id', 'machine_name', 'process_id');
             }, 
             'product' => function($query) {
                 $query->select('id', 'product_name');
@@ -36,7 +36,7 @@ class StopController extends Controller
                 $query->select('id', 'description', 'factor', 'type');
             },
             'operator' => function($query) {
-                $query->select('id', 'name', 'username');
+                $query->select('id', 'name', 'username', 'process_id');
             }
         ])->orderBy('id', 'ASC')->get([
             "id",
