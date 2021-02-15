@@ -46,7 +46,7 @@
                 <!-- Supervisor -->
             </td>
             <td scope="row">
-                
+                {{ $operator->process['description'] }}
             </td>
             <td>
                 <form action="{{ url('/operators/'.$operator->id) }}" method="POST">
