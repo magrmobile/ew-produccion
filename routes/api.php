@@ -43,10 +43,11 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::post('/logout', 'AuthController@logout');
     Route::get('/user/process/{machine_id}', 'UserController@operatorsByProcess');
 
-    // Post Appointment
-    Route::get('/stops', 'StopController@index');
-    Route::post('/stops', 'StopController@store');
-    Route::get('/stops/{stop}', 'StopController@show');
+    // Stops
+    //Route::get('/stops', 'StopController@index');
+    //Route::post('/stops', 'StopController@store');
+    //Route::get('/stops/{stop}', 'StopController@show');
+    Route::resource('stops', 'StopController');
 
     Route::get('/dev_machines', 'DeviceController@machines');
     Route::get('/last_datetime_stop', 'StopController@last_datetime_stop');
