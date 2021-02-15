@@ -68,7 +68,7 @@ function cargarFormulario() {
                 $product_id.attr('required', '');
                 $div_color.show();
                 $color_id.attr('required', '');
-                if (machine_process == "Trifilado" || machine_process == "Fraccionado") {
+                if (machine_process == "Trefilado" || machine_process == "Fraccionado") {
                     $div_conversion.show();
                     $div_quantity.show();
                 }
