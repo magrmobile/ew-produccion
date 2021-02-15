@@ -102,7 +102,7 @@ class MachineController extends Controller
         ];
 
         $this->validate($request, $rules);
-        $data = $request->only('machine_name','process','warehouse','device_id');
+        $data = $request->only('machine_name','process_id','warehouse','device_id');
 
         $machine->fill($data);
         $machine->save(); // UPDATE
