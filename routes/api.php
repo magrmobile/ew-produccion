@@ -47,6 +47,7 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::get('/stops', 'StopController@index');
     Route::post('/stops', 'StopController@store');
     Route::get('/stops/{stop}', 'StopController@show');
+    Route::put('/stops/{stop}', 'StopController@update');
     //Route::resource('stops', 'StopController');
 
     Route::get('/dev_machines', 'DeviceController@machines');

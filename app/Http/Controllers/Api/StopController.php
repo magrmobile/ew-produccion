@@ -19,7 +19,9 @@ class StopController extends Controller
 
         //$user = Auth::guard('api')->user();
         //return $user->asOperatorStops()->where('machine_id',$machine_id)->with([
-        return Stop::where('machine_id',$machine_id)->with([
+        return Stop::where('machine_id',$machine_id)
+            ->whereDate('stop_datetime_end','=',Carbon::now()->toDateString())
+            ->with([
             'code' => function($query) {
                 $query->select('id', 'code', 'description','type');
             }, 
@@ -135,5 +137,13 @@ class StopController extends Controller
         }
 
         return compact('success');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $stop = Stop::findOrFail($id);
+        $stop->update($request->all());
+
+        return $stop;
     }
 }
