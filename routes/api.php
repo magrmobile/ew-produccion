@@ -44,10 +44,10 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::get('/user/process/{machine_id}', 'UserController@operatorsByProcess');
 
     // Stops
-    //Route::get('/stops', 'StopController@index');
-    //Route::post('/stops', 'StopController@store');
-    //Route::get('/stops/{stop}', 'StopController@show');
-    Route::resource('stops', 'StopController');
+    Route::get('/stops', 'StopController@index');
+    Route::post('/stops', 'StopController@store');
+    Route::get('/stops/{stop}', 'StopController@show');
+    //Route::resource('stops', 'StopController');
 
     Route::get('/dev_machines', 'DeviceController@machines');
     Route::get('/last_datetime_stop', 'StopController@last_datetime_stop');
