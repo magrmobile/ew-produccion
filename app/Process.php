@@ -13,4 +13,14 @@ class Process extends Model
     protected $hidden = [
         'created_at','updated_at'
     ];
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function machines()
+    {
+        return $this->hasMany(Machine::class);
+    }
 }

@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ProcessTableSeeder::class,
             UserTableSeeder::class,
-            //DeviceTableSeeder::class,
+            DeviceTableSeeder::class,
             MachineTableSeeder::class,
             //FamilyTableSeeder::class,
             ProductTableSeeder::class,

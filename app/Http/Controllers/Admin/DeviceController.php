@@ -91,12 +91,12 @@ class DeviceController extends Controller
     {
         $rules = [
             'serial_number' => 'required|min:8',
-            'mac_address' => ['min:3', new MacAddress ],
+            //'mac_address' => ['min:3', new MacAddress ],
             'device_name' => 'required',
         ];
 
         $this->validate($request, $rules);
-        $data = $request->only('serial_number','mac_address','device_name','description');
+        $data = $request->only('serial_number','device_name','description');
 
         $device->fill($data);
         $device->save(); // UPDATE

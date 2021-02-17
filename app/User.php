@@ -65,4 +65,14 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Process::class);
     }
+
+    public function supervisor()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'supervisor_id');
+    }
 }

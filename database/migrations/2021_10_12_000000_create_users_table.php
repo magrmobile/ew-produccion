@@ -25,7 +25,8 @@ class CreateUsersTable extends Migration
             
             $table->string('role'); // 'admin', 'operator', 'supervisor', 'guest'
 
-            $table->integer('supervisor_id')->nullable();
+            $table->unsignedInteger('supervisor_id')->nullable();
+            $table->foreign('supervisor_id')->references('id')->on('users');
 
             //$table->unsignedInteger('machine_id')->nullable();
             //$table->foreign('machine_id')->references('id')->on('machines');

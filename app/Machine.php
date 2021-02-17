@@ -16,7 +16,7 @@ class Machine extends Model
 
     public function device()
     {
-        return $this->hasOne(Device::class);
+        return $this->belongsTo(Device::class);
     }
 
     public function process()
