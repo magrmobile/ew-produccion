@@ -19,9 +19,14 @@ class ProductController extends Controller
         return Product::all(['id','product_name','metal_type','stock']);
     }
 
-    public function getByProcess($proces_id = null) 
+    public function getByProcess($process_id) 
     {
-        return Product::whereProcessId($proces_id)->get(['id','product_name','metal_type','stock']);
+        if($process_id != 0) {
+            return Product::where('process_id', $process_id)->get(['id','product_name','metal_type','stock']);
+        } else {
+            return Product::all(['id','product_name','metal_type','stock']);
+        }
+        
     }
 
     /**
