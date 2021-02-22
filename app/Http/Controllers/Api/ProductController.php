@@ -16,12 +16,12 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return Product::all(['id','product_name','metal_type','stock','process_id']);
+        return Product::all(['id','product_name','metal_type','stock']);
     }
 
     public function getByProcess($proces_id = null) 
     {
-        return Product::whereProcessId($proces_id)->get(['id','product_name','metal_type','stock','process_id']);
+        return Product::whereProcessId($proces_id)->get(['id','product_name','metal_type','stock']);
     }
 
     /**
