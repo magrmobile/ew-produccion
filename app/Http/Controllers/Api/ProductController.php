@@ -14,7 +14,7 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($process_id = null)
+    public function index()
     {
         return Product::all(['id','product_name','metal_type','stock']);
     }

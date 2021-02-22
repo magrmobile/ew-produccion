@@ -99,8 +99,8 @@ class OperatorController extends Controller
     public function update(Request $request, $id)
     {
         $rules = [
-            'username' => 'required|min:8',
-            'name' => 'required|min:3',
+            'username' => 'required',
+            'name' => 'required',
             'email' => 'email',
             'process_id' => 'required'
         ];
