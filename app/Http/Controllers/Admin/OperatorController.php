@@ -32,7 +32,8 @@ class OperatorController extends Controller
     public function create()
     {
         $processes = Process::all();
-        return view('operators.create',compact('processes'));
+        $supervisors = User::supervisors()->get();
+        return view('operators.create',compact('processes','supervisors'));
     }
 
     /**
@@ -44,8 +45,8 @@ class OperatorController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'username' => 'required|min:8',
-            'name' => 'required|min:3',
+            'username' => 'required',
+            'name' => 'required',
             'email' => 'email',
             'process_id' => 'required'
         ];
@@ -53,7 +54,7 @@ class OperatorController extends Controller
         $this->validate($request, $rules);
 
         User::create(
-            $request->only('username','name','email','process_id')
+            $request->only('username','name','email','process_id','supervisor_id')
             + [
                 'role' => 'operator',
                 'password' => bcrypt($request->input('password'))
@@ -84,7 +85,8 @@ class OperatorController extends Controller
     public function edit(User $operator)
     {
         $processes = Process::all();
-        return view('operators.edit', compact('operator','processes'));
+        $supervisors = User::supervisors()->get();
+        return view('operators.edit', compact('operator','processes','supervisors'));
     }
 
     /**
@@ -107,7 +109,7 @@ class OperatorController extends Controller
 
         $user = User::operators()->findOrFail($id);
         
-        $data = $request->only('username','name','email','process_id');
+        $data = $request->only('username','name','email','process_id','supervisor_id');
         $password = $request->input('password');
 
         if($password)

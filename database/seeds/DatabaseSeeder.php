@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
             UserTableSeeder::class,
             DeviceTableSeeder::class,
             MachineTableSeeder::class,
-            //FamilyTableSeeder::class,
+            FamilyTableSeeder::class,
             ProductTableSeeder::class,
             ColorTableSeeder::class,
             CodeTableSeeder::class,

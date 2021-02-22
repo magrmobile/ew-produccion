@@ -37,16 +37,20 @@
             @foreach($operators as $operator)
             <tr>
             <td scope="row">
-                {{ $operator-> username }}
+                {{ $operator->username }}
             </td>
             <td scope="row">
-                {{ $operator-> name }}
+                {{ $operator->name }}
             </td>
             <td>
-                <!-- Supervisor -->
+                @if($operator->supervisor)
+                {{ $operator->supervisor->name }}
+                @endif
             </td>
             <td scope="row">
-                {{ $operator->process['description'] }}
+                @if($operator->process)
+                {{ $operator->process->description }}
+                @endif
             </td>
             <td>
                 <form action="{{ url('/operators/'.$operator->id) }}" method="POST">

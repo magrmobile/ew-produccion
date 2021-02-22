@@ -18,7 +18,7 @@ class FamilyController extends Controller
      */
     public function index()
     {
-        $families = Family::latest()->paginate(5);
+        $families = Family::paginate(5);
         return view('families.index', compact('families'));
     }
 

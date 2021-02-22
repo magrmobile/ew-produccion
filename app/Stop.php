@@ -48,6 +48,11 @@ class Stop extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function family()
+    {
+        return $this->hasOneThrough(Family::class, Product::class);
+    }
+
     // N $stop->color 1
     public function color() 
     {

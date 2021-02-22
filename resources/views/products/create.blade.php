@@ -39,13 +39,23 @@
                 </div>
                 <div class="custom-control custom-radio mb-3">
                     <input name="metal_type" class="custom-control-input" id="metal_type2" type="radio"
-                        @if(old('metal_type') == 'CU') checked @endif value="CU">
-                    <label for="metal_type2" class="custom-control-label">CU</label>
+                        @if(old('metal_type', 'AL S8000') == 'AL S8000') checked @endif value="AL S8000">
+                    <label for="metal_type2" class="custom-control-label">AL</label>
                 </div>
                 <div class="custom-control custom-radio mb-3">
                     <input name="metal_type" class="custom-control-input" id="metal_type3" type="radio"
                         @if(old('metal_type') == 'CCA') checked @endif value="CCA">
                     <label for="metal_type3" class="custom-control-label">CCA</label>
+                </div>
+                <div class="custom-control custom-radio mb-3">
+                    <input name="metal_type" class="custom-control-input" id="metal_type4" type="radio"
+                        @if(old('metal_type') == 'CU') checked @endif value="CU">
+                    <label for="metal_type4" class="custom-control-label">CU</label>
+                </div>
+                <div class="custom-control custom-radio mb-3">
+                    <input name="metal_type" class="custom-control-input" id="metal_type5" type="radio"
+                        @if(old('metal_type') == 'CCS') checked @endif value="CCS">
+                    <label for="metal_type5" class="custom-control-label">CCS</label>
                 </div>
             </div>
             <div class="form-group">
@@ -60,6 +70,15 @@
                         @if(old('stock') == 'PT') checked @endif value="PT">
                     <label for="stock2" class="custom-control-label">PT</label>
                 </div>
+            </div>
+            <div id="div_process" class="form-group">
+                <label for="process_id">Proceso</label>
+                <select name="process_id" id="process_id" class="form-control">
+                    <option value="">Seleccionar Proceso</option>
+                    @foreach($processes as $process)
+                        <option value="{{ $process->id }}" @if(old('process_id') == $process->id) selected @endif>{{ $process->description }}</option>
+                    @endforeach
+                </select>
             </div>
             <div id="div_family" class="form-group">
                 <label for="family_id">Familia de Producto</label>

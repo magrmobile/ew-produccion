@@ -47,7 +47,9 @@
                 {{ $stop->stop_datetime_end }}
             </td>
             @if($role == "supervisor" || $role == "admin")
+                @if($stop->operator->supervisor)
                 <td>{{ $stop->operator->name }}</td>
+                @endif
                 <td>
                     @if($stop->stop_datetime_end != null) 
                     <span class="badge badge-pill badge-info">Finalizado</span> 

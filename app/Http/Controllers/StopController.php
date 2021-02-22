@@ -23,8 +23,18 @@ class StopController extends Controller
     public function index()
     {
         $role = auth()->user()->role;
-        $stops = Stop::whereDate('stop_datetime_end','=',Carbon::now()->toDateString())
+        $operatorId = auth()->user()->id;
+
+        if($role == 'operator') {
+            $stops = Stop::whereOperatorId($operatorId)->whereDate('stop_datetime_end','=',Carbon::now()->toDateString())
             ->orderBy('stop_datetime_end','ASC')->paginate(5);
+        }
+        
+        if($role == 'supervisor') {
+            $stops = Stop::with(['operator' => function($query) use ($operatorId) {
+                $query->where('supervisor_id','=',$operatorId);
+            }])->paginate(5);
+        }
 
         return view('stops.index', compact('stops','role'));
     }

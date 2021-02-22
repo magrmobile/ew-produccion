@@ -16,17 +16,20 @@ class CreateMachinesTable extends Migration
         Schema::create('machines', function (Blueprint $table) {
             $table->increments('id');
 
-            $table->string('machine_name')->unique();
-            //$table->string('process'); // Trefilado, Cableado, Fraccionado
-            $table->string('warehouse'); // AL(Aluminio), CU(Cobre)
-
             // fk - device
             $table->unsignedInteger('device_id')->nullable();
-            $table->foreign('device_id')->references('id')->on('devices');
+            $table->foreign('device_id')->references('id')->on('devices')
+                ->onDelete('set null')
+                ->onUpdate('cascade');
 
             // fk - process
             $table->unsignedInteger('process_id')->nullable();
-            $table->foreign('process_id')->references('id')->on('processes');
+            $table->foreign('process_id')->references('id')->on('processes')
+                ->onDelete('set null')
+                ->onUpdate('cascade');
+
+            $table->string('machine_name')->unique();
+            $table->string('warehouse'); // AL(Aluminio), CU(Cobre)
 
             $table->timestamps();
         });

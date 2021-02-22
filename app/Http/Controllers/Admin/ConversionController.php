@@ -18,7 +18,7 @@ class ConversionController extends Controller
      */
     public function index()
     {
-        $conversions = Conversion::latest()->paginate(10);
+        $conversions = Conversion::paginate(5);
         return view('conversions.index', compact('conversions'));
     }
 

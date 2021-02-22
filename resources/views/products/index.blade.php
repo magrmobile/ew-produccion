@@ -28,6 +28,8 @@
             <tr>
             <th scope="col">Nombre</th>
             <th scope="col">Metal</th>
+            <th scope="col">Familia</th>
+            <th scope="col">Proceso</th>
             <th scope="col">Stock</th>
             <th scope="col">Opciones</th>
             </tr>
@@ -42,7 +44,17 @@
                 {{ $product-> metal_type }}
             </td>
             <td>
-                {{ $product-> stock }}
+                @if($product->family)
+                    {{ $product->family->family_name }}
+                @endif
+            </td>
+            <td>
+                @if($product->process)
+                {{ $product->process->description }}
+                @endif
+            </td>
+            <td>
+                {{ $product->stock }}
             </td>
             <td>
                 <form action="{{ url('/products/'.$product->id) }}" method="POST">

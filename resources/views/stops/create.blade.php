@@ -94,7 +94,7 @@
                     <select name="conversion_id" id="conversion_id" class="form-control form-control-sm" onchange="calcularConversion()">
                         <option value="">Seleccionar Conversión</option>
                         @foreach($conversions as $conversion)
-                            <option value="{{ $conversion->id }}" @if(old('conversion_id') == $conversion->id) selected @endif>{{ $conversion->package }}</option>
+                            <option value="{{ $conversion->id }}" @if(old('conversion_id') == $conversion->id) selected @endif>{{ $conversion->description }}</option>
                         @endforeach
                     </select>
                 </div>

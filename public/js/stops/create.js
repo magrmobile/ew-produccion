@@ -36,12 +36,13 @@ function cargarFormulario() {
         var code = data.code;
 
         var machineId = $machine_id.val();
+        console.log(machineId)
         $.ajax({
             url: `/api/machines/${machineId}`,
             async: false,
             dataType: 'json',
             success: function(machine) {
-                machine_process = machine.process;
+                machine_process = machine.process_id;
             }
         });
 
@@ -68,7 +69,7 @@ function cargarFormulario() {
                 $product_id.attr('required', '');
                 $div_color.show();
                 $color_id.attr('required', '');
-                if (machine_process == "Trefilado" || machine_process == "Fraccionado") {
+                if (machine_process == 2 || machine_process == 4) {
                     $div_conversion.show();
                     $div_quantity.show();
                 }

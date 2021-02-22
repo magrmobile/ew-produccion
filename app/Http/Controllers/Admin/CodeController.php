@@ -18,7 +18,7 @@ class CodeController extends Controller
      */
     public function index()
     {
-        $codes = Code::latest()->paginate(5);
+        $codes = Code::paginate(5);
         return view('codes.index', compact('codes'));
     }
 

@@ -146,4 +146,9 @@ class StopController extends Controller
 
         return $stop;
     }
+
+    public function stop_report()
+    {
+        return Stop::all();
+    }
 }

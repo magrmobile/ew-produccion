@@ -16,6 +16,18 @@ class CreateUsersTable extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
 
+            // fk - supervisor
+            $table->unsignedInteger('supervisor_id')->nullable();
+            $table->foreign('supervisor_id')->references('id')->on('users')
+                ->onDelete('set null')
+                ->onUpdate('cascade');
+
+            // fk - process
+            $table->unsignedInteger('process_id')->nullable();
+            $table->foreign('process_id')->references('id')->on('processes')
+                ->onDelete('set null')
+                ->onUpdate('cascade');
+
             $table->string('name');
             $table->string('email')->nullable();
             $table->string('username', 50)->unique();
@@ -24,16 +36,6 @@ class CreateUsersTable extends Migration
             $table->enum('active_user', ['enabled', 'disabled'])->nullable()->default('enabled');
             
             $table->string('role'); // 'admin', 'operator', 'supervisor', 'guest'
-
-            $table->unsignedInteger('supervisor_id')->nullable();
-            $table->foreign('supervisor_id')->references('id')->on('users');
-
-            //$table->unsignedInteger('machine_id')->nullable();
-            //$table->foreign('machine_id')->references('id')->on('machines');
-
-            // fk - process
-            $table->unsignedInteger('process_id')->nullable();
-            $table->foreign('process_id')->references('id')->on('processes');
 
             $table->rememberToken();
             $table->timestamps();

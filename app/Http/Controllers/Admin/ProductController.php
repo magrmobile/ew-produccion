@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 
 use App\Product;
 use App\Family;
+use App\Process;
 
 use Exception;
 
@@ -19,7 +20,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::latest()->paginate(5);
+        $products = Product::paginate(5);
         return view('products.index', compact('products'));
     }
 
@@ -31,7 +32,8 @@ class ProductController extends Controller
     public function create()
     {
         $families = Family::all();
-        return view('products.create', compact('families'));
+        $processes = Process::all();
+        return view('products.create', compact('families','processes'));
     }
 
     /**
@@ -43,15 +45,15 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'product_name' => 'required|min:3',
+            'product_name' => 'required|min:3|unique',
             'metal_type' => 'required',
-            'stock' => 'required'
+            'family_id' => 'required'
         ];
 
         $this->validate($request, $rules);
 
         Product::create(
-            $request->only('product_name','metal_type','stock')
+            $request->only('product_name','metal_type','family_id', 'process_id')
         );
 
         $notification = 'El Producto se ha registrado correctamente';
@@ -78,7 +80,8 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $families = Family::all();
-        return view('products.edit', compact('product','families'));
+        $processes = Process::all();
+        return view('products.edit', compact('product','families','processes'));
     }
 
     /**
@@ -91,13 +94,13 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $rules = [
-            'product_name' => 'required|min:3',
+            'product_name' => 'required|min:3|unique',
             'metal_type' => 'required',
-            'stock' => 'required'
+            'family_id' => 'required'
         ];
 
         $this->validate($request, $rules);
-        $data = $request->only('product_name','metal_type','stock');
+        $data = $request->only('product_name','metal_type','family_id','process_id');
 
         $product->fill($data);
         $product->save(); // UPDATE

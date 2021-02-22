@@ -47,6 +47,15 @@
                     @endforeach
                 </select>
             </div>
+            <div id="div_supervisor" class="form-group">
+                <label for="supervisor_id">Supervisor</label>
+                <select name="supervisor_id" id="supervisor_id" class="form-control form-control-sm" data-live-search="true">
+                    <option value="">Seleccionar Supervisor</option>
+                    @foreach($supervisors as $supervisor)
+                        <option value="{{ $supervisor->id }}" @if(old('supervisor_id') == $supervisor->id) selected @endif>{{ $supervisor->name }}</option>
+                    @endforeach
+                </select>
+            </div>
             <button class="btn btn-primary" type="submit">
                 Guardar
             </button>
