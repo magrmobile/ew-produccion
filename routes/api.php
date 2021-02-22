@@ -24,6 +24,7 @@ Route::get('/machines/{machine}', 'MachineController@show');
 // Product API
 Route::get('/products', 'ProductController@index');
 Route::get('/products/{product}', 'ProductController@show');
+Route::get('/products/process/{process}', 'ProductController@getByProcess');
 
 // Color API
 Route::get('/colors', 'ColorController@index');

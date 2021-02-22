@@ -36,6 +36,10 @@ class StopController extends Controller
             }])->paginate(5);
         }
 
+        if($role == 'admin'){
+            $stops = Stop::paginate(5);
+        }
+
         return view('stops.index', compact('stops','role'));
     }
 
