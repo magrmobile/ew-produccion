@@ -218,6 +218,6 @@ class StopController extends Controller
             $notification = $error;
         }
 
-        return redirect('/stops')->with(compact('notificaction'));
+        return redirect('/stops')->with(compact('notification'));
     }
 }
