@@ -26,7 +26,8 @@ class StopController extends Controller
         $operatorId = auth()->user()->id;
 
         if($role == 'operator') {
-            $stops = Stop::whereOperatorId($operatorId)->whereDate('stop_datetime_end','=',Carbon::now()->toDateString())
+            $stops = Stop::whereOperatorId($operatorId)
+            ->whereDate('stop_datetime_end','>=',Carbon::now()->subDays(2)->toDateString())
             ->orderBy('stop_datetime_end','ASC')->paginate(5);
         }
         

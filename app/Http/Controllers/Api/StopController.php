@@ -17,10 +17,12 @@ class StopController extends Controller
         $machine_id = $request->only("machine_id");
         $order = $request->only("order");
 
+        $date_base = Carbon::now()->toDateString();
+
         //$user = Auth::guard('api')->user();
         //return $user->asOperatorStops()->where('machine_id',$machine_id)->with([
         return Stop::where('machine_id',$machine_id)
-            ->whereDate('stop_datetime_end','=',Carbon::now()->toDateString())
+            ->whereDate('stop_datetime_end','>=',Carbon::now()->subDays(2)->toDateString())
             ->with([
             'code' => function($query) {
                 $query->select('id', 'code', 'description','type');
