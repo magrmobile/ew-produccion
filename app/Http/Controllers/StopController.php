@@ -201,8 +201,23 @@ class StopController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Stop $stop)
     {
-        //
+        $stopId = $stop->id;
+
+        try {
+            $stop->delete();
+            $notification = "El Paro $stopId ha sido eliminado correctamente";
+        } catch(Exception $e) {
+            $error = "";
+
+            switch($e->getCode()) {
+                case 23000 : $error = "Eliminacion del Paro no permitido";
+            }
+
+            $notification = $error;
+        }
+
+        return redirect('/stops')->with(compact('notificaction'));
     }
 }

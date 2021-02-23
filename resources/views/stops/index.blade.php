@@ -66,9 +66,15 @@
                 <a class="btn btn-sm btn-primary" title="Ver Paro" href="{{ url('/stops/'.$stop->id) }}">
                     Ver
                 </a>
-                <a class="btn btn-sm btn-primary" title="Ver Paro" href="{{ url('/stops/'.$stop->id.'/edit') }}">
+                <!--<a class="btn btn-sm btn-primary" title="Ver Paro" href="{{ url('/stops/'.$stop->id.'/edit') }}">
                     Editar
-                </a>
+                </a>-->
+                <form action="{{ url('/stops/'.$stop->id) }}" method="POST" class="d-inline-block">
+                    @csrf
+                    @method('DELETE')
+                    <a href="{{ url('/stops/'.$stop->id.'/edit') }}" class="btn btn-sm btn-primary">Editar</a>
+                    <button class="btn btn-sm btn-danger" type="submit">Eliminar</button>
+                </form>
             </td>
             </tr>
             @endforeach
