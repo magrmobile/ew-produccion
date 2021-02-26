@@ -72,4 +72,7 @@ Route::middleware('auth')->group(function(){
     Route::put('/stops/{stop}', 'StopController@update');*/
 
     Route::resource('stops', 'StopController');
+
+    Route::get('stops-list-pdf','StopController@exportPdf')->name('stops.pdf');
+    Route::get('stops-list-excel','StopController@exportExcel')->name('stops.excel');
 });

@@ -13,6 +13,11 @@ use App\Stop;
 use App\Conversion;
 use App\Http\Requests\StoreStop;
 
+use Barryvdh\DomPDF\Facade as PDF;
+use Maatwebsite\Excel\Facades\Excel;
+
+use App\Exports\StopsExport;
+
 class StopController extends Controller
 {
     /**
@@ -220,5 +225,18 @@ class StopController extends Controller
         }
 
         return redirect('/stops')->with(compact('notification'));
+    }
+
+    public function exportPdf() 
+    {
+        $stops = Stop::get();
+        $pdf = PDF::loadView('pdf.stops', compact('stops'));
+
+        return $pdf->download('stops-list.pdf');
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(new StopsExport, 'stop-list.xlsx');
     }
 }

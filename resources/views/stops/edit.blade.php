@@ -52,7 +52,7 @@
                 <select name="machine_id" id="machine_id" class="form-control form-control-sm" data-live-search="true">
                     <option value="">Seleccionar Maquina</option>
                     @foreach($machines as $machine)
-                    <option value="{{ $machine->id }}" @if(old('machine_id',auth()->user()->machine->id) == $machine->id) selected @endif>{{ $machine->machine_name }}</option>
+                    <option value="{{ $machine->id }}" @if(old('machine_id',$stop->machine_id) == $machine->id) selected @endif>{{ $machine->machine_name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -83,7 +83,7 @@
                     <select name="conversion_id" id="conversion_id" class="form-control form-control-sm" onchange="calcularConversion()">
                         <option value="">Seleccionar Conversión</option>
                         @foreach($conversions as $conversion)
-                            <option value="{{ $conversion->id }}" @if(old('conversion_id',$stop->conversion_id) == $conversion->id) selected @endif>{{ $conversion->package }}</option>
+                            <option value="{{ $conversion->id }}" @if(old('conversion_id',$stop->conversion_id) == $conversion->id) selected @endif>{{ $conversion->description }}</option>
                         @endforeach
                     </select>
                 </div>

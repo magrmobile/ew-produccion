@@ -72,6 +72,9 @@ function cargarFormulario() {
                 if (machine_process == 2 || machine_process == 4) {
                     $div_conversion.show();
                     $div_quantity.show();
+                } else {
+                    $div_conversion.hide();
+                    $div_quantity.hide();
                 }
                 $div_meters.show();
                 //$meters.removeAttr('required');

@@ -30,6 +30,8 @@ Route::get('/products/process/{process}', 'ProductController@getByProcess');
 Route::get('/colors', 'ColorController@index');
 Route::get('/colors/{color}', 'ColorController@show');
 
+Route::get('/colorst', 'ColorController@color_test');
+
 // Code API
 Route::get('/codes', 'CodeController@index');
 Route::get('/codes/{code}', 'CodeController@show');
@@ -53,4 +55,6 @@ Route::group(['middleware' => ['auth:api']], function () {
 
     Route::get('/dev_machines', 'DeviceController@machines');
     Route::get('/last_datetime_stop', 'StopController@last_datetime_stop');
+
+    Route::get('/stops_report','StopController@stops_report');
 });

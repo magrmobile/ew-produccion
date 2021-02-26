@@ -84,4 +84,9 @@ class ColorController extends Controller
     {
         //
     }
+
+    public function color_test() {
+        $colors = Color::all();
+        return compact('colors');
+    }
 }

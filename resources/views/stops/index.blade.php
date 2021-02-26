@@ -11,6 +11,9 @@
                 <a href="{{ url('stops/create') }}" class="btn btn-sm btn-success">
                     Nuevo Paro
                 </a>
+                <a href="{{ route('stops.excel') }}" class="btn btn-sm btn-success">
+                    Descargar Paros
+                </a>
             </div>
         </div>
     </div>
