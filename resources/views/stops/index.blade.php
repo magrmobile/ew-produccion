@@ -14,9 +14,6 @@
                 <a href="{{ route('stops.excel') }}" class="btn btn-sm btn-success">
                     Descargar Paros
                 </a>
-                <a href="{{ route('stops.excel') }}" class="btn btn-sm btn-success">
-                    Descargar Paros
-                </a>
             </div>
         </div>
     </div>
