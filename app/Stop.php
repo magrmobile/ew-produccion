@@ -130,7 +130,7 @@ class Stop extends Model
     }
 
     // $stop->stop_code
-    public function getStopCode()
+    public function getStopCodeAttribute()
     {
         return $this->code->code;
     } 
