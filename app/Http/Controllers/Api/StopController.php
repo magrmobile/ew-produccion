@@ -189,6 +189,6 @@ class StopController extends Controller
         $stops = Stop::all();
         //$stops->load(['machine', 'product', 'color', 'conversion']);
 
-        return compact('stops');
+        return $stops->toJson();
     }
 }
