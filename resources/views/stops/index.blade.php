@@ -11,9 +11,11 @@
                 <a href="{{ url('stops/create') }}" class="btn btn-sm btn-success">
                     Nuevo Paro
                 </a>
+                @if($role == "supervisor" || $role == "admin")
                 <a href="{{ route('stops.excel') }}" class="btn btn-sm btn-success">
                     Descargar Paros
                 </a>
+                @endif
             </div>
         </div>
     </div>

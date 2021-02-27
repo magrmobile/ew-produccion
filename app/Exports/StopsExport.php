@@ -13,7 +13,6 @@ class StopsExport implements FromView, ShouldAutoSize, WithStyles
 {
     public function view(): View
     {
-
         return view('exports.stops', [
             'stops' => Stop::all()
         ]);
