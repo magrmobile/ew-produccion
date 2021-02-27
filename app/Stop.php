@@ -28,27 +28,7 @@ class Stop extends Model
 
     protected $appends = [
         'stop_datetime_start_12', 
-        'stop_datetime_end_12', 
-        'year',
-        'month',
-        'week',
-        'date',
-        'schedule',
-        'process',
-        'dayname_start', 
-        'dayname_end', 
-        'duration', 
-        'machine_name',
-        'warehouse',
-        'operator_name',
-        'product_name',
-        'color_name',
-        'stop_start',
-        'stop_end',
-        'stop_code',
-        'code_description',
-        'stop_type',
-        'conversion_description'
+        'stop_datetime_end_12'
     ];
 
     protected $dates = ['stop_datetime_start', 'stop_datetime_end', 'created_at', 'updated_at'];
