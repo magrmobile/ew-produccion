@@ -187,7 +187,7 @@ class StopController extends Controller
     public function stops_report()
     {
         $stops = Stop::all();
-        $stops->load(['machine', 'product', 'color', 'conversion']);
+        $stops->load(['machine','operator','product','color','conversion']);
         //$stops->makeHidden(['machine','operator','code','product','color','conversion'])
         return $stops;
     }
