@@ -187,6 +187,8 @@ class StopController extends Controller
     public function stops_report()
     {
         $stops = Stop::all();
-        return $stops;
+        //$stops->load(['machine', 'product', 'color', 'conversion']);
+
+        return compact('stops');
     }
 }

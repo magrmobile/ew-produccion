@@ -28,37 +28,25 @@
     <tbody>
         @foreach($stops as $stop)
         <tr>
-            <td>{{ $stop->stop_datetime_end->format('Y') }}</td>
-            <td>{{ $stop->stop_datetime_end->format('m') }}</td>
-            <td>{{ $stop->stop_datetime_end->format('w') }}</td>
-            <td>{{ $stop->stop_datetime_end->format('j-m-Y') }}</td>
+            <td>{{ $stop->year }}</td>
+            <td>{{ $stop->month }}</td>
+            <td>{{ $stop->week }}</td>
+            <td>{{ $stop->date }}</td>
             <td>{{ $stop->dayname_end }}</td>
             <td>{{ $stop->schedule }}</td>
-            <td>{{ $stop->machine->process->description }}</td>
-            <td>{{ $stop->machine->machine_name }}</td>
-            <td>{{ $stop->machine->warehouse }}</td>
-            <td>{{ $stop->operator->name }}</td>
-            <td>
-            @if($stop->product)
-            {{ $stop->product->product_name }}
-            @endif
-            </td>
-            <td>
-            @if($stop->color)
-            {{ $stop->color->name }}
-            @endif
-            </td>
-            <td>{{ $stop->stop_datetime_start->format('H:i:s') }}</td>
-            <td>{{ $stop->stop_datetime_end->format('H:i:s') }}</td>
+            <td>{{ $stop->process }}</td>
+            <td>{{ $stop->machine_name }}</td>
+            <td>{{ $stop->warehouse }}</td>
+            <td>{{ $stop->operator_name }}</td>
+            <td>{{ $stop->product_name }}</td>
+            <td>{{ $stop->color_name }}</td>
+            <td>{{ $stop->stop_start }}</td>
+            <td>{{ $stop->stop_end }}</td>
             <td>{{ $stop->duration }}</td>
             <td>{{ $stop->code->code }}</td>
-            <td>{{ $stop->code->description }}</td>
-            <td>{{ $stop->code->type }}</td>
-            <td>
-            @if($stop->conversion)
-            {{ $stop->conversion->description }}
-            @endif
-            </td>
+            <td>{{ $stop->code_description }}</td>
+            <td>{{ $stop->stop_type }}</td>
+            <td>{{ $stop->conversion_description }}</td>
             <td>{{ $stop->quantity }}</td>
             <td>{{ $stop->meters }}</td>
             <td>{{ $stop->comment }}</td>

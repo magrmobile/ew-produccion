@@ -27,7 +27,27 @@ class Stop extends Model
     ];
 
     protected $appends = [
-        'stop_datetime_start_12', 'stop_datetime_end_12', 'dayname_start', 'dayname_end', 'duration', 'schedule'
+        'stop_datetime_start_12', 
+        'stop_datetime_end_12', 
+        'year',
+        'month',
+        'week',
+        'date',
+        'schedule',
+        'process',
+        'dayname_start', 
+        'dayname_end', 
+        'duration', 
+        'machine_name',
+        'warehouse',
+        'operator_name',
+        'product_name',
+        'color_name',
+        'stop_start',
+        'stop_end',
+        'code_description',
+        'stop_type',
+        'conversion_description'
     ];
 
     protected $dates = ['stop_datetime_start', 'stop_datetime_end', 'created_at', 'updated_at'];
@@ -38,10 +58,30 @@ class Stop extends Model
         return $this->belongsTo(Machine::class);
     }
 
+    // $stop->machine_name
+    public function getMachineNameAttribute()
+    {
+        $machineName = null;
+        if($this->machine) {
+            $machineName = $this->machine->machine_name;
+        }
+        return $machineName;
+    }
+
     // N $stop->operator 1
     public function operator() 
     {
         return $this->belongsTo(User::class);
+    }
+
+    // $stop->operator_name
+    public function getOperatorNameAttribute()
+    {
+        $operatorName = null;
+        if($this->operator) {
+            $operatorName = $this->operator->name;
+        }
+        return $operatorName;
     }
 
     // N $stop->product 1
@@ -50,6 +90,17 @@ class Stop extends Model
         return $this->belongsTo(Product::class);
     }
 
+    // $stop->product_name
+    public function getProductNameAttribute()
+    {
+        $productName = null;
+        if($this->product) {
+            $productName = $this->product->product_name;
+        }
+        return $productName;
+    }
+
+    // 1 $stop->family 1 : through product
     public function family()
     {
         return $this->hasOneThrough(Family::class, Product::class);
@@ -61,10 +112,30 @@ class Stop extends Model
         return $this->belongsTo(Color::class);
     }
 
+    // $stop->color_name
+    public function getColorNameAttribute()
+    {
+        $colorName = null;
+        if($this->color) {
+            $colorName = $this->color->name;
+        }
+        return $colorName;
+    }
+
     // N $stop->code 1
     public function code() 
     {
         return $this->belongsTo(Code::class);
+    }
+
+    // $stop->code_description
+    public function getCodeDescriptionAttribute()
+    {
+        $codeName = null;
+        if($this->code) {
+            $codeName = $this->code->description;
+        }
+        return $codeName;
     }
 
     // N $stop->conversion 1
@@ -73,7 +144,16 @@ class Stop extends Model
         return $this->belongsTo(Conversion::class);
     }
 
-    // accesor
+    // $stop->conversion_description
+    public function getConversionDescriptionAttribute()
+    {
+        $conversionName = null;
+        if($this->conversion) {
+            $conversionName = $this->conversion->description;
+        }
+        return $conversionName;
+    }
+
     // $stop->stop_datetime_start_12
     public function getStopDateTimeStart12Attribute()
     {
@@ -90,6 +170,30 @@ class Stop extends Model
         Carbon::setlocale('es');
         $date = new Carbon($this->stop_datetime_end);
         return $date->formatLocalized('%d %B, %Y').' '.$date->format('g:i:s a');
+    }
+
+    // $stop->year
+    public function getYearAttribute()
+    {
+        return $this->stop_datetime_end->format('Y');
+    }
+
+    // $stop->month
+    public function getMonthAttribute()
+    {
+        return $this->stop_datetime_end->format('m');
+    }
+
+    // $stop->week
+    public function getWeekAttribute()
+    {
+        return $this->stop_datetime_end->format('w');
+    }
+
+    // $stop->date
+    public function getDateAttribute()
+    {
+        return $this->stop_datetime_end->format('j-M-Y');
     }
 
     // $stop->dayname_start
@@ -110,17 +214,6 @@ class Stop extends Model
         return $date->formatLocalized('%A');
     }
 
-    // $stop->duration
-    public function getDurationAttribute()
-    {
-        $date1 = new Carbon($this->stop_datetime_start);
-        $date2 = new Carbon($this->stop_datetime_end);
-
-        $interval = $date1->diff($date2);
-
-        return $interval->format('%H:%I:%s');
-    }
-
     // $stop->schedule
     public function getScheduleAttribute()
     {
@@ -132,6 +225,47 @@ class Stop extends Model
         } else {
             return "N";
         }
+    }
+
+    // $stop->process
+    public function getProcessAttribute()
+    {
+        return $this->machine->process->description;
+    }
+
+    // $stop->warehouse
+    public function getWarehouseAttribute()
+    {
+        return $this->machine->warehouse;
+    }
+
+    // $stop->stop_start
+    public function getStopStartAttribute()
+    {
+        return $this->stop_datetime_start->format('H:i:s');
+    }
+
+    // $stop->stop_end
+    public function getStopEndAttribute()
+    {
+        return $this->stop_datetime_end->format('H:i:s');
+    }
+
+    // $stop->duration
+    public function getDurationAttribute()
+    {
+        $date1 = new Carbon($this->stop_datetime_start);
+        $date2 = new Carbon($this->stop_datetime_end);
+
+        $interval = $date1->diff($date2);
+
+        return $interval->format('%H:%I:%s');
+    }
+
+    // $stop->stop_type
+    public function getStopTypeAttribute()
+    {
+        return $this->code->type;
     }
 
     static public function createForOperator(Request $request, $operatorId) 
