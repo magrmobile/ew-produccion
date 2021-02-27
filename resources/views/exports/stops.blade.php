@@ -43,7 +43,7 @@
             <td>{{ $stop->stop_start }}</td>
             <td>{{ $stop->stop_end }}</td>
             <td>{{ $stop->duration }}</td>
-            <td>{{ $stop->code->code }}</td>
+            <td>{{ $stop->stop_code }}</td>
             <td>{{ $stop->code_description }}</td>
             <td>{{ $stop->stop_type }}</td>
             <td>{{ $stop->conversion_description }}</td>

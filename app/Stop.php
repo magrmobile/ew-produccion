@@ -45,6 +45,7 @@ class Stop extends Model
         'color_name',
         'stop_start',
         'stop_end',
+        'stop_code',
         'code_description',
         'stop_type',
         'conversion_description'
@@ -127,6 +128,12 @@ class Stop extends Model
     {
         return $this->belongsTo(Code::class);
     }
+
+    // $stop->stop_code
+    public function getStopCode()
+    {
+        return $this->code->code;
+    } 
 
     // $stop->code_description
     public function getCodeDescriptionAttribute()
