@@ -28,6 +28,7 @@
             <tr>
             <th scope="col">Nombre</th>
             <th scope="col">Proceso</th>
+            <th scope="col">Tablet</th>
             <th scope="col">Nave</th>
             <th scope="col">Opciones</th>
             </tr>
@@ -38,8 +39,11 @@
             <th scope="row">
                 {{ $machine-> machine_name }}
             </th>
-            <td>
+            <td scope="row">
                 {{ $machine-> process['description'] }}
+            </td>
+            <td scope="row">
+                {{ $machine->device->device_name }}
             </td>
             <td>
                 @if($machine-> warehouse == "AL")

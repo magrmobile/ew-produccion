@@ -27,8 +27,10 @@ class Stop extends Model
     ];
 
     protected $appends = [
-        'stop_datetime_start_12', 'stop_datetime_end_12'
+        'stop_datetime_start_12', 'stop_datetime_end_12', 'dayname_start', 'dayname_end', 'duration', 'schedule'
     ];
+
+    protected $dates = ['stop_datetime_start', 'stop_datetime_end', 'created_at', 'updated_at'];
 
     // N $stop->machine 1
     public function machine() 
@@ -90,6 +92,48 @@ class Stop extends Model
         return $date->formatLocalized('%d %B, %Y').' '.$date->format('g:i:s a');
     }
 
+    // $stop->dayname_start
+    public function getDayNameStartAttribute()
+    {
+        setlocale(LC_ALL, 'es_ES.UTF-8');
+        Carbon::setlocale('es');
+        $date = new Carbon($this->stop_datetime_start);
+        return $date->formatLocalized('%A');
+    }
+
+    // $stop->dayname_end
+    public function getDayNameEndAttribute()
+    {
+        setlocale(LC_ALL, 'es_ES.UTF-8');
+        Carbon::setlocale('es');
+        $date = new Carbon($this->stop_datetime_end);
+        return $date->formatLocalized('%A');
+    }
+
+    // $stop->duration
+    public function getDurationAttribute()
+    {
+        $date1 = new Carbon($this->stop_datetime_start);
+        $date2 = new Carbon($this->stop_datetime_end);
+
+        $interval = $date1->diff($date2);
+
+        return $interval->format('%H:%I:%s');
+    }
+
+    // $stop->schedule
+    public function getScheduleAttribute()
+    {
+        $date = new Carbon($this->stop_datetime_end);
+        $hour = $date->format('g');
+
+        if($hour >= 6 && $hour <= 18) {
+            return "D";
+        } else {
+            return "N";
+        }
+    }
+
     static public function createForOperator(Request $request, $operatorId) 
     {
 
@@ -110,8 +154,8 @@ class Stop extends Model
 
         $date = Carbon::now();
 
-        $lastStop = Stop::where('operator_id', $operatorId)
-                        ->where('machine_id', $machine_id)
+        $lastStop = Stop::where('machine_id', $machine_id)
+                        //->where('operator_id', $operatorId)
                         ->latest('id')
                         ->first();
 

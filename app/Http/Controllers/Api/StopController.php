@@ -15,15 +15,49 @@ class StopController extends Controller
     public function index(Request $request)
     {
         $machine_id = $request->only("machine_id");
-        $order = $request->only("order");
 
         $date_base = Carbon::now()->toDateString();
 
         //$user = Auth::guard('api')->user();
         //return $user->asOperatorStops()->where('machine_id',$machine_id)->with([
-        return Stop::where('machine_id',$machine_id)
-            ->whereDate('stop_datetime_end','>=',Carbon::now()->subDays(2)->toDateString())
-            ->with([
+        if($machine_id) {
+            return Stop::where('machine_id',$machine_id)
+                ->whereDate('stop_datetime_end','>=',Carbon::now()->subDays(2)->toDateString())
+                ->with([
+                'code' => function($query) {
+                    $query->select('id', 'code', 'description','type');
+                }, 
+                'machine' => function($query) {
+                    $query->select('id', 'machine_name', 'process_id');
+                }, 
+                'product' => function($query) {
+                    $query->select('id', 'product_name');
+                }, 
+                'color' => function($query) {
+                    $query->select('id', 'name','hex_code');
+                },
+                'conversion' => function($query) {
+                    $query->select('id', 'description', 'factor', 'type');
+                },
+                'operator' => function($query) {
+                    $query->select('id', 'name', 'username', 'process_id');
+                }
+            ])->orderBy('id', 'ASC')->get([
+                "id",
+                "code_id",
+                "machine_id",
+                "product_id",
+                "color_id",
+                "operator_id",
+                "conversion_id",
+                "quantity",
+                "meters",
+                "comment",
+                "stop_datetime_start",
+                "stop_datetime_end"
+            ]);
+        } else {
+            return Stop::with([
             'code' => function($query) {
                 $query->select('id', 'code', 'description','type');
             }, 
@@ -42,20 +76,21 @@ class StopController extends Controller
             'operator' => function($query) {
                 $query->select('id', 'name', 'username', 'process_id');
             }
-        ])->orderBy('id', 'ASC')->get([
-            "id",
-            "code_id",
-            "machine_id",
-            "product_id",
-            "color_id",
-            "operator_id",
-            "conversion_id",
-            "quantity",
-            "meters",
-            "comment",
-            "stop_datetime_start",
-            "stop_datetime_end"
-        ]);
+            ])->orderBy('id', 'ASC')->get([
+                "id",
+                "code_id",
+                "machine_id",
+                "product_id",
+                "color_id",
+                "operator_id",
+                "conversion_id",
+                "quantity",
+                "meters",
+                "comment",
+                "stop_datetime_start",
+                "stop_datetime_end"
+            ]);
+        }
     }
 
     public function store(StoreStop $request)
@@ -119,7 +154,7 @@ class StopController extends Controller
         ]);
 
         $stop = Stop::where('machine_id', $data['machine_id'])
-                    ->where('operator_id', $operatorId)
+                    //->where('operator_id', $operatorId)
                     ->latest('id')
                     ->first();
         
@@ -152,6 +187,6 @@ class StopController extends Controller
     public function stops_report()
     {
         $stops = Stop::all();
-        return simplexml_load_string(compact('stops'));
+        return $stops;
     }
 }
