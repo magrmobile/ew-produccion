@@ -46,7 +46,7 @@ class MachineController extends Controller
     {
         $rules = [
             'machine_name' => 'required|min:3',
-            'process' => 'required',
+            'process_id' => 'required',
             'warehouse' => 'required',
             'device_id' => 'required|exists:devices,id'
         ];
@@ -54,7 +54,7 @@ class MachineController extends Controller
         $this->validate($request, $rules);
 
         Machine::create(
-            $request->only('machine_name','process','warehouse','device_id')
+            $request->only('machine_name','process_id','warehouse','device_id')
         );
 
         $notification = 'La Maquina se ha registrado correctamente';
