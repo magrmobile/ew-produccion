@@ -100,6 +100,16 @@
                 <label for="comment">Observaciones</label>
                 <input name="comment" value="{{ old('comment', $stop->comment) }}" id="comment" class="form-control form-control-sm" placeholder="Ingresa un comentario">
             </div>
+            @if($role == "supervisor" || $role == "admin")
+            <div id="div_stop_start" class="form-group">
+                <label for="stop_datetime_start">Inicio Paro</label>
+                <input type="datetime-local" name="stop_datetime_start" value="{{ old('stop_datetime_start', $stop->stop_datetime_start) }}" id="stop_datetime_start" class="form-control form-control-sm">
+            </div>
+            <div id="div_stop_end" class="form-group">
+                <label for="stop_datetime_end">Fin Paro</label>
+                <input type="datetime-local" name="stop_datetime_end" value="{{ old('stop_datetime_end', $stop->stop_datetime_end) }}" id="stop_datetime_end" class="form-control form-control-sm">
+            </div>
+            @endif
             <button class="btn btn-primary" type="submit">
                 Guardar
             </button>

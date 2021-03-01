@@ -146,7 +146,8 @@ class StopController extends Controller
         ]);
     }
 
-    public function last_datetime_stop(Request $request) {
+    public function last_datetime_stop(Request $request) 
+    {
         $operatorId = Auth::guard('api')->id();
 
         $data = $request->only([

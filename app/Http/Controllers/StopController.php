@@ -130,7 +130,8 @@ class StopController extends Controller
         $codes = Code::all();
         $colors = Color::all();
         $conversions = Conversion::all();
-        return view('stops.edit', compact('stop','machines','products','codes','colors','conversions'));
+        $role = auth()->user()->role;
+        return view('stops.edit', compact('stop','machines','products','codes','colors','conversions','role'));
     }
 
     /**
@@ -143,6 +144,7 @@ class StopController extends Controller
     public function update(Request $request, Stop $stop)
     {
         $code_id = Code::find($request['code_id'])->code;
+        $role = auth()->user()->role;
 
         switch($code_id) {
             case 0:
@@ -193,6 +195,16 @@ class StopController extends Controller
             'meters',
             'comment',
         ]);
+
+        if($role == "supervisor" || $role == "admin") {
+            if($request['stop_datetime_start'] != $stop->stop_datetime_start) {
+                $data['stop_datetime_start'] = $request['stop_datetime_start'];
+            }
+
+            if($request['stop_datetime_end'] != $stop->stop_datetime_end) {
+                $data['stop_datetime_end'] = $request['stop_datetime_end'];
+            }
+        }
 
         $stop->fill($data);
         $stop->save(); // UPDATE
