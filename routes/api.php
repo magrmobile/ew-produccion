@@ -40,6 +40,7 @@ Route::get('/codes/{code}', 'CodeController@show');
 Route::get('/conversions', 'ConversionController@index');
 Route::get('/conversions/{conversion}', 'ConversionController@show');
 
+Route::delete('/stops/{stop}', 'StopController@show');
 Route::get('/stops_report','StopController@stops_report');
 
 Route::group(['middleware' => ['auth:api']], function () {
