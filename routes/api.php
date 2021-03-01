@@ -40,7 +40,6 @@ Route::get('/codes/{code}', 'CodeController@show');
 Route::get('/conversions', 'ConversionController@index');
 Route::get('/conversions/{conversion}', 'ConversionController@show');
 
-Route::delete('/stops/{stop}', 'StopController@show');
 Route::get('/stops_report','StopController@stops_report');
 
 Route::group(['middleware' => ['auth:api']], function () {
@@ -54,6 +53,7 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::post('/stops', 'StopController@store');
     Route::get('/stops/{stop}', 'StopController@show');
     Route::put('/stops/{stop}', 'StopController@update');
+    Route::delete('/stops/{stop}', 'StopController@destroy');
     //Route::resource('stops', 'StopController');
 
     Route::get('/dev_machines', 'DeviceController@machines');
