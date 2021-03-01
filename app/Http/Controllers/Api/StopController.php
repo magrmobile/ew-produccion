@@ -185,6 +185,26 @@ class StopController extends Controller
         return $stop;
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $stop = Stop::findOrFail($id);
+        $stop->delete();
+
+        if($stop) {
+            $success = true;
+        } else {
+            $success = false;
+        }
+
+        return compact('success');
+    }
+
     public function stops_report()
     {
         $stops = Stop::all();
