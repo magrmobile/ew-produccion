@@ -224,7 +224,7 @@ class Stop extends Model
     // $stop->schedule
     public function getScheduleAttribute()
     {
-        $date = new Carbon($this->stop_datetime_end);
+        $date = new Carbon($this->stop_datetime_start);
         $hour = $date->format('g');
 
         if($hour >= 6 && $hour <= 18) {
