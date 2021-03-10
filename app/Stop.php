@@ -227,7 +227,7 @@ class Stop extends Model
         $date = new Carbon($this->stop_datetime_start);
         $hour = $date->format('G');
 
-        if($hour >= 7 && $hour <= 18) {
+        if($hour >= 7 && $hour <= 17) {
             return "D";
         } else {
             return "N";
