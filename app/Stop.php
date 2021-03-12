@@ -200,7 +200,7 @@ class Stop extends Model
     // $stop->date
     public function getDateAttribute()
     {
-        return $this->stop_datetime_end->format('j-M-Y');
+        return $this->stop_datetime_end->format('j/m/Y');
     }
 
     // $stop->dayname_start
