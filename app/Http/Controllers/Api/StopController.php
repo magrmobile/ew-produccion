@@ -10,6 +10,8 @@ use Carbon\Carbon;
 use App\Http\Requests\StoreStop;
 use App\Stop;
 
+ini_set('memory_limit', '-1');
+
 class StopController extends Controller
 {
     public function index(Request $request)
