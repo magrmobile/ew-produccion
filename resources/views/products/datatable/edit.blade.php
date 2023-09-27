@@ -1,0 +1,1 @@
+<a href="{{ route('products.edit', $id) }}" class="btn btn-primary btn-sm">Editar</a>
