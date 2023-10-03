@@ -113,13 +113,25 @@
     @endif
     <div class="card-body">
         <!--<canvas id="efficiencyChart"></canvas>-->
-        <form method="GET" action="{{ route('rounds.dashboard') }}" >
-            <select name="filter" onchange="this.form.submit()" class="form-control">
-                <option value="day" {{ $filter == 'day' ? 'selected' : '' }}>Día</option>
-                <option value="month" {{ $filter == 'month' ? 'selected' : '' }}>Mes</option>
-                <option value="year" {{ $filter == 'year' ? 'selected' : '' }}>Año</option>
-                <option value="dates" {{ $filter == 'dates' ? 'selected' : '' }}>Fechas</option>
-            </select>
+        <form method="GET" onchange="this.submit();" action="{{ route('rounds.dashboard') }}" >
+            <div class="form-group">
+                <select name="filter" class="form-control">
+                    <option value="day" {{ $filter == 'day' ? 'selected' : '' }}>Día</option>
+                    <option value="month" {{ $filter == 'month' ? 'selected' : '' }}>Mes</option>
+                    <option value="year" {{ $filter == 'year' ? 'selected' : '' }}>Año</option>
+                    <option value="dates" {{ $filter == 'dates' ? 'selected' : '' }}>Fechas</option>
+                </select>
+            </div>
+            <div class="row" id="dates" name="dates" style="display: none;">
+                <div class="col">
+                    <label for="start_date" class="form-label">Fecha de Inicio:</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date">
+                </div>
+                <div class="col">
+                    <label for="end_date" class="form-label">Fecha de Fin:</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date">
+                </div>
+            </div>
         </form>
     </div>
     <!-- Estadisticas de Eficiencia -->
@@ -453,7 +465,7 @@ Highcharts.chart('container', {
         type: 'spline'
     },
     title: {
-        text: 'Eficiencia {{ $user->warehouse_desc }} - Turno {{ $user->shift_desc }}' 
+        text: 'Eficiencia {{ $user->warehouse_desc }} - {{ $user->shift_desc }}' 
     },
     xAxis: {
         categories: @json(array_keys($hourlyEfficiencies))
@@ -541,6 +553,25 @@ $(document).ready( function () {
         info: false,
         autoWidth: true,
     });
+
+    const filterSelect = document.querySelector('select[name="filter"]');
+    const datesDiv = document.getElementById('dates');
+    const startDateSelect = document.querySelector('select[name="start_date"]');
+    const endDateSelect = document.querySelector('select[name="end_date"]');
+    const form = document.querySelector('form');
+
+    filterSelect.addEventListener('change', function() {
+        const selectedValue = filterSelect.value;
+
+        if(selectedValue === 'dates') {
+            datesDiv.style.display = 'block';
+        } else {
+            datesDiv.style.display = 'none';
+            form.submit();
+        }
+    });
+
+
 } );
 </script>
 

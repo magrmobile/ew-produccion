@@ -45,7 +45,7 @@ class RoundController extends Controller
 
         $newDate = Carbon::createFromFormat('Y-m-d H:i:s', $date)->format('Y-m-d');
 
-        if($user->role == 'admin') {
+        if($user->role === 'admin' || $user->role === 'jeferondas') {
             switch($filter) {
                 case 'day':
                     $rounds = Round::with(['machine', 'product'])->whereDate('round_date', $newDate)->get();
@@ -88,7 +88,7 @@ class RoundController extends Controller
         $products = Product::all();
         $codes = Code::all();
 
-        if($user->role == 'admin') {
+        if($user->role === 'admin' || $user->role === 'jeferondas') {
             $machines = Machine::all();
         } else {
             $machines = Machine::where('warehouse', $user->warehouse)->orderBy('machine_name')->get();
@@ -180,7 +180,7 @@ class RoundController extends Controller
                         ->get();
             
             if($lastRounds->count() == 4 && $lastRounds->pluck('produced_meters')->sum() == 0) {
-                $supEmails = ['d.perez@enerwire.com', 'm.quintanilla@enerwire.com', 'g.quetglas@enerwire.com', 'r.obyrne@enerwire.com', 'rparada@rpbsoluciones.com', 'magrmobile@gmail.com'];
+                $supEmails = ['d.perez@enerwire.com', 'm.quintanilla@enerwire.com', 'g.quetglas@enerwire.com', 'r.obyrne@enerwire.com', 'rparada@rpbsoluciones.com', 'magrmobile@gmail.com', 'a.matal@enerwire.com'];
                 //$supEmails = ['rparada@rpbsoluciones.com', 'magrmobile@gmail.com'];
 
                 $supNotifiables = collect($supEmails)->map(function($email) {
@@ -245,7 +245,7 @@ class RoundController extends Controller
         $products = Product::all();
         $codes = Code::all();
 
-        if($user->role == 'admin') {
+        if($user->role == 'admin' || $user->role == 'jeferondas') {
             $machines = Machine::all();
         } else {
             $machines = Machine::where('warehouse', $user->warehouse)->orderBy('machine_name')->get();
@@ -282,7 +282,7 @@ class RoundController extends Controller
     public function dashboard(Request $request)
     {
         $user = auth()->user();
-        $rounds = $user->rounds;
+        //$rounds = $user->rounds;
         $controller = new RoundController();
 
         $filter = $request->get('filter', 'day');
@@ -291,7 +291,7 @@ class RoundController extends Controller
 
         $newDate = Carbon::createFromFormat('Y-m-d H:i:s', $date)->format('Y-m-d');
 
-        if($user->role == 'admin') {
+        if($user->role == 'admin' || $user->role == 'jeferondas') {
             switch($filter) {
                 case 'day':
                     $rounds = Round::with(['machine', 'product'])->whereDate('round_date', $newDate)->get();
@@ -367,7 +367,7 @@ class RoundController extends Controller
     {
         $user = auth()->user();
 
-        if($user->role == 'admin') {
+        if($user->role == 'admin' || $user->role == 'jeferondas') {
             $rounds = Round::all();
         } else {
             $rounds = Round::where('user_id', $user->id)->get();
@@ -384,7 +384,7 @@ class RoundController extends Controller
     {
         $user = auth()->user();
 
-        if($user->role == 'admin') {
+        if($user->role == 'admin' || $user->role == 'jeferondas') {
             $rounds = Round::whereMonth('round_date', $month)->whereYear('round_date', $year)->get();
         } else {
             $rounds = Round::where('user_id', $user->id)->whereMonth('round_date', $month)->whereYear('round_date', $year)->get();
@@ -401,7 +401,7 @@ class RoundController extends Controller
     {
         $currentMonthEfficiency = $this->monthlyEfficiency($month, $year);
         $lastMonthEfficiency = $this->monthlyEfficiency($month - 1, $year);
-        return $lastMonthEfficiency ? ($currentMonthEfficiency - $lastMonthEfficiency) / $lastMonthEfficiency * 100 : 0;
+        return round($lastMonthEfficiency,2) ? round(($currentMonthEfficiency - $lastMonthEfficiency) / $lastMonthEfficiency * 100, 2) : 0;
     }
 
     public function getHourlyEfficiencies($month, $year, $filter)
@@ -412,7 +412,7 @@ class RoundController extends Controller
 
         $newDate = Carbon::createFromFormat('Y-m-d H:i:s', $date)->format('Y-m-d');
 
-        if($user->role == 'admin') {
+        if($user->role == 'admin' || $user->role == 'jeferondas') {
             switch($filter) {
                 case 'day':
                     $rounds = Round::whereDate('round_date', $newDate)->get();

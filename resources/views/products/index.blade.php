@@ -39,7 +39,9 @@
                 <th scope="col">Familia</th>
                 <th scope="col">Proceso</th>
                 <th scope="col">Stock</th>
+                @if(auth()->user()->role == 'admin')
                 <th scope="col">Opciones</th>
+                @endif
                 </tr>
             </thead>
         </table>
@@ -71,7 +73,9 @@ var table = $('#products').DataTable({
             { data: "family_name" },
             { data: "process_name" },
             { data: "stock" },
+            @if (auth()->user()->role == 'admin')
             { data: 'action', name: 'action', orderable: false, searchable: false }
+            @endif
             //{ data: "edit" },
             //{ data: "delete" }
         ],

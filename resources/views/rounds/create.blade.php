@@ -140,6 +140,7 @@
             $.get('/get-machine-hours', {machine_id: machineId, date: date}, function(data) {
                 $('#hour-buttons').html(data);
             });
+            
         });
 
         $('#code_id').change(function() {

@@ -53,7 +53,7 @@ class Round extends Model
         
         $hour_now = date("H");
 
-        if($hour_now >= 8 && $hour_now <= 18) {
+        if($hour_now >= 7 && $hour_now <= 18) {
             $shift = 'D';
         } else {
             $shift = 'N';
@@ -72,7 +72,7 @@ class Round extends Model
                 $round = Round::where('machine_id', $machine->id)
                     ->where('round_date', $newDate)
                     ->where('hour', $formattedHour)
-                    ->where('shift', $user->shift)
+                    ->where('shift', $shift)
                     ->first();
 
                 // Si no existe la ronda para la maquina, fecha y hora la agregamos a las horas faltantes

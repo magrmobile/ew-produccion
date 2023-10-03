@@ -46,7 +46,7 @@ class RoundsZeroMetersNotification extends Notification
     {
         return (new MailMessage)
                     ->subject('Notificación de Rondas con Metros Produciros Igual a Cero')
-                    ->line("Se han ingresado más de 2 rondas con metros producidos igual a cero para la máquina '{$this->machine->machine_name}' y el turno '{$this->shift}'.")
+                    ->line("Se han ingresado más de 4 rondas con metros producidos igual a cero para la máquina '{$this->machine->machine_name}' y el turno '{$this->shift}'.")
                     ->line('Por favor, verifique y tome las acciones necesarias.')
                     ->action('Ir al panel', url('/dashboard'));
     }

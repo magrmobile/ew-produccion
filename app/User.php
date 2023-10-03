@@ -119,7 +119,7 @@ class User extends Authenticatable
 
         $hours = [];
 
-        if($this->role == 'admin') {
+        if($this->role == 'admin' || $this->role == 'jeferondas') {
             for ($i=0; $i < 24; $i++) { 
                 $hours[] = str_pad($i, 2, '0', STR_PAD_LEFT) . ':00';
             }
@@ -146,9 +146,11 @@ class User extends Authenticatable
 
     public function getShiftDescAttribute() {
         if($this->shift == 'D') {
-            return 'Diurno';
+            return 'Turno Diurno';
+        } elseif($this->shift == 'N') {
+            return 'Turno Nocturno';
         } else {
-            return 'Nocturno';
+            return 'Jornada Completa';
         }
     }
 

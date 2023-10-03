@@ -33,10 +33,11 @@
     @endif
     <!-- Tabla de Datos -->
     <div class="card-body">
-        <table class="table table-striped table-bordered" id="roundsTable" style="width:100%">
+        <table class="table table-striped table-bordered" name="roundsTable" id="roundsTable" style="width:100%">
             <thead>
             <tr>
                 <th>Máquina</th>
+                <th>Supervisor</th>
                 <th>Turno</th>
                 <th>Fecha</th>
                 <th>Hora</th>
@@ -51,6 +52,7 @@
             @foreach ($rounds as $round)
                 <tr>
                     <td>{{ $round->machine->machine_name }}</td>
+                    <td>{{ $round->user->username }}</td>
                     <td>{{ $round->shift }}</td>
                     <td>{{ $round->round_date }}</td>
                     <td>{{ $round->hour }}</td>
@@ -62,7 +64,7 @@
                         <a href="{{ route('rounds.show', ['id' => $round['id']]) }}" alt="Mostrar" class="btn btn-primary btn-sm">
                             <i class="fas fa-eye"></i>
                         </a>
-                        @if ($user->role == 'admin')
+                        @if ($user->role == 'admin' || $user->role == 'jeferondas')
                         <a href="{{ route('rounds.edit', ['id' => $round['id']]) }}" class="btn btn-success btn-sm">
                             <i class="fas fa-edit"></i>
                         </a>
