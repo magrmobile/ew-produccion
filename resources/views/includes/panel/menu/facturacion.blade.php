@@ -5,6 +5,6 @@
 </li>
 <li class="nav-item">
     <a class="nav-link" href="/billing">
-        <i class="fas fa-file-invoice text-green"></i> Facturacion Electronica
+        <i class="fas fa-file-invoice text-green"></i> Cargar CSV
     </a>
 </li>

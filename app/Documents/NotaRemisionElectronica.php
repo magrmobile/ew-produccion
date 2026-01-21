@@ -2,6 +2,7 @@
 
 namespace App\Documents;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class NotaRemisionElectronica extends DocumentBase
@@ -39,7 +40,8 @@ class NotaRemisionElectronica extends DocumentBase
         $data['receptor']['telefono'] = isset($this->datosReceptor['telefono']) ? $this->datosReceptor['telefono'] : env('DTE_RECEPTOR_TELEFONO');
         $data['receptor']['correo'] =  isset($this->datosReceptor['correo']) ? $this->datosReceptor['correo'] : env('DTE_RECEPTOR_EMAIL');
         $data['receptor']['bienTitulo'] = $this->datosReceptor['bienTitulo'];
-
+        //$data['receptor']['correo'] = 'pruebas@enerwire.com';
+        
         // Otros Documentos
         $data['otrosDocumentos'] = null;
         
@@ -121,11 +123,10 @@ class NotaRemisionElectronica extends DocumentBase
 
 
         // Extension
-        $data['extension']['nombEntrega'] = null;
-        $data['extension']['docuEntrega'] = null;
-        $data['extension']['nombRecibe'] = null;
-        $data['extension']['docuRecibe'] = null;
-        $data['extension']['observaciones'] = null;
+        $data['extension']['nombEntrega'] = Auth::user()->name;
+        $data['extension']['docuEntrega'] = Auth::user()->numDocumento;
+        $data['extension']['nombRecibe'] = $this->datosReceptor['nombre_contacto'];
+        $data['extension']['docuRecibe'] = $this->datosReceptor['numdoc_contacto'];
 
         // Apendice
         $data['apendice'] = null;

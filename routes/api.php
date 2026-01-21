@@ -42,6 +42,8 @@ Route::get('/conversions/{conversion}', 'ConversionController@show');
 
 Route::get('/stops_report','StopController@stops_report');
 
+Route::get('/rounds_report','RoundController@rounds_report');
+
 // Datatables
 Route::get('/datatable/codes', 'DatatableController@code')->name('datatable.codes');
 Route::get('/datatable/conversions', 'DatatableController@conversion')->name('datatable.conversions');

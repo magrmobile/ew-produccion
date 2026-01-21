@@ -15,7 +15,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\CheckMissingRounds::class,
+        //Commands\CheckMissingRounds::class,
     ];
 
     /**
@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('check:missingrounds')->hourly();
+        //$schedule->command('check:missingrounds')->hourly();
     }
 
     /**

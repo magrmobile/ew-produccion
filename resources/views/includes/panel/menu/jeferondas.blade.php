@@ -1,5 +1,5 @@
 <li class="nav-item">
-    <a class="nav-link" href="{{ route('rounds.dashboard') }}">
+    <a class="nav-link" href="/rounds">
         <i class="fas fa-history text-purple"></i> Rondas
     </a>
 </li>

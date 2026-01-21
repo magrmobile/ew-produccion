@@ -34,7 +34,8 @@ class FacturaSujetoExcluidoElectronica extends DocumentBase
         $data['receptor']['direccion']['complemento'] = isset($this->datosReceptor['complemento']) ? $this->datosReceptor['complemento'] : env('DTE_RECEPTOR_DIRECCION_COMPLEMENTO');
         $data['receptor']['telefono'] = isset($this->datosReceptor['telefono']) ? $this->datosReceptor['telefono'] : env('DTE_RECEPTOR_TELEFONO');
         $data['receptor']['correo'] =  isset($this->datosReceptor['correo']) ? $this->datosReceptor['correo'] : env('DTE_RECEPTOR_EMAIL');
-
+        //$data['receptor']['correo'] = 'pruebas@enerwire.com';
+        
         // Cuerpo Documento
         for($i=0; $i < count($this->detalleItems); $i++) {
             $cat014 = DB::table('cat014')
@@ -87,7 +88,6 @@ class FacturaSujetoExcluidoElectronica extends DocumentBase
             ->first();
 
         $data['resumen']['condicionOperacion'] = (int) $condicion->codigo_mh;
-        $data['resumen']['observaciones'] = "";
 
         $pagos = [
             'codigo' => "01",

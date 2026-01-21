@@ -2,6 +2,8 @@
 
 namespace App\Documents;
 
+use Illuminate\Support\Facades\Auth;
+
 class ComprobanteRetencionElectronico extends DocumentBase
 {
     protected $datosReceptor;
@@ -40,6 +42,7 @@ class ComprobanteRetencionElectronico extends DocumentBase
         $data['receptor']['direccion']['complemento'] = isset($this->datosReceptor['complemento']) ? $this->datosReceptor['complemento'] : env('DTE_RECEPTOR_DIRECCION_COMPLEMENTO');
         $data['receptor']['telefono'] = isset($this->datosReceptor['telefono']) ? $this->datosReceptor['telefono'] : env('DTE_RECEPTOR_TELEFONO');
         $data['receptor']['correo'] =  isset($this->datosReceptor['correo']) ? $this->datosReceptor['correo'] : env('DTE_RECEPTOR_EMAIL');
+        //$data['receptor']['correo'] = 'pruebas@enerwire.com';
         
         // Otros Documentos
         $data['otrosDocumentos'] = null;
@@ -86,11 +89,10 @@ class ComprobanteRetencionElectronico extends DocumentBase
         // $data['resumen']['totalLetras'] = self::numeroALetras($montoTotal);
 
         // Extension
-        $data['extension']['nombEntrega'] = null;
-        $data['extension']['docuEntrega'] = null;
-        $data['extension']['nombRecibe'] = null;
-        $data['extension']['docuRecibe'] = null;
-        $data['extension']['observaciones'] = null;
+        $data['extension']['nombEntrega'] = Auth::user()->name;
+        $data['extension']['docuEntrega'] = Auth::user()->numDocumento;
+        $data['extension']['nombRecibe'] = $this->datosReceptor['nombre_contacto'];
+        $data['extension']['docuRecibe'] = $this->datosReceptor['numdoc_contacto'];
 
         // Apendice
         $data['apendice'] = null;

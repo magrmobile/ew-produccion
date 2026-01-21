@@ -151,7 +151,7 @@
                             <table style="width: 100%;">
                                 <tr>
                                     <td align="center">
-                                        <span class="titulo">RECEPTOR</span>
+                                        <span class="titulo">SUJETO EXCLUIDO (RECEPTOR)</span>
                                         <table class="receptor">
                                             <tr>
                                                 <td align="right" style="width: 50%;">Nombre o razon social:</td>

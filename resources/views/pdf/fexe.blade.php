@@ -175,7 +175,7 @@
                                         <table class="receptor">
                                             <tr>
                                                 <td align="right" style="width: 50%;">Nombre o razon social:</td>
-                                                <td style="width: 50%;">{{ $data->receptor->nombreComercial }}</td>
+                                                <td style="width: 50%;">{{ $data->receptor->nombre }}</td>
                                             </tr>
                                             <tr>
                                                 <td align="right">N° de Doc. Identificación del receptor:</td>

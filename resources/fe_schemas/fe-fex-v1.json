@@ -70,7 +70,7 @@
                         5
                     ]
                 },
-                "motivoContin": {
+                "motivoContigencia": {
                     "type": [
                         "string",
                         "null"
@@ -97,32 +97,31 @@
                     ]
                 }
             },
-            "allOf" : [
-                {
-                    "if" : {
-                        "properties" : {
-                            "tipoOperacion" : {
-                                "const" : 1
+            "allOf": [{
+                    "if": {
+                        "properties": {
+                            "tipoOperacion": {
+                                "const": 1
                             }
                         }
                     },
-                    "then" : {
-                        "properties" : {
-                            "tipoModelo" : {
-                                "const" : 1
+                    "then": {
+                        "properties": {
+                            "tipoModelo": {
+                                "const": 1
                             },
-                            "tipoContingencia" : {
-                                "type" : "null"
+                            "tipoContingencia": {
+                                "type": "null"
                             },
-                            "motivoContin" : {
-                                "type" : "null"
+                            "motivoContin": {
+                                "type": "null"
                             }
                         }
                     },
-                    "else" : {
-                        "properties" : {
-                            "tipoModelo" : {
-                                "enum" : [
+                    "else": {
+                        "properties": {
+                            "tipoModelo": {
+                                "enum": [
                                     2
                                 ]
                             }
@@ -130,17 +129,17 @@
                     }
                 },
                 {
-                    "if" : {
-                        "properties" : {
-                            "tipoContingencia" : {
-                                "const" : 5
+                    "if": {
+                        "properties": {
+                            "tipoContingencia": {
+                                "const": 5
                             }
                         }
                     },
-                    "then" : {
-                        "properties" : {
-                            "motivoContin" : {
-                                "type" : "string"
+                    "then": {
+                        "properties": {
+                            "motivoContin": {
+                                "type": "string"
                             }
                         }
                     }
@@ -156,7 +155,7 @@
                 "tipoModelo",
                 "tipoOperacion",
                 "tipoContingencia",
-                "motivoContin",
+                "motivoContigencia",
                 "fecEmi",
                 "horEmi",
                 "tipoMoneda"
@@ -239,8 +238,7 @@
                             "minLength": 1
                         }
                     },
-                    "allOf": [
-                        {
+                    "allOf": [{
                             "if": {
                                 "properties": {
                                     "departamento": {
@@ -510,43 +508,41 @@
                     "maximum": 13
                 }
             },
-            "allOf": [
-                {
-                    "if": {
-                        "properties": {
-                            "tipoItemExpor": {
-                                "const": 2
-                            }
+            "allOf": [{
+                "if": {
+                    "properties": {
+                        "tipoItemExpor": {
+                            "const": 2
                         }
-                    },
-                    "then": {
-                        "properties": {
-                            "recintoFiscal": {
-                                "type": "null"
-                            },
-                            "regimen": {
-                                "type": "null"
-                            }
+                    }
+                },
+                "then": {
+                    "properties": {
+                        "recintoFiscal": {
+                            "type": "null"
+                        },
+                        "regimen": {
+                            "type": "null"
                         }
-                    },
-                    "else": {
-                        "properties": {
-                            "recintoFiscal": {
-                                "type": [
-                                    "null",
-                                    "string"
-                                ]
-                            },
-                            "regimen": {
-                                "type": [
-                                    "null",
-                                    "string"
-                                ]
-                            }
+                    }
+                },
+                "else": {
+                    "properties": {
+                        "recintoFiscal": {
+                            "type": [
+                                "null",
+                                "string"
+                            ]
+                        },
+                        "regimen": {
+                            "type": [
+                                "null",
+                                "string"
+                            ]
                         }
                     }
                 }
-            ],
+            }],
             "additionalProperties": false,
             "required": [
                 "nit",
@@ -619,281 +615,253 @@
                     ],
                     "description": "Código de país (receptor)",
                     "enum": [
-                        "9320",
-                        "9539",
-                        "9565",
-                        "9905",
-                        "9999",
-                        "9303",
-                        "9306",
-                        "9309",
-                        "9310",
-                        "9315",
-                        "9317",
-                        "9318",
-                        "9319",
-                        "9324",
-                        "9327",
-                        "9330",
-                        "9333",
-                        "9336",
-                        "9339",
-                        "9342",
-                        "9345",
-                        "9348",
-                        "9349",
-                        "9350",
-                        "9354",
-                        "9357",
-                        "9360",
-                        "9363",
-                        "9366",
-                        "9372",
-                        "9374",
-                        "9375",
-                        "9377",
-                        "9378",
-                        "9381",
-                        "9384",
-                        "9387",
-                        "9390",
-                        "9393",
-                        "9394",
-                        "9396",
-                        "9399",
-                        "9402",
-                        "9405",
-                        "9408",
-                        "9411",
-                        "9414",
-                        "9417",
-                        "9420",
-                        "9423",
-                        "9426",
-                        "9432",
-                        "9435",
-                        "9438",
-                        "9440",
-                        "9441",
-                        "9444",
-                        "9446",
-                        "9447",
-                        "9450",
-                        "9453",
-                        "9456",
-                        "9459",
-                        "9462",
-                        "9465",
-                        "9468",
-                        "9471",
-                        "9474",
-                        "9477",
-                        "9480",
-                        "9481",
-                        "9483",
-                        "9486",
-                        "9487",
-                        "9495",
-                        "9498",
-                        "9501",
-                        "9504",
-                        "9507",
-                        "9513",
-                        "9516",
-                        "9519",
-                        "9522",
-                        "9525",
-                        "9526",
-                        "9528",
-                        "9531",
-                        "9534",
-                        "9537",
-                        "9540",
-                        "9543",
-                        "9544",
-                        "9546",
-                        "9549",
-                        "9552",
-                        "9555",
-                        "9558",
-                        "9561",
-                        "9564",
-                        "9567",
-                        "9570",
-                        "9573",
-                        "9576",
-                        "9577",
-                        "9582",
-                        "9585",
-                        "9591",
-                        "9594",
-                        "9597",
-                        "9600",
-                        "9601",
-                        "9603",
-                        "9606",
-                        "9609",
-                        "9611",
-                        "9612",
-                        "9615",
-                        "9618",
-                        "9621",
-                        "9624",
-                        "9627",
-                        "9633",
-                        "9636",
-                        "9638",
-                        "9639",
-                        "9642",
-                        "9645",
-                        "9648",
-                        "9651",
-                        "9660",
-                        "9663",
-                        "9666",
-                        "9669",
-                        "9672",
-                        "9675",
-                        "9677",
-                        "9678",
-                        "9679",
-                        "9680",
-                        "9681",
-                        "9682",
-                        "9683",
-                        "9684",
-                        "9687",
-                        "9690",
-                        "9691",
-                        "9693",
-                        "9696",
-                        "9699",
-                        "9702",
-                        "9705",
-                        "9706",
-                        "9707",
-                        "9708",
-                        "9714",
-                        "9717",
-                        "9720",
-                        "9722",
-                        "9723",
-                        "9725",
-                        "9726",
-                        "9727",
-                        "9729",
-                        "9732",
-                        "9735",
-                        "9738",
-                        "9739",
-                        "9740",
-                        "9741",
-                        "9744",
-                        "9747",
-                        "9750",
-                        "9756",
-                        "9758",
-                        "9759",
-                        "9760",
-                        "9850",
-                        "9862",
-                        "9863",
-                        "9865",
-                        "9886",
-                        "9898",
-                        "9899",
-                        "9897",
-                        "9887",
-                        "9571",
-                        "9300",
-                        "9369",
-                        "9439",
-                        "9510",
-                        "9579",
-                        "9654",
-                        "9711",
-                        "9736",
-                        "9737",
-                        "9640",
-                        "9641",
-                        "9673",
-                        "9472",
-                        "9311",
-                        "9733",
-                        "9541",
-                        "9746",
-                        "9551",
-                        "9451",
-                        "9338",
-                        "9353",
-                        "9482",
-                        "9494",
-                        "9524",
-                        "9304",
-                        "9332",
-                        "9454",
-                        "9457",
-                        "9489",
-                        "9491",
-                        "9492",
-                        "9523",
-                        "9530",
-                        "9532",
-                        "9535",
-                        "9542",
-                        "9547",
-                        "9548",
-                        "9574",
-                        "9598",
-                        "9602",
-                        "9607",
-                        "9608",
-                        "9623",
-                        "9652",
-                        "9692",
-                        "9709",
-                        "9712",
-                        "9716",
-                        "9718",
-                        "9719",
-                        "9751",
-                        "9452",
-                        "9901",
-                        "9902",
-                        "9903",
-                        "9664",
-                        "9415",
-                        "9904",
-                        "9514",
-                        "9906",
-                        "9359",
-                        "9493",
-                        "9521",
-                        "9533",
-                        "9538",
-                        "9689",
-                        "9713",
-                        "9449",
-                        "9888",
-                        "9490",
-                        "9527",
-                        "9529",
-                        "9536",
-                        "9545",
-                        "9568",
-                        "9610",
-                        "9622",
-                        "9643",
-                        "9667",
-                        "9676",
-                        "9685",
-                        "9686",
-                        "9688",
-                        "9715",
-                        "9900",
-                        "9371",
-                        "9376",
-                        "9907"
+                        "AD",
+                        "AE",
+                        "AF",
+                        "AG",
+                        "AI",
+                        "AL",
+                        "AM",
+                        "AO",
+                        "AQ",
+                        "AR",
+                        "AS",
+                        "AT",
+                        "AU",
+                        "AW",
+                        "AX",
+                        "AZ",
+                        "BA",
+                        "BB",
+                        "BD",
+                        "BE",
+                        "BF",
+                        "BG",
+                        "BH",
+                        "BI",
+                        "BJ",
+                        "BL",
+                        "BM",
+                        "BN",
+                        "BO",
+                        "BQ",
+                        "BR",
+                        "BS",
+                        "BV",
+                        "BW",
+                        "BY",
+                        "BZ",
+                        "CA",
+                        "CC",
+                        "CD",
+                        "CF",
+                        "CG",
+                        "CH",
+                        "CI",
+                        "CK",
+                        "CL",
+                        "CM",
+                        "CN",
+                        "CO",
+                        "CR",
+                        "CU",
+                        "CV",
+                        "CW",
+                        "CX",
+                        "CY",
+                        "CZ",
+                        "DE",
+                        "DJ",
+                        "DK",
+                        "DM",
+                        "DO",
+                        "DZ",
+                        "EC",
+                        "EE",
+                        "EG",
+                        "EH",
+                        "ER",
+                        "ES",
+                        "ET",
+                        "FI",
+                        "FJ",
+                        "FK",
+                        "FM",
+                        "FO",
+                        "FR",
+                        "GA",
+                        "GB",
+                        "GD",
+                        "GE",
+                        "GF",
+                        "GG",
+                        "GH",
+                        "GI",
+                        "GL",
+                        "GM",
+                        "GN",
+                        "GP",
+                        "GQ",
+                        "GR",
+                        "GS",
+                        "GT",
+                        "GU",
+                        "GW",
+                        "GY",
+                        "HK",
+                        "HM",
+                        "HN",
+                        "HR",
+                        "HT",
+                        "HU",
+                        "ID",
+                        "IE",
+                        "IL",
+                        "IM",
+                        "IN",
+                        "IO",
+                        "IQ",
+                        "IR",
+                        "IS",
+                        "IT",
+                        "JE",
+                        "JM",
+                        "JO",
+                        "JP",
+                        "KE",
+                        "KG",
+                        "KH",
+                        "KI",
+                        "KM",
+                        "KN",
+                        "KP",
+                        "KR",
+                        "KW",
+                        "KY",
+                        "KZ",
+                        "LA",
+                        "LB",
+                        "LC",
+                        "LI",
+                        "LK",
+                        "LR",
+                        "LS",
+                        "LT",
+                        "LU",
+                        "LV",
+                        "LY",
+                        "MA",
+                        "MC",
+                        "MD",
+                        "ME",
+                        "MF",
+                        "MG",
+                        "MH",
+                        "MK",
+                        "ML",
+                        "MN",
+                        "MO",
+                        "MP",
+                        "MQ",
+                        "MR",
+                        "MS",
+                        "MT",
+                        "MU",
+                        "MV",
+                        "MW",
+                        "MX",
+                        "MY",
+                        "MZ",
+                        "NA",
+                        "NC",
+                        "NE",
+                        "NF",
+                        "NG",
+                        "NI",
+                        "NL",
+                        "NO",
+                        "NP",
+                        "NR",
+                        "NU",
+                        "NZ",
+                        "OM",
+                        "PA",
+                        "PE",
+                        "PF",
+                        "PG",
+                        "PH",
+                        "PK",
+                        "PL",
+                        "PM",
+                        "PN",
+                        "PR",
+                        "PS",
+                        "PT",
+                        "PW",
+                        "PY",
+                        "QA",
+                        "RE",
+                        "RO",
+                        "RS",
+                        "RU",
+                        "RW",
+                        "SA",
+                        "SB",
+                        "SC",
+                        "SD",
+                        "SE",
+                        "SG",
+                        "SH",
+                        "SI",
+                        "SJ",
+                        "SK",
+                        "SL",
+                        "SM",
+                        "SN",
+                        "SO",
+                        "SR",
+                        "SS",
+                        "ST",
+                        "SV",
+                        "SX",
+                        "SY",
+                        "SZ",
+                        "TC",
+                        "TD",
+                        "TF",
+                        "TG",
+                        "TH",
+                        "TJ",
+                        "TK",
+                        "TL",
+                        "TM",
+                        "TN",
+                        "TO",
+                        "TR",
+                        "TT",
+                        "TV",
+                        "TW",
+                        "TZ",
+                        "UA",
+                        "UG",
+                        "UM",
+                        "US",
+                        "UY",
+                        "UZ",
+                        "VA",
+                        "VC",
+                        "VE",
+                        "VG",
+                        "VI",
+                        "VN",
+                        "VU",
+                        "WF",
+                        "WS",
+                        "YE",
+                        "YT",
+                        "ZA",
+                        "ZM",
+                        "ZW"
                     ]
                 },
                 "nombrePais": {
@@ -950,8 +918,7 @@
                     "minLength": 3
                 }
             },
-            "allOf": [
-                {
+            "allOf": [{
                     "if": {
                         "properties": {
                             "tipoDocumento": {
@@ -1081,8 +1048,7 @@
                         "maxLength": 200
                     }
                 },
-                "allOf": [
-                    {
+                "allOf": [{
                         "if": {
                             "properties": {
                                 "codDocAsociado": {
@@ -1259,29 +1225,27 @@
                         "multipleOf": 0.00000001
                     }
                 },
-                "allOf": [
-                    {
-                        "if": {
-                            "properties": {
-                                "noGravado": {
-                                    "const": 0
-                                }
+                "allOf": [{
+                    "if": {
+                        "properties": {
+                            "noGravado": {
+                                "const": 0
                             }
-                        },
-                        "then": {
-                            "properties": {
-                                "precioUni": {
-                                    "type": "number"
-                                },
-                                "tributos": {
-                                    "items": {
-                                        "const": "C3"
-                                    }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "precioUni": {
+                                "type": "number"
+                            },
+                            "tributos": {
+                                "items": {
+                                    "const": "C3"
                                 }
                             }
                         }
                     }
-                ],
+                }],
                 "additionalProperties": false,
                 "required": [
                     "numItem",
@@ -1389,7 +1353,7 @@
                                 "type": "string",
                                 "description": "Código de forma de pago",
                                 "maxLength": 2,
-                                "pattern" : "^(0[1-9]||1[0-4]||99)$"
+                                "pattern": "^(0[1-9]||1[0-4]||99)$"
                             },
                             "montoPago": {
                                 "type": "number",
@@ -1521,33 +1485,31 @@
             "maxItems": 10
         }
     },
-    "allOf": [
-        {
-            "if": {
-                "properties": {
-                    "resumen": {
-                        "properties": {
-                            "montoTotalOperacion": {
-                                "minimum": 10000
-                            }
+    "allOf": [{
+        "if": {
+            "properties": {
+                "resumen": {
+                    "properties": {
+                        "montoTotalOperacion": {
+                            "minimum": 10000
                         }
                     }
                 }
-            },
-            "then": {
-                "properties": {
-                    "receptor": {
-                        "type": "object",
-                        "properties": {
-                            "correo": {
-                                "type": "string"
-                            }
+            }
+        },
+        "then": {
+            "properties": {
+                "receptor": {
+                    "type": "object",
+                    "properties": {
+                        "correo": {
+                            "type": "string"
                         }
                     }
                 }
             }
         }
-    ],
+    }],
     "additionalProperties": false,
     "required": [
         "identificacion",

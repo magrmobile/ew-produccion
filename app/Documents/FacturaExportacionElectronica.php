@@ -35,7 +35,7 @@ class FacturaExportacionElectronica extends DocumentBase
         $data['emisor']['regimen'] = $this->datosEmisor['regimen'];
 
         // Receptor
-        $data['receptor']['tipoDocumento'] = "36";
+        $data['receptor']['tipoDocumento'] = "37";
         $data['receptor']['numDocumento'] = $this->datosReceptor['nit'];
         $data['receptor']['nombre'] = $this->datosReceptor['nombre'];
     
@@ -55,7 +55,8 @@ class FacturaExportacionElectronica extends DocumentBase
         $data['receptor']['complemento'] = isset($this->datosReceptor['complemento']) ? $this->datosReceptor['complemento'] : env('DTE_RECEPTOR_DIRECCION_COMPLEMENTO');
         $data['receptor']['telefono'] = isset($this->datosReceptor['telefono']) ? $this->datosReceptor['telefono'] : env('DTE_RECEPTOR_TELEFONO');
         $data['receptor']['correo'] =  isset($this->datosReceptor['correo']) ? $this->datosReceptor['correo'] : env('DTE_RECEPTOR_EMAIL');
-
+        //$data['receptor']['correo'] = 'pruebas@enerwire.com';
+        
         // Otros Documentos
         $data['otrosDocumentos'] = null;
         
@@ -86,7 +87,7 @@ class FacturaExportacionElectronica extends DocumentBase
                 $item = [
                     'numItem' => $numItem,
                     'codigo' => null,
-                    'descripcion' => $this->detalleItems[$i]['descripcion'],
+                    'descripcion' => (string) $this->detalleItems[$i]['item'],
                     'cantidad' => (isset($this->detalleItems[$i]['cantidad']) || is_string($this->detalleItems[$i]['cantidad']))  ? (float) $this->detalleItems[$i]['cantidad'] : 1,
                     'uniMedida' => (int) $unidad,
                     'precioUni' => (float) $this->detalleItems[$i]['precio'],
@@ -117,13 +118,14 @@ class FacturaExportacionElectronica extends DocumentBase
                     $item = [
                         'numItem' => $numItem,
                         'codigo' => null,
-                        'descripcion' => $this->detalleItems[$i]['descripcion'],
-                        'cantidad' => (isset($this->detalleItems[$i]['cantidad']) || is_string($this->detalleItems[$i]['cantidad']))  ? (float) $this->detalleItems[$i]['cantidad'] : 1,
+                        'descripcion' => (string) $this->detalleItems[$i]['descripcion'],
+                        //'cantidad' => (isset($this->detalleItems[$i]['cantidad']) || is_string($this->detalleItems[$i]['cantidad']))  ? (float) $this->detalleItems[$i]['cantidad'] : 1,
+                        'cantidad' => 1,
                         'uniMedida' => 99,
-                        'precioUni' => (float)$this->detalleItems[$i]['precio'],
+                        'precioUni' => 0,
                         'montoDescu' => 0,
                         'ventaGravada' => 0,
-                        'tributos' => array("C3"),
+                        'tributos' => null,
                         'noGravado' => (float) $this->detalleItems[$i]['monto'], 
                     ];
 
@@ -147,10 +149,10 @@ class FacturaExportacionElectronica extends DocumentBase
         $montoTotalOperacion = $totalGravada + $seguro + $flete - $totalDescu;
         $montoTotal = $montoTotalOperacion + $totalNoGravada;
 
-        $data['resumen']['montoTotalOperacion'] = $montoTotalOperacion;
-        $data['resumen']['totalGravada'] = $totalGravada;
-        $data['resumen']['totalNoGravado'] = $totalNoGravada;
-        $data['resumen']['totalPagar'] = $montoTotal;
+        $data['resumen']['montoTotalOperacion'] = round($montoTotalOperacion, 2);
+        $data['resumen']['totalGravada'] = round($totalGravada, 2);
+        $data['resumen']['totalNoGravado'] = round($totalNoGravada, 2);
+        $data['resumen']['totalPagar'] = round($montoTotal, 2);
         $data['resumen']['totalLetras'] = self::numeroALetras($montoTotal);
         //$data['resumen']['totalLetras'] = "";
 
@@ -163,9 +165,9 @@ class FacturaExportacionElectronica extends DocumentBase
         $pagos = [
             'codigo' => "01",
             'montoPago' => $data['resumen']['totalPagar'],
-            'plazo' => null,         
+            'plazo' => $condicion->codigo_plazo,         
             'referencia' => "",
-            'periodo' => null
+            'periodo' => $condicion->periodo
         ];
 
         $data['resumen']['seguro'] = $seguro;
@@ -180,10 +182,10 @@ class FacturaExportacionElectronica extends DocumentBase
         $data['resumen']['pagos'][] = $pagos;
         $data['resumen']['numPagoElectronico'] = null;
 
-        $data['resumen']['observaciones'] = null;
-
         // Apendice
         $data['apendice'] = null;
+
+        //dd($data);
         
         return $data;
     }

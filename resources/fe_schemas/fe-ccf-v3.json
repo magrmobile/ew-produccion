@@ -1124,7 +1124,6 @@
                     "precioUni" : {
                         "type" : "number",
                         "description" : "Precio Unitario",
-                        "minimum" : 0,
                         "multipleOf" : 0.00000001
                     },
                     "montoDescu" : {
@@ -1148,7 +1147,6 @@
                     "ventaGravada" : {
                         "type" : "number",
                         "description" : "Ventas Gravadas",
-                        "minimum" : 0,
                         "multipleOf" : 0.00000001
                     },
                     "tributos" : {

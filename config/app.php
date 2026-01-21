@@ -222,6 +222,8 @@ return [
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
 
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
+
+        'Alert' => \RealRashid\SweetAlert\Facades\Alert::class,
     ],
 
 ];

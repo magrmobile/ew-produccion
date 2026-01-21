@@ -111,7 +111,8 @@ class DocumentBase
                 break;
         }
 
-        $numeroControl = "DTE-".$this->type."-".env('DTE_ESTABLECIMIENTO').env('DTE_PUNTOVENTA')."-".$this->generarCodigo();
+        //$numeroControl = "DTE-".$this->type."-".env('DTE_ESTABLECIMIENTO').env('DTE_PUNTOVENTA')."-".$this->generarCodigo();
+        $numeroControl = "DTE-".$this->type."-".env('DTE_ESTABLECIMIENTO').env('DTE_PUNTOVENTA')."-".$this->generarCodigoTipoDte($this->type);
         $codigoGeneracion = Str::upper(Str::uuid()->toString());
 
         $data = [
@@ -124,7 +125,7 @@ class DocumentBase
                 'tipoModelo' => 1,
                 'tipoOperacion' => 1,
                 'tipoContingencia' => null,
-                'motivoContin' => null,
+                ($this->type != '11') ? 'motivoContin' : 'motivoContigencia' => null,
                 'fecEmi' => date('Y-m-d'),
                 'horEmi' => date('H:i:s'),
                 'tipoMoneda' => 'USD'
@@ -196,10 +197,144 @@ class DocumentBase
         return $codigo;
     }
 
+    private function generarCodigoTipoDte($tipoDte)
+    {
+        $year = now()->year;
+        $codigo = '';
+
+        $createdBy = Auth::id();
+
+        // Obtener el último código generado para la fecha actual
+        $ultimoCodigo = DB::table('documents')
+            ->whereYear('created_at', $year)
+            ->where('tipoDte', $tipoDte)
+            ->orderByDesc('sequential_code')
+            ->select('sequential_code')
+            ->first();
+
+        //dd($ultimoCodigo->sequential_code);
+
+        if ($ultimoCodigo) {
+            $estadoDte = DB::table('dtes')
+                ->where('tipoDte', $tipoDte)
+                //->where('received')
+                ->whereRaw("numeroControl LIKE '%".$ultimoCodigo->sequential_code."'")
+                ->latest('id')
+                ->first();
+
+            //dd($estadoDte);
+
+            if(isset($estadoDte) && $estadoDte->received === 0) {
+                $codigo = $ultimoCodigo->sequential_code;
+                return $codigo;
+            }
+
+            switch($tipoDte) {
+                case '01': // Factura
+                    if((int)$ultimoCodigo->sequential_code <= 399) {
+                        $codigo = str_pad((int)$ultimoCodigo->sequential_code + 1, 15, '0', STR_PAD_LEFT);
+                    } else {
+                        $codigo = '000000000000001';
+                    }
+                    break;
+                case '03': // Credito Fiscal
+                    if((int)$ultimoCodigo->sequential_code <= 6999) {
+                        $codigo = str_pad((int)$ultimoCodigo->sequential_code + 1, 15, '0', STR_PAD_LEFT);
+                    } else {
+                        $codigo = '000000000000001';
+                    }
+                    break;
+                case '04': // Nota de Remision
+                    if((int)$ultimoCodigo->sequential_code >= 3000) {
+                        $codigo = str_pad((int)$ultimoCodigo->sequential_code + 1, 15, '0', STR_PAD_LEFT);
+                    } else {
+                        $codigo = '000000000003000';
+                    }
+                    break;
+                case '05': // Nota de Credito
+                        if((int)$ultimoCodigo->sequential_code >= 1000) {
+                            $codigo = str_pad((int)$ultimoCodigo->sequential_code + 1, 15, '0', STR_PAD_LEFT);
+                        } else {
+                            $codigo = '000000000001000';
+                        }
+                        break;
+                case '06': // Nota de Debito
+                        if((int)$ultimoCodigo->sequential_code >= 100) {
+                            $codigo = str_pad((int)$ultimoCodigo->sequential_code + 1, 15, '0', STR_PAD_LEFT);
+                        } else {
+                            $codigo = '000000000000100';
+                        }
+                        break;
+                case '07': // Comprobante de Retencion
+                        if((int)$ultimoCodigo->sequential_code >= 3500) {
+                            $codigo = str_pad((int)$ultimoCodigo->sequential_code + 1, 15, '0', STR_PAD_LEFT);
+                        } else {
+                            $codigo = '000000000003500';
+                        }
+                        break;
+                case '11': // Factura de Exportacion
+                    if((int)$ultimoCodigo->sequential_code <= 2499) {
+                        $codigo = str_pad((int)$ultimoCodigo->sequential_code + 1, 15, '0', STR_PAD_LEFT);
+                    } else {
+                        $codigo = '000000000000001';
+                    }
+                    break;
+                case '14': // Factura de Sujeto Excluido
+                    if((int)$ultimoCodigo->sequential_code >= 600) {
+                        $codigo = str_pad((int)$ultimoCodigo->sequential_code + 1, 15, '0', STR_PAD_LEFT);
+                    } else {
+                        $codigo = '000000000000600';
+                    }
+                    break;
+                default:
+                    if((int)$ultimoCodigo->sequential_code >= 500) {
+                        $codigo = str_pad((int)$ultimoCodigo->sequential_code + 1, 15, '0', STR_PAD_LEFT);
+                    } else {
+                        $codigo = '000000000000500';
+                    }
+                    break;
+            }
+        } else {
+            switch($tipoDte) {
+                case '01':
+                    $codigo = '000000000000001';
+                    break;
+                case '03':
+                    $codigo = '000000000000001';
+                    break;
+                case '11':
+                    $codigo = '000000000000001';
+                    break;
+                case '04':
+                    $codigo = '000000000003000';
+                    break;
+                case '07':
+                    $codigo = '000000000003000';
+                    break;
+                default:
+                    $codigo = '000000000000500';
+                    break;
+            }
+        }
+
+        //dd($codigo);
+
+        // Guardar el código en la tabla documentos
+        DB::table('documents')->insert([
+            'sequential_code' => $codigo,
+            'tipoDte' => $tipoDte,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'created_by' => $createdBy,
+        ]);
+
+        return $codigo;
+    }
+
     public static function numeroALetras($numero)
     {
         $formatter = new NumeroALetras();
 
-        return $formatter->toMoney($numero, 2, 'DOLARES', 'CENTAVOS');
+        return $formatter->toInvoice($numero, 2, 'DOLARES');
     }
 }

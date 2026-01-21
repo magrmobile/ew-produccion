@@ -16,7 +16,7 @@
             </div>
             <div class="col text-right">
                 <a href="{{ url('dashboard') }}" class="btn btn-sm btn-default">
-                    Regresar
+                    Dashboard
                 </a>
                 <a href="{{ url('rounds/create') }}" class="btn btn-sm btn-success">
                     Registrar Ronda

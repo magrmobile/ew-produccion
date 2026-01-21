@@ -25,11 +25,13 @@ class CreateDtesTable extends Migration
             $table->text('sign')->nullable();
             $table->boolean('received')->default(false);
             $table->timestamp('received_date')->nullable();
+            $table->unsignedInteger('received_by')->nullable();
             $table->text('stamp')->nullable();
             $table->timestamps();
 
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->foreign('created_by')->references('id')->on('users');
+            $table->foreign('received_by')->references('id')->on('users');
         });
     }
 

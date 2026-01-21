@@ -76,20 +76,31 @@ class DatatableController extends Controller
     }
 
     public function dte($customer_id) {
-        $dtes = dte::where('customer_id', $customer_id);
+        $dtes = dte::where('customer_id', $customer_id)->orderBy('id','desc');
         return datatables()->of($dtes)
             ->addColumn('signed', function($dte){
                 if($dte->signed == 1){
                     return '<center><i class="fas fa-circle text-success" style="font-size:24px"></i></center>';
                 } else {
-                    return '<center><i class="fas fa-circle text-danger" style="font-size:24px"></i></center>';
+                    return '<center>
+                        <a href="'.route('dtes.signDte',$dte-> id).'" class="btn-ico"><i class="fas fa-circle text-danger" style="font-size:24px"></i></a>
+                        </center>';
                 }
             })
             ->addColumn('received', function($dte){
                 if($dte->received == 1){
                     return '<i class="fas fa-circle text-success" style="font-size:24px"></i>';
                 } else {
-                    return '<i class="fas fa-circle text-danger" style="font-size:24px"></i>';
+                    return '<a href="'.route('dtes.sendDte',$dte->id).'" class="btn-ico"><i class="fas fa-circle text-danger" style="font-size:24px"></i></a>';
+                }
+            })
+            ->addColumn('invalidate', function($dte){
+                if($dte->received == 1) {
+                    if($dte->invalidate == 0) {
+                        return '<a href="'.route('dtes.invalidate',$dte).'" class="btn-ico"><i class="fas fa-times-circle text-danger" style="font-size:24px"></i></a>';
+                    } else {
+                        return '<i class="fas fa-circle text-success" style="font-size:24px"></i>';
+                    }
                 }
             })
             ->addColumn('action', function($dte){
@@ -99,7 +110,7 @@ class DatatableController extends Controller
                 }
 
                 $actions = '
-                <a href="'.route('dtes.show', $dte->id).'" class="btn btn-sm btn-primary" role="button" title="Ver"><i class="fas fa-eye"></i></a>
+                <a href="'.route('dtes.show', $dte).'" class="btn btn-sm btn-primary" role="button" title="Ver"><i class="fas fa-eye"></i></a>
                 ';
                 /*$actions = '
                 <a href="'.route('dtes.show', $dte->id).'" class="btn btn-sm btn-primary" role="button" title="Ver"><i class="fas fa-eye"></i></a>
@@ -107,7 +118,7 @@ class DatatableController extends Controller
                 ';*/
                 return $actions;
             })
-            ->rawColumns(['signed', 'received', 'action'])
+            ->rawColumns(['signed', 'received', 'invalidate', 'action'])
             ->make(true);
     }
 

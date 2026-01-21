@@ -205,6 +205,32 @@
                         </div>
                     </div>
                 </div>
+                <!-- Datos de Contacto Resposable -->
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="nombre_contacto">Responsable</label>
+                            <input id="nombre_contacto" name="nombre_contacto" type="text" value="{{ $customer->nombre_contacto }}" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="tipodoc_contacto">Tipo de Documento Responsable</label>
+                            <select name="tipodoc_contacto" id="tipodoc_contacto" class="form-control">
+                                <option value="">Seleccionar Tipo de Documento</option>
+                                @foreach($tipo_documento as $tipoDocumento)
+                                <option value="{{ $tipoDocumento->id }}" @if($customer->tipodoc_contacto == $tipoDocumento->id) selected @endif>{{ $tipoDocumento->id.' - '.$tipoDocumento->valor }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="numdoc_contacto">Numero de Documento</label>
+                            <input id="numdoc_contacto" name="numdoc_contacto" type="text" value="{{ $customer->numdoc_contacto }}" class="form-control">
+                        </div>
+                    </div>
+                </div>
                 <button class="btn btn-primary" type="submit">
                     Guardar
                 </button>
@@ -212,4 +238,12 @@
         </form>
     </div>
 </div>
+@endsection
+@section('scripts')
+<script>
+    $(document).ready(function(){
+        var departamentos = @json($departamentos);
+        var selectedDepartamentoId = {{ $customer->departamento }};
+    });
+</script>
 @endsection

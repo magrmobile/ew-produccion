@@ -24,7 +24,11 @@ class Customer extends Model
         'tipoPersona',
         'telefono',
         'correo',
-        'category_id'
+        'category_id',
+        'created_by',
+        'nombre_contacto',
+        'tipodoc_contacto',
+        'numdoc_contacto'
     ];
 
     protected $hidden = [

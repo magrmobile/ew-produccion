@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\dteController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -96,7 +98,7 @@ Route::middleware('auth')->group(function(){
     // Route::get('/rounds/create', 'RoundController@create');
     // Route::post('/rounds', 'RoundController@store');
    
-    Route::get('/billing', 'BillingController@index');
+    Route::get('/billing', 'BillingController@index')->name('billing.index');
     Route::post('/upload', 'BillingController@upload');
     Route::post('/get-customer-data', 'BillingController@getCustomerData');
     Route::get('/generar-schema','BillingController@generarJson');
@@ -105,7 +107,7 @@ Route::middleware('auth')->group(function(){
     Route::get('/obtener-pdf', function(){
         try {
             // Obten el contenido del archivo PDF almacenado en app/temp.pdf
-            $pdfFilePath = storage_path('app/'.session()->getId().'.pdf');
+            $pdfFilePath = storage_path('app/sessions/'.session()->getId().'.pdf');
 
             // Crea una respuesta HTTP con el contenido del archivo PDF
             return response()->file($pdfFilePath, [
@@ -123,5 +125,8 @@ Route::middleware('auth')->group(function(){
 
     // Dte Routes
     Route::resource('dtes', 'dteController');
-    Route::get('/signDte/{id}', 'dteController@signDte')->name('dtes.signDte');
+    Route::get('/invalidate/{dte}',[dteController::class, 'showInvalidate'])->name('dtes.invalidate');
+    Route::get('/signDte/{id}', [dteController::class, 'signDte'])->name('dtes.signDte');
+    Route::get('/sendDte/{id}', [dteController::class, 'sendDte'])->name('dtes.sendDte');
+    Route::post('/invalidateDte/{dte}', [dteController::class, 'invalidateDte'])->name('dtes.invalidateDte');
 });

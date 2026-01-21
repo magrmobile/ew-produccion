@@ -2,6 +2,7 @@
 
 namespace App\Documents;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ComprobanteCreditoFiscalElectronico extends DocumentBase
@@ -35,7 +36,7 @@ class ComprobanteCreditoFiscalElectronico extends DocumentBase
         $data['receptor']['direccion']['complemento'] = isset($this->datosReceptor['complemento']) ? $this->datosReceptor['complemento'] : env('DTE_RECEPTOR_DIRECCION_COMPLEMENTO');
         $data['receptor']['telefono'] = isset($this->datosReceptor['telefono']) ? $this->datosReceptor['telefono'] : env('DTE_RECEPTOR_TELEFONO');
         $data['receptor']['correo'] =  isset($this->datosReceptor['correo']) ? $this->datosReceptor['correo'] : env('DTE_RECEPTOR_EMAIL');
-        
+        //$data['receptor']['correo'] = 'pruebas@enerwire.com';
         
         $data['documentoRelacionado'] = null;
         
@@ -124,7 +125,7 @@ class ComprobanteCreditoFiscalElectronico extends DocumentBase
         $data['resumen']['reteRenta'] = 0;
         $data['resumen']['montoTotalOperacion'] = round($montoTotal, 2);
         $data['resumen']['totalNoGravado'] = 0;
-        $totalPagar = $montoTotal + $ivaPerci1;
+        $totalPagar = round($montoTotal + $ivaPerci1, 2);
         $data['resumen']['totalPagar'] = round($totalPagar, 2);
         $data['resumen']['totalLetras'] = self::numeroALetras($totalPagar);
         //$data['resumen']['totalLetras'] = "";
@@ -138,21 +139,20 @@ class ComprobanteCreditoFiscalElectronico extends DocumentBase
 
         $pagos = [
             'codigo' => "01",
-            'montoPago' => $montoTotal,
-            'plazo' => null,
+            'montoPago' => $totalPagar,
+            'plazo' => $condicion->codigo_plazo,
             'referencia' => "",
-            'periodo' => null
+            'periodo' => $condicion->periodo
         ];
 
         $data['resumen']['pagos'][] = $pagos;
         $data['resumen']['numPagoElectronico'] = null;
 
         // Extension
-        $data['extension']['nombEntrega'] = null;
-        $data['extension']['docuEntrega'] = null;
-        $data['extension']['nombRecibe'] = null;
-        $data['extension']['docuRecibe'] = null;
-        $data['extension']['observaciones'] = null;
+        $data['extension']['nombEntrega'] = Auth::user()->name;
+        $data['extension']['docuEntrega'] = Auth::user()->numDocumento;
+        $data['extension']['nombRecibe'] = $this->datosReceptor['nombre_contacto'];
+        $data['extension']['docuRecibe'] = $this->datosReceptor['numdoc_contacto'];
         $data['extension']['placaVehiculo'] = null;
 
         // Apendice

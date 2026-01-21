@@ -13,7 +13,7 @@
                 <h3 class="mb-0">Ingreso de Datos de Produccion</h3>
             </div>
             <div class="col text-right">
-                <a href="{{ url('dashboard') }}" class="btn btn-sm btn-default">
+                <a href="/rounds" class="btn btn-sm btn-default">
                     Cancelar y volver
                 </a>
             </div>

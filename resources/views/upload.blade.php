@@ -27,6 +27,19 @@
         </div>
     </div>
     @endif
+    @if(session('confirm'))
+    <div class="card-body">
+        <div class="alert alert-success" role="success">
+            {{ session('confirm') }}
+            <a href="{{ route('dtes.sendDte', ['id' => session('dteId') ])}}" id="sendBtn" name="sendBtn" class="btn btn-primary submit-send">
+                <span class="btn-txt-send">Enviar</span>
+                <span class="spinner-border-send spinner-border-sm d-none" role="status" aria-hidden="true">
+                    <i class="fas fa-spinner fa-pulse"></i>
+                </span>
+            </a>
+        </div>
+    </div>
+    @endif
     @if(session('message'))
     <div class="card-body">
         <div class="alert alert-success" role="success">
@@ -34,17 +47,19 @@
         </div>
     </div>
     @endif
+    @if(session('errors'))
     <div class="card-body">
-        @if($errors->any())
-            <div class="alert alert-danger" role="alert">
-                <ul>
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-                </ul>
-            </div>
-        @endif
-        <form action="/upload" method="POST" enctype="multipart/form-data">
+        <div class="alert alert-danger" role="alert">
+            <ul>
+            @foreach($errors as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+            </ul>
+        </div>
+    </div>
+    @endif
+    <div class="card-body">
+        <form name="uploadform" id="uploadform" action="/upload" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="row">
                 <div class="col">
@@ -88,6 +103,12 @@
             </div>
             <div class="row">
                 <div class="col">
+                    <label for="comments">Observaciones:</label>
+                    <textarea name="comments" id="comments" cols="30" rows="3" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
                     <label for="file" class="form-label">Archivo:</label>
                     <input class="form-control" type="file" name="file" accept=".csv,.xls,.xlsx" required>
                 </div>
@@ -95,10 +116,13 @@
             <div class="row">&nbsp;</div>
             <div class="row">
                 <div class="col">
-                    <button class="btn btn-primary" type="submit">
-                        Cargar y Generar JSON
+                    <button class="btn btn-primary btn-lg submit" type="submit">
+                        <span class="btn-txt">Cargar y Generar JSON</span>
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true">
+                            <i class="fas fa-spinner fa-pulse"></i>
+                        </span>
                     </button>
-                    <button type="button" class="btn btn-primary" id="verPdfBtn">
+                    <button type="button" class="btn btn-primary btn-lg" id="verPdfBtn">
                         Ver PDF
                     </button>
                 </div>
@@ -111,6 +135,20 @@
 @section('scripts')
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script>
+    $(document).ready(function() {
+        $("#uploadform").submit(function() {
+            $(".spinner-border").removeClass("d-none");
+            $(".submit").attr("disabled", true);
+            $(".btn-txt").text('Procesando...');
+        });
+
+        $("#sendBtn").click(function() {
+            $(".spinner-border-send").removeClass("d-none");
+            $(".submit-send").attr("disabled", true);
+            $(".btn-txt-send").text('Procesando...');
+        });
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         // Asociar una función al evento click del botón
         document.getElementById('verPdfBtn').addEventListener('click', function(){

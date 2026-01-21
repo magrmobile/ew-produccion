@@ -282,15 +282,19 @@
                             <table style="width: 100%">
                                 <tr>
                                     <td style="width: 25%;">Responsable por parte del emisor:</td>
-                                    <td style="width: 25%;"></td>
+                                    <td style="width: 25%;">@if (Auth::check())
+                                        {{ Auth::user()->name }}
+                                    @endif </td>
                                     <td style="width: 25%;">N° de Documento:</td>
-                                    <td style="width: 25%;"></td>
+                                    <td style="width: 25%;">@if (Auth::check())
+                                        {{ Auth::user()->numDocumento }}
+                                    @endif</td>
                                 </tr>
                                 <tr>
                                     <td style="width: 25%;">Responsable por parte del receptor:</td>
-                                    <td style="width: 25%;"></td>
+                                    <td style="width: 25%;">{{ $nombre_contacto }}</td>
                                     <td style="width: 25%;">N° de Documento:</td>
-                                    <td style="width: 25%;"></td>
+                                    <td style="width: 25%;">{{ $numdoc_contacto }}</td>
                                 </tr>
                                 <tr>
                                     <td style="width: 25%;">Observaciones:</td>

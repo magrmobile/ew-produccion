@@ -179,7 +179,8 @@ class RoundController extends Controller
                         ->take(4)
                         ->get();
             
-            if($lastRounds->count() == 4 && $lastRounds->pluck('produced_meters')->sum() == 0) {
+            // Notificacion de Rondas con produccion Cero
+            /*if($lastRounds->count() == 4 && $lastRounds->pluck('produced_meters')->sum() == 0) {
                 $supEmails = ['d.perez@enerwire.com', 'm.quintanilla@enerwire.com', 'g.quetglas@enerwire.com', 'r.obyrne@enerwire.com', 'rparada@rpbsoluciones.com', 'magrmobile@gmail.com', 'a.matal@enerwire.com'];
                 //$supEmails = ['rparada@rpbsoluciones.com', 'magrmobile@gmail.com'];
 
@@ -193,7 +194,7 @@ class RoundController extends Controller
                 $shift = $user->shift;
 
                 Notification::send($supNotifiables, new RoundsZeroMetersNotification($machine, $shift));
-            }
+            }*/
         }
 
         // Crear la nueva ronda
@@ -485,9 +486,12 @@ class RoundController extends Controller
         $machine = Machine::find($machineId);
         $product = Product::find($productId);
 
-        $speed = $machine->products()->wherePivot('product_id', $product->id)->first()->pivot->speed;
-
-        return response()->json(['speed' => $speed]);
+        try {
+            $speed = $machine->products()->wherePivot('product_id', $product->id)->first()->pivot->speed;
+            return response()->json(['speed' => $speed]);
+        }catch(Exception $e){
+            return response()->json(['speed' => 0]);
+        }
     }
 
     public function getLastRoundProduct(Request $request) {

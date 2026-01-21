@@ -29,17 +29,40 @@
         </div>
     </div>
     @endif
+
+    @if(session('message'))
+    <div class="card-body">
+        <div class="alert alert-success" role="success">
+            {{ session('message') }}
+        </div>
+    </div>
+    @endif
+
+    @if(session('errors'))
+    <div class="card-body">
+        <div class="alert alert-danger" role="alert">
+            <ul>
+            @foreach($errors as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+            </ul>
+        </div>
+    </div>
+    @endif
     
     <div class="card">
         <div class="card-body">
             <table class="table table-striped dt-responsive nowrap" id="dtes-table" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Codigo Generacion</th>
-                        <th>Numero de Control</th>
+                        <th>Id</th>
                         <th>Fecha Creacion</th>
+                        <th>Codigo Generacion</th>
                         <th>Firmado</th>
                         <th>Transmitido</th>
+                        @if (auth()->user()->role == 'admin' || auth()->user()->role == 'facturacion_sup')
+                        <th>Anular</th>    
+                        @endif
                         <th>Opciones</th>
                     </tr>
                 </thead>
@@ -48,47 +71,7 @@
     </div>
 </div>
 
-@foreach($dtes as $dte)
-    <div class="modal fade" id="viewModal{{ $dte->id }}" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel{{ $dte->id }}" aria-hidden="true">
-        <div class="modal-dialog modal-lg"  role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="viewModalLabel{{ $dte->id }}">Ver DTE</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-6">Codigo Generacion:</div>
-                            <div class="col-md-6">{{ $dte->codigoGeneracion }}</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">Numero de Control:</div>
-                            <div class="col-md-6">{{ $dte->numeroControl }}</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">Creado Por:</div>
-                            <div class="col-md-6">{{ $dte->user->username }}</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">Fecha de Creacion:</div>
-                            <div class="col-md-6">{{ $dte->created_at }}</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">Contenido JSON:</div>
-                            <div class="col-md-6">{{ $dte->json_dte }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-@endforeach
+
 
 @endsection
 @section('scripts')
@@ -107,13 +90,15 @@
     var table = $('#dtes-table').DataTable({
         "ajax": "{{ route('datatable.dtes',['customer_id' => $customer->id]) }}",
         "columns": [
-            { data: "codigoGeneracion" },
-            { data: "numeroControl" },
+            { data: "id" },
             { data: "created_at" },
+            { data: "codigoGeneracion" },
             { data: "signed" },
             { data: "received" },
-            { data: 'action', name: 'action', orderable: false, searchable: false }  
+            { data: "invalidate" },
+            { data: 'action', name: 'action', orderable: true, searchable: false }  
         ],
+        order: [[0, 'desc']],
         responsive: true,
         autoWidth: false,
         columnDefs: [

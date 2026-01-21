@@ -59,17 +59,22 @@
     </a>
 </li>
 <li class="nav-item">
-    <a class="nav-link" href="/dashboard">
+    <a class="nav-link" href="/rounds">
         <i class="fas fa-history text-purple"></i> Rondas
-    </a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="/billing">
-        <i class="fas fa-file-invoice text-green"></i> Facturacion Electronica
     </a>
 </li>
 <li class="nav-item">
     <a class="nav-link" href="/customers">
         <i class="fas fa-users text-warning"></i> Clientes
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('billing.index') }}">
+        <i class="fas fa-file-invoice text-green"></i> Cargar CSV
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('dtes.index') }}">
+        <i class="fas fa-file-invoice text-blue"></i> Documentos Tributarios Elecronicos
     </a>
 </li>

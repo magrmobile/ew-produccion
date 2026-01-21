@@ -171,7 +171,7 @@
                                             </tr>
                                             <tr>
                                                 <td align="right">Tipo de doc. de Identificacion:</td>
-                                                <td>{{ $data->receptor->tipoDocumento }}</td>
+                                                <td>{{ $tipo_doc }}</td>
                                             </tr>
                                             <tr>
                                                 <td align="right">N° de doc. de Identificacion:</td>
@@ -301,7 +301,7 @@
                                     <td class="celda">{{ number_format($item->cantidad,2,".",",") }}</td>
                                     <td class="celda">{{ $item->uniMedida }}</td>
                                     <td class="celda">{{ $item->descripcion }}</td>
-                                    <td class="celda">{{ number_format($item->precioUni,2) }}</td>
+                                    <td class="celda">{{ number_format($item->precioUni,4) }}</td>
                                     <td class="celda">{{ number_format($item->montoDescu,2) }}</td>
                                     <td class="celda">{{ number_format($item->noGravado,2) }}</td>
                                     <td class="celda">{{ number_format($item->ventaNoSuj,2) }}</td>
@@ -416,15 +416,19 @@
                             <table style="width: 100%">
                                 <tr>
                                     <td style="width: 25%;">Responsable por parte del emisor:</td>
-                                    <td style="width: 25%;"></td>
+                                    <td style="width: 25%;">@if (Auth::check())
+                                        {{ Auth::user()->name }}
+                                    @endif </td>
                                     <td style="width: 25%;">N° de Documento:</td>
-                                    <td style="width: 25%;"></td>
+                                    <td style="width: 25%;">@if (Auth::check())
+                                        {{ Auth::user()->numDocumento }}
+                                    @endif</td>
                                 </tr>
                                 <tr>
                                     <td style="width: 25%;">Responsable por parte del receptor:</td>
-                                    <td style="width: 25%;"></td>
+                                    <td style="width: 25%;">{{ $nombre_contacto }}</td>
                                     <td style="width: 25%;">N° de Documento:</td>
-                                    <td style="width: 25%;"></td>
+                                    <td style="width: 25%;">{{ $numdoc_contacto }}</td>
                                 </tr>
                             </table>
                         </td>

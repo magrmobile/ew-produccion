@@ -2,6 +2,7 @@
 
 namespace App\Documents;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class FacturaElectronica extends DocumentBase
@@ -37,7 +38,8 @@ class FacturaElectronica extends DocumentBase
         $data['receptor']['direccion']['complemento'] = isset($this->datosReceptor['complemento']) ? $this->datosReceptor['complemento'] : env('DTE_RECEPTOR_DIRECCION_COMPLEMENTO');
         $data['receptor']['telefono'] = isset($this->datosReceptor['telefono']) ? $this->datosReceptor['telefono'] : env('DTE_RECEPTOR_TELEFONO');
         $data['receptor']['correo'] =  isset($this->datosReceptor['correo']) ? $this->datosReceptor['correo'] : env('DTE_RECEPTOR_EMAIL');
-        
+        //$data['receptor']['correo'] = 'pruebas@enerwire.com';
+
         // Documentos Relacionados
         $data['documentoRelacionado'] = null;
         /*for($i=0; $i < count($this->documentoRelacionado); $i++) {
@@ -54,7 +56,13 @@ class FacturaElectronica extends DocumentBase
         // Venta Tercero
         $data['ventaTercero'] = null;
 
+        $totalNoSuj = 0;
+        $totalExentas = 0;
+        $totalGravada = 0;
         $totalIva = 0;
+
+        $totalAdj = 0;
+        
 
         // Cuerpo Documento
         for($i=0; $i < count($this->detalleItems); $i++) {
@@ -68,7 +76,21 @@ class FacturaElectronica extends DocumentBase
                 $unidad = 99;
             }
 
-            $ivaItem = round(($this->detalleItems[$i]['cantidad'] * $this->detalleItems[$i]['precio']) * 0.13, 2);
+            //$ivaItem = round(($this->detalleItems[$i]['cantidad'] * $this->detalleItems[$i]['precio']) * 0.13, 2);
+
+            $descripcion = $this->detalleItems[$i]['descripcion'];
+            $cantidad = (float) $this->detalleItems[$i]['cantidad'];
+            $precio = (float) $this->detalleItems[$i]['precio'] * 1.13;
+            //$montoItem = round(($cantidad * $precio), 2);
+            $montoItem = round(($cantidad * $precio), 2);
+            
+            $ivaItem = round(($montoItem / 1.13) * 0.13, 2);
+
+            //$adjItem = $montoItem * 0.014955752;
+
+            $totalGravada += $montoItem;
+            $totalIva += $ivaItem;
+            //$totalAdj += $adjItem;
 
             $item = [
                 'numItem' => $i + 1,
@@ -76,33 +98,34 @@ class FacturaElectronica extends DocumentBase
                 'numeroDocumento' => null,
                 'codigo' => null,
                 'codTributo' => null,
-                'descripcion' => $this->detalleItems[$i]['descripcion'],
-                'cantidad' => (float) $this->detalleItems[$i]['cantidad'],
+                'descripcion' => $descripcion,
+                'cantidad' => $cantidad,
                 'uniMedida' => (int) $unidad,
-                'precioUni' => (float) $this->detalleItems[$i]['precio'],
+                'precioUni' => round($precio, 8),
                 'montoDescu' => 0,
                 'ventaNoSuj' => 0,
                 'ventaExenta' => 0,
-                'ventaGravada' => $this->detalleItems[$i]['monto'],
+                'ventaGravada' => $montoItem,
                 'tributos' => null,
                 'psv' => 0,
                 'noGravado' => 0, 
-                'ivaItem' => $ivaItem 
+                'ivaItem' => $ivaItem
             ];
-
-            $totalIva =+ $ivaItem;
             
             $data['cuerpoDocumento'][] = $item;
         }
 
         // Resumen
-        $monto = round($this->detalleResumen['monto'],2);
-        $monto_iva = round($this->detalleResumen['monto'] * 0.13, 2);
+        //$monto = round($this->detalleResumen['monto'],2);
+        //$monto_iva = round($this->detalleResumen['monto'] * 0.13, 2);
 
-        $data['resumen']['totalNoSuj'] = 0.00;
-        $data['resumen']['totalExenta'] = 0;
-        $data['resumen']['totalGravada'] = $monto;
-        $data['resumen']['subTotalVentas'] = $monto;
+        $monto = $totalGravada;
+        $monto_iva = $totalIva;
+
+        $data['resumen']['totalNoSuj'] = round($totalNoSuj, 2);
+        $data['resumen']['totalExenta'] = round($totalExentas, 2);
+        $data['resumen']['totalGravada'] = round($totalGravada, 2);
+        $data['resumen']['subTotalVentas'] = round($totalNoSuj + $totalExentas + $totalGravada, 2);
         $data['resumen']['descuNoSuj'] = 0;
         $data['resumen']['descuExenta'] = 0;
         $data['resumen']['descuGravada'] = 0;
@@ -118,15 +141,15 @@ class FacturaElectronica extends DocumentBase
         }
 
         $data['resumen']['tributos'] = null;
-        $data['resumen']['subTotal'] = $this->detalleResumen['monto'];
+        $data['resumen']['subTotal'] = round($data['resumen']['subTotalVentas'] - $data['resumen']['descuNoSuj'] + $data['resumen']['descuExenta'] + $data['resumen']['totalDescu'], 2);
         $data['resumen']['ivaRete1'] = 0;
         //$data['resumen']['ivaPerci1'] = $ivaPerci1;
         $data['resumen']['reteRenta'] = 0;
-        $data['resumen']['montoTotalOperacion'] = round($montoTotal, 2);
+        $data['resumen']['montoTotalOperacion'] = round($data['resumen']['subTotal'], 2);
         $data['resumen']['totalNoGravado'] = 0;
-        $totalPagar = $montoTotal + $ivaPerci1;
-        $data['resumen']['totalPagar'] = round($totalPagar, 2);
-        $data['resumen']['totalLetras'] = self::numeroALetras($totalPagar);
+        //$totalPagar = $montoTotal + $ivaPerci1;
+        $data['resumen']['totalPagar'] = round($data['resumen']['montoTotalOperacion'], 2);
+        $data['resumen']['totalLetras'] = self::numeroALetras($data['resumen']['totalPagar']);
         $data['resumen']['saldoFavor'] = 0;
 
         $condicion = DB::table('qb_terms')
@@ -137,22 +160,21 @@ class FacturaElectronica extends DocumentBase
 
         $pagos = [
             'codigo' => "01",
-            'montoPago' => $montoTotal,
-            'plazo' => null,
+            'montoPago' => $data['resumen']['totalPagar'],
+            'plazo' => $condicion->codigo_plazo,
             'referencia' => "",
-            'periodo' => null
+            'periodo' => $condicion->periodo
         ];
         
         $data['resumen']['pagos'][] = $pagos;
         $data['resumen']['numPagoElectronico'] = null;
-        $data['resumen']['totalIva'] = $totalIva;
+        $data['resumen']['totalIva'] = round($totalIva, 2);
 
         // Extension
-        $data['extension']['nombEntrega'] = null;
-        $data['extension']['docuEntrega'] = null;
-        $data['extension']['nombRecibe'] = null;
-        $data['extension']['docuRecibe'] = null;
-        $data['extension']['observaciones'] = null;
+        $data['extension']['nombEntrega'] = Auth::user()->name;
+        $data['extension']['docuEntrega'] = Auth::user()->numDocumento;
+        $data['extension']['nombRecibe'] = $this->datosReceptor['nombre_contacto'];
+        $data['extension']['docuRecibe'] = $this->datosReceptor['numdoc_contacto'];
         $data['extension']['placaVehiculo'] = null;
 
         // Apendice

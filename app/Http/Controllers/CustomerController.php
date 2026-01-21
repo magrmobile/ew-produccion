@@ -10,6 +10,7 @@ use DataTables;
 use Illuminate\Support\Facades\DB;
 
 use Exception;
+use Illuminate\Support\MessageBag;
 
 class CustomerController extends Controller
 {
@@ -35,11 +36,13 @@ class CustomerController extends Controller
         $tipos_establecimiento = DB::table('cat009')->get();
         $departamentos = DB::table('cat012')->get();
         $municipios = DB::table('cat013')->get();
+        $distritos = 
         $codigos_pais = DB::table('cat020')->get();
         $codigos_domiciliado = DB::table('cat032')->get();
         $bienes_titulo = DB::table('cat025')->get();
         $tipos_persona = DB::table('cat029')->get();
         $categories = DB::table('customer_categories')->get();
+        $tipo_documento = DB::table('cat022')->get();
 
         return view('customers.create',[
             'codigos_actividad' => $codigos_actividad,
@@ -51,6 +54,7 @@ class CustomerController extends Controller
             'bienes_titulo' => $bienes_titulo,
             'tipos_persona' => $tipos_persona,
             'categories' => $categories,
+            'tipo_documento' => $tipo_documento,
         ]);
     }
 
@@ -68,16 +72,39 @@ class CustomerController extends Controller
         $this->validate($request, $rules);
 
         try {
-            Customer::create(
-                $request->only('nit','nrc','nombre','codActividad','nombreComercial','tipoEstablecimiento','departamento','municipio','complemento','codPais','codDomiciliado','codigoMH','puntoVentaMH','bienTitulo','tipoPersona','telefono','correo')
-            );
+            Customer::create([
+                'nit' => $request->nit,
+                'nrc' => $request->nrc,
+                'nombre' => $request->nombre,
+                'codActividad' => $request->codActividad,
+                'nombreComercial' => $request->nombreComercial,
+                'tipoEstablecimiento' => $request->tipoEstablecimiento,
+                'departamento' => $request->departamento,
+                'municipio' => $request->municipio,
+                'complemento' => $request->complemento,
+                'codPais' => $request->codPais,
+                'codDomiciliado' => $request->codDomiciliado,
+                'codigoMH' => $request->codigoMH,
+                'puntoVentaMH' => $request->puntoVentaMH,
+                'bienTitulo' => $request->bienTitulo,
+                'tipoPersona' => $request->tipoPersona,
+                'telefono' => $request->telefono,
+                'correo' => $request->correo,
+                'created_by' => auth()->user()->id,
+                'nombre_contacto' => $request->nombre_contacto,
+                'tipodoc_contacto' => $request->tipodoc_contacto,
+                'numdoc_contacto' => $request->numdoc_contacto
+            ]);
+
+
 
             $notification = 'El Cliente se ha registrado correctamente';
+            return redirect('/customers')->with(compact('notification'));
         } catch(Exception $e) {
-            $notification = $e->errorInfo[2];
+            $errors = new MessageBag([$e->errorInfo[2]]);
+            //dd($errors);
+            return redirect()->route('customers.create')->with(compact('errors'));
         }
-        
-        return redirect('/customers')->with(compact('notification'));
     }
 
     /**
@@ -108,6 +135,7 @@ class CustomerController extends Controller
         $bienes_titulo = DB::table('cat025')->get();
         $tipos_persona = DB::table('cat029')->get();
         $categories = DB::table('customer_categories')->get();
+        $tipo_documento = DB::table('cat022')->get();
         
         return view('customers.edit',compact(
             'customer',
@@ -119,7 +147,8 @@ class CustomerController extends Controller
             'codigos_domiciliado',
             'bienes_titulo',
             'tipos_persona',
-            'categories')
+            'categories',
+            'tipo_documento')
         );
     }
 

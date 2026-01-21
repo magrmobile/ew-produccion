@@ -8,9 +8,21 @@ use Illuminate\Http\Request;
 
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+
+use RealRashid\SweetAlert\Facades\Alert;
+use Symfony\Component\HttpKernel\Event\ViewEvent;
+
+use JsonSchema\Validator;
 
 class dteController extends Controller
 {
+    protected $token;
+
+    public function __construct()
+    {
+        $this->token = $this->obtenerTokenJWT();
+    }
     /**
      * Display a listing of the resource.
      *
@@ -51,9 +63,8 @@ class dteController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(dte $dte)
     {
-        $dte = dte::where('id',$id)->first();
         return view('dtes.show', compact('dte'));
     }
 
@@ -91,73 +102,438 @@ class dteController extends Controller
         //
     }
 
-    public function signDte($id)
+    public function sendDte($id) 
     {
-        $client = new Client();
+        $dte = dte::find($id);
 
-        $dte = dte::where('id', $id)->first();
+        if($dte->signed == 0) {
+            $signed_dte = $this->signDte($id);
+        } else {
+            $signed_dte = $dte;
+        }
 
-        $dteJson = $dte->json_dte;
+        //dd($signed_dte->json_dte);
 
-        //dd($dteJson);
+        $dteJson = json_decode($signed_dte->json_dte);
+        $client = new Client(['verify' => false]);
 
-        $url = env('API_SIGN_URL');
-        $nit = env('API_SIGN_NIT');
-        $passwordPri = env('API_SIGN_PASSWORD');
+        $url = env('API_RECEIVED_URL');
+
+        $headers = [
+            'User-Agent' => '',
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer '.$this->token,
+        ];
 
         $params = [
-            'nit' => $nit,
-            'activo' => true,
-            'passwordPri' => $passwordPri,
+            'ambiente' => env('DTE_ENVIRONMENT'),
+            'idEnvio' => 1,
+            'version' => $dteJson->identificacion->version,
+            'tipoDte' => $dteJson->identificacion->tipoDte,
+            'nitEmisor' => env('DTE_EMISOR_NIT'),
+            'codGen' => $dteJson->identificacion->codigoGeneracion,
+            'documento' => $signed_dte->sign
         ];
 
         try {
-            $response = $client->post($url, [
-                'form_params' => $params,
-                'dteJson' => $dteJson
-            ]);
-
-            dd($response);
+            $response = $client->post($url, ['headers' => $headers, 'json' => $params]);
+            $responseData = json_decode($response->getBody()->getContents(), true);
 
             if($response->getStatusCode() === 200) {
-                $responseData = json_decode($response->getBody(), true);
+                //dd($responseData);
+                switch($responseData['estado']) {
+                    case 'PROCESADO':
+                        $dteJson->selloRecibido = $responseData['selloRecibido'];
 
-                if(isset($responseData['status']) && $response['status'] === 'success') {
-                    $dteJson['firmaElectronica'] = $responseData['body'];
-                } else {
-                    return back()->with('error', 'Error en la respuesta de la API: '.$responseData['message']);
+                        $fechaHora =  $responseData['fhProcesamiento'];
+                        $fechaHoraFormateada = \Carbon\Carbon::createFromFormat('d/m/Y H:i:s', $fechaHora)->format('Y-m-d H:i:s');
+
+                        $signed_dte->update([
+                            'json_dte' => json_encode($dteJson),
+                            'received' => 1,
+                            'stamp' => $responseData['selloRecibido'],
+                            'received_by' => auth()->user()->id,
+                            'received_date' => $fechaHoraFormateada
+                        ]);
+
+                        //Alert::success('Transmision Realizada', 'El Documento fue enviado Satisfactoriamente');
+                        return back()->with('message', 'Documento enviado satisfactoriamente!!');
+                    break;
+                    case 'RECHAZADO':
+                        $errors[] = 'RECHAZADO: CODIGO ('.$responseData['codigoMsg'].') - '.$responseData['descripcionMsg'];
+                        $observaciones = $responseData['observaciones'];
+
+                        foreach($observaciones as $observacion) {
+                            $errors[] = $observacion;
+                        }
+
+                        return back()->with('errors', $errors);
+                    break;
+                    default:
+                        $errors = $responseData['observaciones'];
+                        return back()->with('errors', $errors);
+                    break;
                 }
             }
         } catch(\Exception $e) {
-            return back()->with('error', 'Ocurrió un error en la solicitud: ' . $e->getMessage());
+            //return response()->json(['error' => $e->getMessage()], 500);
+            $errors[] = $e->getMessage();
+            return back()->with('errors', $errors);
+        }
+        //return response()->json($params);
+    } 
+
+    public function signDte($id)
+    {
+        $dte = dte::find($id);
+
+        //dd($this->token);
+
+        $client = new Client(['verify' => false]);
+
+        $dteJson = json_decode($dte->json_dte);
+
+        $url = env('API_SIGN_URL');
+        
+        $nit = env('API_SIGN_NIT');
+        $passwordPri = env('API_SIGN_PASSWORD');
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer '.$this->token,
+        ];
+
+        $params = [
+            'activo' => true,
+            'nit' => $nit,
+            'passwordPri' => $passwordPri,
+            'dteJson' => $dteJson
+        ];
+
+        //dd($params);
+
+        try {
+            $response = $client->post($url, ['headers' => $headers, 'json' => $params]);
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            if($response->getStatusCode() === 200) {
+                if(isset($responseData['status']) && $responseData['status'] === 'OK') {
+                    $dteJson->firmaElectronica = $responseData['body'];
+
+                    $dte->update([
+                        'json_dte' => json_encode($dteJson),
+                        'signed' => 1,
+                        'sign' => $responseData['body'],
+                        'signed_by' => auth()->user()->id,
+                        'signed_date' => DB::raw('CURRENT_TIMESTAMP')
+                    ]);
+
+                    return $dte;
+                } else {
+                    //return response()->json('error', 'Error en la respuesta de la API: '.$responseData['message'], 500);
+                    $errors[] = 'Error en la respuesta de la API: '.$responseData['message'];
+                    return back()->with('errors', $errors);
+                }
+            }
+        } catch(\Exception $e) {
+            //dd($e);
+            //return response()->json(['error' => $e->getMessage()], 500);
+            $errors[] = $e->getMessage();
+            return back()->with('errors', $errors);
         }
     }
+
+    public function showInvalidate(dte $dte){
+        $tiposAnulacion = DB::table('cat024')->get();
+        return view('dtes.invalidate', compact('dte', 'tiposAnulacion'));
+    }
+
+    public function invalidateDte(dte $dte, Request $request) {
+        $request->validate([
+            'tipoAnulacion' => 'required',
+            'motivoAnulacion' => 'required',
+            'codigoGeneracion' => [
+                'required_if:tipoAnulacion,1,3',
+                'sometimes',
+                function($attribute, $value, $fail) use ($dte) {
+                    if($value != "") {
+                        $exists = DB::table('dtes')
+                            ->where('codigoGeneracion', $value)
+                            ->where('customer_id', $dte->customer_id)
+                            ->exists();
+                        
+                        if(!$exists) {
+                            $fail("El campo $attribute no existe para el customer_id de $dte->customer_id en la tabla dtes.");
+                        }
+                    }
+                }
+            ]
+        ]);
+
+        $json = json_decode($dte->json_dte, true);
+        $tipoDte = $json["identificacion"]["tipoDte"];
+
+        unset($json["emisor"]["nrc"]);
+        unset($json["emisor"]["regimen"]);
+        unset($json["emisor"]["direccion"]);
+        unset($json["emisor"]["codActividad"]);
+        unset($json["emisor"]["descActividad"]);
+        unset($json["emisor"]["recintoFiscal"]);
+        unset($json["emisor"]["tipoItemExpor"]);
+        unset($json["emisor"]["nombreComercial"]);
+
+        $json['emisor']['nomEstablecimiento'] = 'PROVISIONAL';
+
+        
+        unset($json["apendice"]);
+
+        if(in_array($tipoDte, ["03","05","06"])) {
+            $json["documento"]["tipoDocumento"] = "37";
+            $json["documento"]["numDocumento"] = $json["receptor"]["nit"];
+        } else {
+            $json["documento"]["tipoDocumento"] = $json["receptor"]["tipoDocumento"];
+            $json["documento"]["numDocumento"] = $json["receptor"]["numDocumento"];
+        }
+        
+        $json["documento"]["nombre"] = $json["receptor"]["nombre"];
+        $json["documento"]["telefono"] = $json["receptor"]["telefono"];
+        $json["documento"]["correo"] = $json["receptor"]["correo"];
+
+        unset($json["receptor"]);
+        unset($json["ventaTercero"]);
+
+        $json["documento"]["selloRecibido"] = $json["selloRecibido"];
+        unset($json["selloRecibido"]);
+
+        $json["documento"]["fecEmi"] = $json["identificacion"]["fecEmi"];
+
+        unset($json["identificacion"]["fecEmi"]);
+        unset($json["identificacion"]["horEmi"]);
+        $json["documento"]["tipoDte"] = $json["identificacion"]["tipoDte"];
+
+        $dte_monto = array("03","01","11");
+
+        if(in_array($json["identificacion"]["tipoDte"], $dte_monto)) {
+            $json["documento"]["montoIva"] = $json["resumen"]["montoTotalOperacion"];
+        } else {
+            $json["documento"]["montoIva"] = 0.00;
+        }
+
+        unset($json["identificacion"]["tipoDte"]);
+        
+        $json["identificacion"]["version"] = 2;
+
+        $json["documento"]["codigoGeneracion"] = $json["identificacion"]["codigoGeneracion"];
+        $json["documento"]["codigoGeneracionR"] = $request->codigoGeneracion;
+
+        unset($json["identificacion"]["tipoModelo"]);
+        unset($json["identificacion"]["tipoMoneda"]);
+
+        $json["documento"]["numeroControl"] = $json["identificacion"]["numeroControl"];
+        unset($json["identificacion"]["numeroControl"]);
+        unset($json["identificacion"]["tipoOperacion"]);
+        unset($json["identificacion"]["tipoContingencia"]);
+        unset($json["identificacion"]["motivoContigencia"]);
+        unset($json["identificacion"]["motivoContin"]);
+
+        $json["identificacion"]["fecAnula"] = date('Y-m-d');
+        $json["identificacion"]["horAnula"] = date('H:i:s');
+
+        unset($json["cuerpoDocumento"]);
+        unset($json["otrosDocumentos"]);
+        unset($json["firmaElectronica"]);
+        unset($json["documentoRelacionado"]);
+        unset($json["extension"]);
+
+        unset($json["resumen"]);
+
+        $json["motivo"]["tipoAnulacion"] = (int) $request->tipoAnulacion;
+        $json["motivo"]["motivoAnulacion"] = $request->motivoAnulacion;
+        $json["motivo"]["nombreResponsable"] = $json["emisor"]["nombre"];
+        $json["motivo"]["tipDocResponsable"] = "37";
+        $json["motivo"]["numDocResponsable"] = $json["emisor"]["nit"];
+        //$json["motivo"]["nombreSolicita"] = auth()->user()->name;
+        $json["motivo"]["nombreSolicita"] = $json["documento"]["nombre"];
+        //$json["motivo"]["tipDocSolicita"] = "36";
+        $json["motivo"]["tipDocSolicita"] = $json["documento"]["tipoDocumento"];
+        //$json["motivo"]["numDocSolicita"] = auth()->user()->numDocumento;
+        $json["motivo"]["numDocSolicita"] = $json["documento"]["numDocumento"];
+
+        $json_encode = json_encode($json);
+
+        $schema_file = base_path('resources/fe_schemas/anulacion-schema-v2.json');
+        $schema = json_decode(file_get_contents($schema_file), true);
+
+        $schema_encode = json_encode($schema);
+
+        // Validar el JSON contra el JSON Schema
+        $validator = new Validator();
+        $validator->validate($json_encode, $schema_encode);
+
+        if($validator->isValid()) {
+            $signedInvalidate = $this->signInvalidate($json);
+            
+            $client = new Client(['verify' => false]);
+
+            $url = env('API_INVALIDATE_URL');
+
+            $headers = [
+                'User-Agent' => '',
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer '.$this->token,
+            ];
+
+            $params = [
+                'ambiente' => env('DTE_ENVIRONMENT'),
+                'idEnvio' => 1,
+                'version' => $json['identificacion']['version'],
+                'nitEmisor' => env('DTE_EMISOR_NIT'),
+                'codGen' => $json['identificacion']['codigoGeneracion'],
+                'documento' => $signedInvalidate
+            ];
+
+            //dd($params);
+
+            try {
+                $response = $client->post($url, ['headers' => $headers, 'json' => $params]);
+                $responseData = json_decode($response->getBody()->getContents(), true);
+    
+                if($response->getStatusCode() === 200) {
+                    //dd($responseData);
+                    switch($responseData['estado']) {
+                        case 'PROCESADO':
+                            $selloRecibido = $responseData['selloRecibido'];
+                            //dd($selloRecibido);
+
+                            $fechaHora =  $responseData['fhProcesamiento'];
+                            $fechaHoraFormateada = \Carbon\Carbon::createFromFormat('d/m/Y H:i:s', $fechaHora)->format('Y-m-d H:i:s');
+    
+                            $dte->update([
+                                'invalidate' => 1,
+                                'invalidate_stamp' => $selloRecibido,
+                                'invalidate_by' => auth()->user()->id,
+                                'invalidate_date' => $fechaHoraFormateada
+                            ]);
+    
+                            //Alert::success('Transmision Realizada', 'El Documento fue enviado Satisfactoriamente');
+                            return redirect()->back()->with('message', 'Documento Anulado satisfactoriamente!!');
+                        break;
+                        case 'RECHAZADO':
+                            $rejectedError = 'RECHAZADO: CODIGO ('.$responseData['codigoMsg'].') - '.$responseData['descripcionMsg'];
+    
+                            return redirect()->back()->with('rejectedError', $rejectedError);
+                        break;
+                        default:
+                            $otherError = 'ERROR: CODIGO ('.$responseData['codigoMsg'].') - '.$responseData['descripcionMsg'];;
+                            return redirect()->back()->with('otherError', $otherError);
+                        break;
+                    }
+                }
+            } catch(\Exception $e) {
+                $exceptionError = $e->getMessage();
+                return redirect()->back()->with('exceptionError', $exceptionError);
+            }
+        } else {
+            foreach($validator->getErrors() as $error) {
+                $errors[] = "Error en '{$error['property']}': {$error['message']}";
+            }
+
+            //return response()->json(['errors' => $errors], 400);
+            return redirect('/invalidate/'.$dte->id)->with('errors', $errors);
+        }
+
+        //return $request;
+
+        /*$dteJson = json_decode($dte->json_dte);
+        
+        //return response()->json($params);*/
+    } 
+
+    public function signInvalidate($json)
+    {
+        $client = new Client(['verify' => false]);
+
+        //dd(json_encode($json));
+
+        $url = env('API_SIGN_URL');
+        
+        $nit = env('API_SIGN_NIT');
+        $passwordPri = env('API_SIGN_PASSWORD');
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer '.$this->token,
+        ];
+
+        $params = [
+            'activo' => true,
+            'nit' => $nit,
+            'passwordPri' => $passwordPri,
+            'dteJson' => $json
+        ];
+
+        try {
+            $response = $client->post($url, ['headers' => $headers, 'json' => $params]);
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            if($response->getStatusCode() === 200) {
+                if(isset($responseData['status']) && $responseData['status'] === 'OK') {
+                    $firma = $responseData['body'];
+                    return $firma;
+                } else {
+                    //return response()->json('error', 'Error en la respuesta de la API: '.$responseData['message'], 500);
+                    $errors[] = 'Error en la respuesta de la API: '.$responseData['message'];
+                    return back()->with('errors', $errors);
+                }
+            }
+        } catch(\Exception $e) {
+            //return response()->json(['error' => $e->getMessage()], 500);
+            $errors[] = $e->getMessage();
+            return back()->with('errors', $errors);
+        }
+    }
+
 
     public function obtenerTokenJWT()
     {
         // Verificar si el token ya esta en cache
-        $token = Cache::get('api_token');
-        if($token) {
-            return $token;
-        }
+        //$token = Cache::get('api_token');
+        
+        //if($token) {
+        //    return $token;
+        //}
 
         // Si el token no esta en cache, hacer una peticion para obtenerlo
-        $user = config('API_USER');
-        $password = config('API_PASSWORD');
+        $url = env('API_AUTH_URL');
 
-        $client = new Client();
-        $response = $client->post(config('API_AUTH_URL'), [
-            'headers' => [
-                'Content-Type' => 'application/x-www-form-urlencoded',
-                'User-Agent' => 'Domo/1.0',
-            ],
-            'form-params' => [
-                'user' => $user,
-                'pwd' => $password
-            ],
+        $grant_type = env('API_GRANT_TYPE');
+        $client_id = env('API_CLIENT_ID');
+        $client_secret = env('API_CLIENT_SECRET');
+        $resource = env('API_RESOURCE');
+
+        $client = new Client([
+            'verify' => false,
         ]);
 
-        $data = json_decode($response->getBody(), true);
+        $headers = [
+            'Content-Type' => 'application/x-www-form-urlencoded'
+        ];
+
+        $params = [
+            'grant_type' => $grant_type,
+            'client_id' => $client_id,
+            'client_secret' => $client_secret,
+            'resource' => $resource
+        ];
+        try{
+            $response = $client->get($url,['headers' => $headers, 'form_params' => $params]);
+
+            $responseBody = $response->getBody()->getContents();
+        } catch(\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+
+        $data = json_decode($responseBody, true);
 
         // Verificar si la peticion devuelve un error
         if(isset($data['status']) && $data['status'] === 'ERROR') {
@@ -165,15 +541,11 @@ class dteController extends Controller
             throw new \Exception($data['message']);
         }
 
-        $token = $data['token'];
+        $token = $data['access_token'];
 
         // Almacenar el token en cache con una duracion de 24 horas (86400 segundos)
-        Cache::put('api_token', $token, 86400);
+        //Cache::put('api_token', $token, 3600);
 
         return $token;
-    }
-
-    public function recepcionDTE($json) {
-        $token = $this->obtenerTokenJWT();
     }
 }
