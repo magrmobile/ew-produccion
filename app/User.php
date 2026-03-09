@@ -70,6 +70,11 @@ class User extends Authenticatable
         return $this->belongsTo(Process::class);
     }
 
+    public function assignedProcesses()
+    {
+        return $this->belongsToMany(Process::class)->withTimestamps();
+    }
+
     public function getProcessNameAttribute()
     {
         $processName = null;

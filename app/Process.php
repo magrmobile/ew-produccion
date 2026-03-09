@@ -19,6 +19,11 @@ class Process extends Model
         return $this->hasMany(User::class);
     }
 
+    public function supervisors()
+    {
+        return $this->belongsToMany(User::class)->withTimestamps();
+    }
+
     public function machines()
     {
         return $this->hasMany(Machine::class);

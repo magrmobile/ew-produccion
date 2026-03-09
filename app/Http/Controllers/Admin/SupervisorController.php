@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\User;
+use App\Process;
 
 use Exception;
 
@@ -30,7 +31,8 @@ class SupervisorController extends Controller
      */
     public function create()
     {
-        return view('supervisors.create');
+        $processes = Process::all();
+        return view('supervisors.create', compact('processes'));
     }
 
     /**
@@ -44,19 +46,22 @@ class SupervisorController extends Controller
         $rules = [
             'username' => 'required',
             'name' => 'required',
-            'email' => 'email',
+            //'email' => 'email',
+            'process_ids.*' => 'exists:processes,id',
         ];
 
         $this->validate($request, $rules);
 
         try {
-            User::create(
+            $supervisor = User::create(
                 $request->only('username','name','email','shift','warehouse')
                 + [
                     'role' => 'supervisor',
                     'password' => bcrypt($request->input('password'))
                 ]
             );
+
+            $supervisor->assignedProcesses()->sync($request->input('process_ids', []));
 
             $notification = 'El Supervisor se ha registrado correctamente';
         } catch(Exception $e) {
@@ -85,7 +90,9 @@ class SupervisorController extends Controller
      */
     public function edit(User $supervisor)
     {
-        return view('supervisors.edit', compact('supervisor'));
+        $processes = Process::all();
+        $selectedProcessIds = $supervisor->assignedProcesses()->pluck('processes.id')->toArray();
+        return view('supervisors.edit', compact('supervisor', 'processes', 'selectedProcessIds'));
     }
 
     /**
@@ -100,7 +107,8 @@ class SupervisorController extends Controller
         $rules = [
             'username' => 'required',
             'name' => 'required',
-            'email' => 'email',
+            //'email' => 'email',
+            'process_ids.*' => 'exists:processes,id',
         ];
 
         $this->validate($request, $rules);
@@ -115,6 +123,7 @@ class SupervisorController extends Controller
 
         $user->fill($data);
         $user->save(); // UPDATE
+        $user->assignedProcesses()->sync($request->input('process_ids', []));
 
         $notification = 'La información del operador se ha registrado correctamente';
         return redirect('/supervisors')->with(compact('notification'));
