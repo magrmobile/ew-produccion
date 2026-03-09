@@ -249,7 +249,20 @@ class RoundController extends Controller
         if($user->role == 'admin' || $user->role == 'jeferondas') {
             $machines = Machine::all();
         } else {
-            $machines = Machine::where('warehouse', $user->warehouse)->orderBy('machine_name')->get();
+            $processIds = $user->processes()->pluck('processes.id')->all();
+            if(empty($processIds) && $user->process_id) {
+                $processIds = [$user->process_id];
+            }
+
+            $machinesQuery = Machine::where('warehouse', $user->warehouse)->orderBy('machine_name');
+
+            if(!empty($processIds)) {
+                $machinesQuery->whereIn('process_id', $processIds);
+            } else {
+                $machinesQuery->whereRaw('1 = 0');
+            }
+
+            $machines = $machinesQuery->get();
         }
 
         $round = Round::find($id);

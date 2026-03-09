@@ -65,7 +65,7 @@ class User extends Authenticatable
                     ->whereDate('stop_datetime_end','=',Carbon::now()->toDateString());
     }
 
-    public function process()
+     public function process()
     {
         return $this->belongsTo(Process::class);
     }
