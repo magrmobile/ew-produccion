@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use App\Services\InfileSimplifiedDteBuilder;
 
 use RealRashid\SweetAlert\Facades\Alert;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
@@ -106,6 +107,10 @@ class dteController extends Controller
     {
         $dte = dte::find($id);
 
+        if ($dte->provider === 'infile') {
+            return $this->sendInfileDte($dte);
+        }
+
         if($dte->signed == 0) {
             $signed_dte = $this->signDte($id);
         } else {
@@ -182,6 +187,71 @@ class dteController extends Controller
         }
         //return response()->json($params);
     } 
+
+    private function sendInfileDte(dte $dte)
+    {
+        $client = new Client(['verify' => false]);
+        $dteJson = json_decode($dte->json_dte);
+        $payload = (new InfileSimplifiedDteBuilder())->build($dteJson);
+
+        $url = env('INFILE_CERTIFY_URL');
+
+        if (!$url) {
+            $environment = env('INFILE_ENVIRONMENT', 'test');
+            $url = 'https://certificador.infile.com.sv/api/v1/certificacion/'.$environment.'/documento/certificar';
+        }
+
+        $issuerNit = $dte->emisor_nit ?: env('DTE_EMISOR_NIT');
+
+        if (!env('INFILE_API_KEY')) {
+            return back()->with('errors', ['No se ha configurado INFILE_API_KEY en el archivo .env.']);
+        }
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'usuario' => $issuerNit,
+            'llave' => env('INFILE_API_KEY'),
+            'identificador' => $dte->codigoGeneracion,
+            'origen' => env('INFILE_ORIGIN', config('app.name')),
+        ];
+
+        try {
+            $response = $client->post($url, ['headers' => $headers, 'json' => $payload]);
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            if($response->getStatusCode() === 200 && data_get($responseData, 'ok') === true) {
+                $certifiedJson = data_get($responseData, 'json', $dte->json_dte);
+                $codigoGeneracion = data_get($responseData, 'respuesta.codigo_generacion', data_get($payload, 'documento.uuid', $dte->codigoGeneracion));
+                $sello = data_get($responseData, 'respuesta_dgi.selloRecibido', data_get($responseData, 'respuesta.sello_recibido'));
+
+                $dte->update([
+                    'json_dte' => is_string($certifiedJson) ? $certifiedJson : json_encode($certifiedJson),
+                    'codigoGeneracion' => $codigoGeneracion,
+                    'signed' => 1,
+                    'signed_by' => auth()->user()->id,
+                    'signed_date' => DB::raw('CURRENT_TIMESTAMP'),
+                    'received' => 1,
+                    'stamp' => $sello,
+                    'received_by' => auth()->user()->id,
+                    'received_date' => DB::raw('CURRENT_TIMESTAMP')
+                ]);
+
+                return back()->with('message', 'Documento enviado satisfactoriamente a Infile!!');
+            }
+
+            $errors = [];
+            $errors[] = data_get($responseData, 'mensaje', 'Infile rechazo el documento.');
+
+            foreach ((array) data_get($responseData, 'errores', []) as $error) {
+                $errors[] = is_string($error) ? $error : json_encode($error);
+            }
+
+            return back()->with('errors', $errors);
+        } catch(\Exception $e) {
+            $errors[] = $e->getMessage();
+            return back()->with('errors', $errors);
+        }
+    }
 
     public function signDte($id)
     {
