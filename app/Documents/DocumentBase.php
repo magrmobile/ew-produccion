@@ -18,6 +18,8 @@ use Luecano\NumeroALetras\NumeroALetras;
 
 class DocumentBase 
 {
+    protected static $consumeLocalCorrelatives = true;
+
     protected $type;
     protected $identificacion = [];
     protected $documentoRelacionado = [];
@@ -35,6 +37,11 @@ class DocumentBase
     public function __construct($type)
     {
         $this->type = $type;
+    }
+
+    public static function consumeLocalCorrelatives($consume)
+    {
+        self::$consumeLocalCorrelatives = (bool) $consume;
     }
 
     public function setIdentificacion($identificacion)
@@ -112,7 +119,10 @@ class DocumentBase
         }
 
         //$numeroControl = "DTE-".$this->type."-".env('DTE_ESTABLECIMIENTO').env('DTE_PUNTOVENTA')."-".$this->generarCodigo();
-        $numeroControl = "DTE-".$this->type."-".env('DTE_ESTABLECIMIENTO').env('DTE_PUNTOVENTA')."-".$this->generarCodigoTipoDte($this->type);
+        $correlativo = self::$consumeLocalCorrelatives
+            ? $this->generarCodigoTipoDte($this->type)
+            : $this->generarCodigoTemporal();
+        $numeroControl = "DTE-".$this->type."-".env('DTE_ESTABLECIMIENTO').env('DTE_PUNTOVENTA')."-".$correlativo;
         $codigoGeneracion = Str::upper(Str::uuid()->toString());
 
         $data = [
@@ -329,6 +339,11 @@ class DocumentBase
         ]);
 
         return $codigo;
+    }
+
+    private function generarCodigoTemporal()
+    {
+        return str_pad((string) random_int(0, 999999999999999), 15, '0', STR_PAD_LEFT);
     }
 
     public static function numeroALetras($numero)

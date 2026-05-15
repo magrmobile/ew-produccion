@@ -13,6 +13,7 @@ use App\dte;
 use App\Documents\FacturaElectronica;
 use App\Documents\FacturaExportacionElectronica;
 use App\Documents\FacturaSujetoExcluidoElectronica;
+use App\Documents\DocumentBase;
 use App\Documents\NotaCreditoElectronica;
 use App\Documents\NotaDebitoElectronica;
 use App\Documents\NotaRemisionElectronica;
@@ -37,10 +38,11 @@ class BillingController extends Controller
 
     public function upload(Request $request)
     {
-        /*$request->validate([
-            'file' => 'required|mimetypes:text/csv,text/plain,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        $request->validate([
+            'company' => 'required|in:enerwire,onewire',
+            'file' => 'required',
             'type' => 'required|in:01,03,04,05,06,07,11,14'
-        ]);*/
+        ]);
 
         $file = $request->file('file');
 
@@ -50,8 +52,10 @@ class BillingController extends Controller
 
         // Procesar el archivo Excel y generar el JSON correspondiente
         try{
-            $issuer = $this->detectIssuerFromCsv($file);
+            $issuer = $this->resolveIssuer($request->input('company'));
+            DocumentBase::consumeLocalCorrelatives($issuer['provider'] !== 'infile');
             $json = $this->processExcel($file, $request->input('type'), $request);
+            DocumentBase::consumeLocalCorrelatives(true);
             $json = $this->applyIssuerToJson($json, $issuer);
             //dd($json);
  
@@ -191,6 +195,7 @@ class BillingController extends Controller
 
                 //$filename = $data->identificacion->codigoGeneracion.'.pdf';
                 $filename = session()->getId().".pdf";
+                $this->ensureStorageDirectory('sessions');
                 file_put_contents(storage_path('app/sessions/'.$filename), $dompdf->output());
 
                 $filenameOriginal = $request->file('file')->getClientOriginalName();
@@ -231,6 +236,7 @@ class BillingController extends Controller
                     $jsonToStore = json_encode((new InfileSimplifiedDteBuilder())->build(json_decode($json)), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
                 }
 
+                $this->ensureStorageDirectory('json');
                 file_put_contents(storage_path('app/json/'.$filename), $jsonToStore);
                 
                 //return redirect()->route('upload', $dteId)->with('confirm', $message);
@@ -250,6 +256,7 @@ class BillingController extends Controller
                 return redirect('/billing')->with(compact('errors'));
             }
         } catch(Exception $e) {
+            DocumentBase::consumeLocalCorrelatives(true);
             $errors[] = $e->getMessage();
             //dd($errors);
             return redirect('/billing')->with(compact('errors'));
@@ -287,41 +294,26 @@ class BillingController extends Controller
         return $dte;
     } 
 
-    private function detectIssuerFromCsv($file)
+    private function resolveIssuer($company)
     {
-        $content = file_get_contents($file);
-        $digits = preg_replace('/\D+/', '', $content);
-
         $issuers = [
-            '06140411881014' => [
+            'enerwire' => [
                 'nit' => '06140411881014',
                 'provider' => 'rrd',
                 'env_prefix' => 'DTE_EMISOR',
             ],
-            '05011011221017' => [
+            'onewire' => [
                 'nit' => '05011011221017',
                 'provider' => 'infile',
                 'env_prefix' => 'ONEWIRE_DTE_EMISOR',
             ],
         ];
 
-        $matches = [];
-
-        foreach ($issuers as $nit => $issuer) {
-            if (strpos($digits, $nit) !== false) {
-                $matches[] = $issuer;
-            }
+        if (!isset($issuers[$company])) {
+            throw new Exception('La empresa seleccionada no es valida.');
         }
 
-        if (count($matches) > 1) {
-            throw new Exception('El CSV contiene mas de un NIT emisor conocido. No se puede determinar automaticamente el proveedor.');
-        }
-
-        if (count($matches) === 1) {
-            return $matches[0];
-        }
-
-        return $issuers['06140411881014'];
+        return $issuers[$company];
     }
 
     private function applyIssuerToJson($json, array $issuer)
@@ -385,6 +377,15 @@ class BillingController extends Controller
 
         if ($missing) {
             throw new Exception('Faltan variables de emisor para OneWire: '.implode(', ', $missing));
+        }
+    }
+
+    private function ensureStorageDirectory($directory)
+    {
+        $path = storage_path('app/'.$directory);
+
+        if (!is_dir($path)) {
+            mkdir($path, 0775, true);
         }
     }
 

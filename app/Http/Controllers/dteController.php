@@ -194,6 +194,8 @@ class dteController extends Controller
         $dteJson = json_decode($dte->json_dte);
         $payload = (new InfileSimplifiedDteBuilder())->build($dteJson);
 
+        //dd(json_encode($payload));
+
         $url = env('INFILE_CERTIFY_URL');
 
         if (!$url) {
@@ -219,21 +221,33 @@ class dteController extends Controller
             $response = $client->post($url, ['headers' => $headers, 'json' => $payload]);
             $responseData = json_decode($response->getBody()->getContents(), true);
 
-            if($response->getStatusCode() === 200 && data_get($responseData, 'ok') === true) {
+            $statusCode = $response->getStatusCode();
+            $isSuccessfulResponse = $statusCode >= 200 && $statusCode < 300;
+
+            if($isSuccessfulResponse && data_get($responseData, 'ok') === true) {
                 $certifiedJson = data_get($responseData, 'json', $dte->json_dte);
-                $codigoGeneracion = data_get($responseData, 'respuesta.codigo_generacion', data_get($payload, 'documento.uuid', $dte->codigoGeneracion));
-                $sello = data_get($responseData, 'respuesta_dgi.selloRecibido', data_get($responseData, 'respuesta.sello_recibido'));
+                $certifiedData = is_string($certifiedJson) ? json_decode($certifiedJson, true) : $certifiedJson;
+                $codigoGeneracion = data_get($responseData, 'respuesta.codigoGeneracion', data_get($certifiedData, 'identificacion.codigoGeneracion', $dte->codigoGeneracion));
+                $numeroControl = data_get($responseData, 'respuesta.numeroControl', data_get($certifiedData, 'identificacion.numeroControl', $dte->numeroControl));
+                $sello = data_get($responseData, 'respuesta_dgi.selloRecibido', data_get($responseData, 'respuesta.selloRecepcion'));
+                $receivedDate = data_get($responseData, 'respuesta_dgi.fhProcesamiento');
+
+                if ($receivedDate) {
+                    $receivedDate = \Carbon\Carbon::createFromFormat('d/m/Y H:i:s', $receivedDate)->format('Y-m-d H:i:s');
+                }
 
                 $dte->update([
                     'json_dte' => is_string($certifiedJson) ? $certifiedJson : json_encode($certifiedJson),
                     'codigoGeneracion' => $codigoGeneracion,
+                    'numeroControl' => $numeroControl,
                     'signed' => 1,
+                    'sign' => data_get($certifiedData, 'firmaElectronica'),
                     'signed_by' => auth()->user()->id,
                     'signed_date' => DB::raw('CURRENT_TIMESTAMP'),
                     'received' => 1,
                     'stamp' => $sello,
                     'received_by' => auth()->user()->id,
-                    'received_date' => DB::raw('CURRENT_TIMESTAMP')
+                    'received_date' => $receivedDate ?: DB::raw('CURRENT_TIMESTAMP')
                 ]);
 
                 return back()->with('message', 'Documento enviado satisfactoriamente a Infile!!');

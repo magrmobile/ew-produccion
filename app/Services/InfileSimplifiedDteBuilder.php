@@ -14,8 +14,8 @@ class InfileSimplifiedDteBuilder
             'punto_venta' => data_get($data, 'emisor.codPuntoVenta'),
             'condicion_pago' => data_get($data, 'resumen.condicionOperacion'),
             'actividad_economica' => data_get($data, 'emisor.codActividad'),
-            'uuid' => data_get($data, 'identificacion.codigoGeneracion'),
-            'numero_control' => data_get($data, 'identificacion.numeroControl'),
+            'uuid' => null,
+            'numero_control' => null,
             'fecha_emision' => data_get($data, 'identificacion.fecEmi'),
             'hora_emision' => data_get($data, 'identificacion.horEmi'),
             'descuento_no_sujeto' => data_get($data, 'resumen.descuNoSuj'),
@@ -23,6 +23,7 @@ class InfileSimplifiedDteBuilder
             'descuento_gravadas' => data_get($data, 'resumen.descuGravada'),
             'porcentaje_descuento' => data_get($data, 'resumen.porcentajeDescuento'),
             'renta_retenida' => data_get($data, 'resumen.reteRenta'),
+            'percibir_iva' => (float) data_get($data, 'resumen.ivaPerci1', 0) > 0,
             'retener_iva' => (float) data_get($data, 'resumen.ivaRete1', 0) > 0,
             'numero_pago_electronico' => data_get($data, 'resumen.numPagoElectronico'),
             'documentos_relacionados' => $this->documentosRelacionados(data_get($data, 'documentoRelacionado')),
@@ -40,8 +41,12 @@ class InfileSimplifiedDteBuilder
             $documento['incoterms'] = data_get($data, 'resumen.codIncoterms');
         }
 
+        $documento = $this->clean($documento);
+        $documento['uuid'] = null;
+        $documento['numero_control'] = null;
+
         return [
-            'documento' => $this->clean($documento),
+            'documento' => $documento,
         ];
     }
 
@@ -67,6 +72,11 @@ class InfileSimplifiedDteBuilder
             'numero_documento' => data_get($receptor, 'numDocumento', data_get($receptor, 'nit')),
             'nrc' => data_get($receptor, 'nrc'),
             'codigo_actividad' => data_get($receptor, 'codActividad'),
+            'descripcion_actividad' => data_get($receptor, 'descActividad'),
+            'nombre_comercial' => data_get($receptor, 'nombreComercial'),
+            'codigo_pais' => data_get($receptor, 'codPais'),
+            'tipo_persona' => data_get($receptor, 'tipoPersona'),
+            'complemento' => data_get($receptor, 'complemento', data_get($receptor, 'direccion.complemento')),
             'direccion' => [
                 'departamento' => data_get($receptor, 'direccion.departamento'),
                 'municipio' => data_get($receptor, 'direccion.municipio'),
@@ -113,7 +123,7 @@ class InfileSimplifiedDteBuilder
                 'codigo' => data_get($item, 'codigo'),
                 'descuento' => data_get($item, 'montoDescu'),
                 'psv' => data_get($item, 'psv'),
-                'tributos' => $this->tributos(data_get($item, 'tributos')),
+                'tributos' => $this->tributos(data_get($item, 'tributos'), $item),
             ]);
         }
 
@@ -137,7 +147,7 @@ class InfileSimplifiedDteBuilder
         return '1';
     }
 
-    private function tributos($tributos)
+    private function tributos($tributos, $item = [])
     {
         if (!$tributos || !is_array($tributos)) {
             return null;
@@ -152,13 +162,23 @@ class InfileSimplifiedDteBuilder
                     'monto' => data_get($tributo, 'valor'),
                 ]);
             } else {
-                $simplificados[] = [
+                $simplificados[] = $this->clean([
                     'codigo' => $tributo,
-                ];
+                    'monto' => $this->montoTributo($tributo, $item),
+                ]);
             }
         }
 
         return $simplificados;
+    }
+
+    private function montoTributo($codigo, $item)
+    {
+        if ($codigo === '20') {
+            return round((float) data_get($item, 'ventaGravada', 0) * 0.13, 8);
+        }
+
+        return null;
     }
 
     private function pagos($pagos)

@@ -63,6 +63,14 @@
             @csrf
             <div class="row">
                 <div class="col">
+                    <label for="company">Empresa:</label>
+                    <select class="form-control" id="company" name="company" required>
+                        <option value="">Seleccionar Empresa</option>
+                        <option value="enerwire">Enerwire</option>
+                        <option value="onewire">Onewire</option>
+                    </select>
+                </div>
+                <div class="col">
                     <label for="type">Tipo de Documento:</label>
                     <select class="form-control" id="type" name="type" required>
                         <option value="">Seleccionar Tipo de Documento</option>
