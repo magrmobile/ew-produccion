@@ -63,12 +63,15 @@
             @csrf
             <div class="row">
                 <div class="col">
-                    <label for="company">Empresa:</label>
-                    <select class="form-control" id="company" name="company" required>
-                        <option value="">Seleccionar Empresa</option>
-                        <option value="enerwire">Enerwire</option>
-                        <option value="onewire">Onewire</option>
-                    </select>
+                    <label class="d-block">Empresa:</label>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input type="radio" id="companyEnerwire" name="company" value="enerwire" class="custom-control-input" required>
+                        <label class="custom-control-label" for="companyEnerwire">Enerwire</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input type="radio" id="companyOnewire" name="company" value="onewire" class="custom-control-input" required>
+                        <label class="custom-control-label" for="companyOnewire">Onewire</label>
+                    </div>
                 </div>
                 <div class="col">
                     <label for="type">Tipo de Documento:</label>

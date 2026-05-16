@@ -7,6 +7,7 @@ class InfileSimplifiedDteBuilder
     public function build($dteJson)
     {
         $data = is_array($dteJson) ? $dteJson : json_decode(json_encode($dteJson), true);
+        $data = $this->withoutIvaPerception($data);
 
         $documento = [
             'tipo_dte' => data_get($data, 'identificacion.tipoDte'),
@@ -179,6 +180,36 @@ class InfileSimplifiedDteBuilder
         }
 
         return null;
+    }
+
+    private function withoutIvaPerception(array $data)
+    {
+        $ivaPerci1 = (float) data_get($data, 'resumen.ivaPerci1', 0);
+
+        if ($ivaPerci1 <= 0) {
+            return $data;
+        }
+
+        $data['resumen']['ivaPerci1'] = 0;
+
+        if (isset($data['resumen']['totalPagar'])) {
+            $data['resumen']['totalPagar'] = round((float) $data['resumen']['totalPagar'] - $ivaPerci1, 2);
+        }
+
+        if (isset($data['resumen']['totalLetras']) && isset($data['resumen']['totalPagar'])) {
+            unset($data['resumen']['totalLetras']);
+        }
+
+        if (!empty($data['resumen']['pagos']) && is_array($data['resumen']['pagos'])) {
+            foreach ($data['resumen']['pagos'] as $index => $pago) {
+                if (isset($pago['montoPago'])) {
+                    $data['resumen']['pagos'][$index]['montoPago'] = round((float) $pago['montoPago'] - $ivaPerci1, 2);
+                    break;
+                }
+            }
+        }
+
+        return $data;
     }
 
     private function pagos($pagos)
