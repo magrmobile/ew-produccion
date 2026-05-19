@@ -10,6 +10,7 @@ class InfileSimplifiedDteBuilder
     {
         $data = is_array($dteJson) ? $dteJson : json_decode(json_encode($dteJson), true);
         $data = self::withoutIvaPerception($data);
+        $data = $this->prepareFexeForInfile($data);
 
         $documento = [
             'tipo_dte' => data_get($data, 'identificacion.tipoDte'),
@@ -115,13 +116,21 @@ class InfileSimplifiedDteBuilder
         $simplificados = [];
 
         foreach ((array) $items as $item) {
+            $noGravado = (float) data_get($item, 'noGravado', 0);
+            $precioUnitario = data_get($item, 'precioUni');
+
+            if ($noGravado > 0 && (float) $precioUnitario == 0) {
+                $precioUnitario = $noGravado;
+            }
+
             $simplificados[] = $this->clean([
                 'tipo' => data_get($item, 'tipoItem'),
                 'cantidad' => data_get($item, 'cantidad'),
                 'unidad_medida' => data_get($item, 'uniMedida'),
                 'descripcion' => data_get($item, 'descripcion'),
-                'precio_unitario' => data_get($item, 'precioUni'),
+                'precio_unitario' => $precioUnitario,
                 'tipo_venta' => $this->tipoVenta($item),
+                'venta_no_gravada' => $noGravado > 0 ? true : null,
                 'numero_documento' => data_get($item, 'numeroDocumento'),
                 'codigo' => data_get($item, 'codigo'),
                 'descuento' => data_get($item, 'montoDescu'),
@@ -182,6 +191,52 @@ class InfileSimplifiedDteBuilder
         }
 
         return null;
+    }
+
+    private function prepareFexeForInfile(array $data)
+    {
+        if (data_get($data, 'identificacion.tipoDte') !== '11') {
+            return $data;
+        }
+
+        $discount = 0;
+        $items = [];
+
+        foreach ((array) data_get($data, 'cuerpoDocumento', []) as $item) {
+            if ($this->isDiscountItem($item)) {
+                $discount += abs($this->itemAmount($item));
+                continue;
+            }
+
+            $items[] = $item;
+        }
+
+        if ($discount > 0) {
+            $data['cuerpoDocumento'] = $items;
+            $data['resumen']['descuGravada'] = round((float) data_get($data, 'resumen.descuGravada', 0) + $discount, 2);
+        }
+
+        return $data;
+    }
+
+    private function isDiscountItem($item)
+    {
+        $description = data_get($item, 'descripcion', '');
+
+        return stripos($description, 'DESCUENTO') !== false;
+    }
+
+    private function itemAmount($item)
+    {
+        foreach (['ventaGravada', 'ventaExenta', 'ventaNoSuj', 'noGravado', 'precioUni'] as $field) {
+            $value = (float) data_get($item, $field, 0);
+
+            if ($value != 0) {
+                return $value;
+            }
+        }
+
+        return 0;
     }
 
     public static function withoutIvaPerception(array $data)
