@@ -2,12 +2,14 @@
 
 namespace App\Services;
 
+use App\Documents\DocumentBase;
+
 class InfileSimplifiedDteBuilder
 {
     public function build($dteJson)
     {
         $data = is_array($dteJson) ? $dteJson : json_decode(json_encode($dteJson), true);
-        $data = $this->withoutIvaPerception($data);
+        $data = self::withoutIvaPerception($data);
 
         $documento = [
             'tipo_dte' => data_get($data, 'identificacion.tipoDte'),
@@ -182,7 +184,7 @@ class InfileSimplifiedDteBuilder
         return null;
     }
 
-    private function withoutIvaPerception(array $data)
+    public static function withoutIvaPerception(array $data)
     {
         $ivaPerci1 = (float) data_get($data, 'resumen.ivaPerci1', 0);
 
@@ -196,8 +198,8 @@ class InfileSimplifiedDteBuilder
             $data['resumen']['totalPagar'] = round((float) $data['resumen']['totalPagar'] - $ivaPerci1, 2);
         }
 
-        if (isset($data['resumen']['totalLetras']) && isset($data['resumen']['totalPagar'])) {
-            unset($data['resumen']['totalLetras']);
+        if (isset($data['resumen']['totalPagar'])) {
+            $data['resumen']['totalLetras'] = DocumentBase::numeroALetras($data['resumen']['totalPagar']);
         }
 
         if (!empty($data['resumen']['pagos']) && is_array($data['resumen']['pagos'])) {

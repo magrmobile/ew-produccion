@@ -57,6 +57,7 @@ class BillingController extends Controller
             $json = $this->processExcel($file, $request->input('type'), $request);
             DocumentBase::consumeLocalCorrelatives(true);
             $json = $this->applyIssuerToJson($json, $issuer);
+            $json = $this->applyProviderAdjustmentsToJson($json, $issuer);
             //dd($json);
  
             // Cargar el JSON Schema
@@ -344,6 +345,17 @@ class BillingController extends Controller
         $data['emisor']['codPuntoVenta'] = env($prefix.'_CODPUNTOVENTA', data_get($data, 'emisor.codPuntoVenta'));
 
         $data['identificacion']['numeroControl'] = 'DTE-'.$data['identificacion']['tipoDte'].'-'.$data['emisor']['codEstable'].$data['emisor']['codPuntoVenta'].'-'.substr($data['identificacion']['numeroControl'], -15);
+
+        return json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
+    }
+
+    private function applyProviderAdjustmentsToJson($json, array $issuer)
+    {
+        if ($issuer['provider'] !== 'infile') {
+            return $json;
+        }
+
+        $data = InfileSimplifiedDteBuilder::withoutIvaPerception(json_decode($json, true));
 
         return json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
     }
