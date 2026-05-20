@@ -32,7 +32,7 @@ class InfileSimplifiedDteBuilder
             'numero_pago_electronico' => data_get($data, 'resumen.numPagoElectronico'),
             'documentos_relacionados' => $this->documentosRelacionados(data_get($data, 'documentoRelacionado')),
             'receptor' => $this->receptor($data),
-            'items' => $this->items(data_get($data, 'cuerpoDocumento', [])),
+            'items' => $this->items(data_get($data, 'cuerpoDocumento', []), data_get($data, 'identificacion.tipoDte')),
             'pagos' => $this->pagos(data_get($data, 'resumen.pagos', [])),
             'extension' => $this->extension(data_get($data, 'extension', [])),
             'apendice' => $this->apendice(data_get($data, 'apendice', [])),
@@ -43,6 +43,11 @@ class InfileSimplifiedDteBuilder
             $documento['regimen'] = data_get($data, 'emisor.regimen');
             $documento['tipo_item_exportacion'] = data_get($data, 'emisor.tipoItemExpor');
             $documento['incoterms'] = data_get($data, 'resumen.codIncoterms');
+            $documento['codigo_incoterm'] = data_get($data, 'resumen.codIncoterms');
+            $documento['flete'] = data_get($data, 'resumen.flete');
+            $documento['seguro'] = data_get($data, 'resumen.seguro');
+            $documento['observaciones'] = data_get($data, 'resumen.observaciones');
+            $documento['descuento_global'] = data_get($data, 'resumen.descuento');
         }
 
         $documento = $this->clean($documento);
@@ -111,13 +116,17 @@ class InfileSimplifiedDteBuilder
         return $relacionados;
     }
 
-    private function items($items)
+    private function items($items, $tipoDte = null)
     {
         $simplificados = [];
 
         foreach ((array) $items as $item) {
             $noGravado = (float) data_get($item, 'noGravado', 0);
             $precioUnitario = data_get($item, 'precioUni');
+
+            if ($tipoDte === '11') {
+                $precioUnitario = $this->precioUnitarioFexe($item, $precioUnitario);
+            }
 
             if ($noGravado > 0 && (float) $precioUnitario == 0) {
                 $precioUnitario = $noGravado;
@@ -140,6 +149,18 @@ class InfileSimplifiedDteBuilder
         }
 
         return $simplificados;
+    }
+
+    private function precioUnitarioFexe($item, $fallback)
+    {
+        $cantidad = (float) data_get($item, 'cantidad', 0);
+        $ventaGravada = (float) data_get($item, 'ventaGravada', 0);
+
+        if ($cantidad > 0 && $ventaGravada > 0) {
+            return round($ventaGravada / $cantidad, 8);
+        }
+
+        return $fallback;
     }
 
     private function tipoVenta($item)
@@ -213,7 +234,7 @@ class InfileSimplifiedDteBuilder
 
         if ($discount > 0) {
             $data['cuerpoDocumento'] = $items;
-            $data['resumen']['descuGravada'] = round((float) data_get($data, 'resumen.descuGravada', 0) + $discount, 2);
+            $data['resumen']['descuento'] = round((float) data_get($data, 'resumen.descuento', 0) + $discount, 2);
         }
 
         return $data;

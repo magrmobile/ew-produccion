@@ -194,7 +194,7 @@ class dteController extends Controller
         $dteJson = json_decode($dte->json_dte);
         $payload = (new InfileSimplifiedDteBuilder())->build($dteJson);
 
-        //dd(json_encode($payload));
+        dd(json_encode($payload));
 
         $url = env('INFILE_CERTIFY_URL');
 
