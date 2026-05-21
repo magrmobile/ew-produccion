@@ -65,7 +65,7 @@
                 <div class="col">
                     <label class="d-block">Empresa:</label>
                     <div class="custom-control custom-radio custom-control-inline">
-                        <input type="radio" id="companyEnerwire" name="company" value="enerwire" class="custom-control-input" required>
+                        <input type="radio" id="companyEnerwire" name="company" value="enerwire" class="custom-control-input" required checked>
                         <label class="custom-control-label" for="companyEnerwire">Enerwire</label>
                     </div>
                     <div class="custom-control custom-radio custom-control-inline">
