@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use App\Services\InfileSimplifiedDteBuilder;
 
 use RealRashid\SweetAlert\Facades\Alert;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
@@ -106,6 +107,10 @@ class dteController extends Controller
     {
         $dte = dte::find($id);
 
+        if ($dte->provider === 'infile') {
+            return $this->sendInfileDte($dte);
+        }
+
         if($dte->signed == 0) {
             $signed_dte = $this->signDte($id);
         } else {
@@ -182,6 +187,85 @@ class dteController extends Controller
         }
         //return response()->json($params);
     } 
+
+    private function sendInfileDte(dte $dte)
+    {
+        $client = new Client(['verify' => false]);
+        $dteJson = json_decode($dte->json_dte);
+        $payload = (new InfileSimplifiedDteBuilder())->build($dteJson);
+
+        //dd(json_encode($payload));
+
+        $url = env('INFILE_CERTIFY_URL');
+
+        if (!$url) {
+            $environment = env('INFILE_ENVIRONMENT', 'test');
+            $url = 'https://certificador.infile.com.sv/api/v1/certificacion/'.$environment.'/documento/certificar';
+        }
+
+        $issuerNit = $dte->emisor_nit ?: env('DTE_EMISOR_NIT');
+
+        if (!env('INFILE_API_KEY')) {
+            return back()->with('errors', ['No se ha configurado INFILE_API_KEY en el archivo .env.']);
+        }
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'usuario' => $issuerNit,
+            'llave' => env('INFILE_API_KEY'),
+            'identificador' => $dte->codigoGeneracion,
+            'origen' => env('INFILE_ORIGIN', config('app.name')),
+        ];
+
+        try {
+            $response = $client->post($url, ['headers' => $headers, 'json' => $payload]);
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            $statusCode = $response->getStatusCode();
+            $isSuccessfulResponse = $statusCode >= 200 && $statusCode < 300;
+
+            if($isSuccessfulResponse && data_get($responseData, 'ok') === true) {
+                $certifiedJson = data_get($responseData, 'json', $dte->json_dte);
+                $certifiedData = is_string($certifiedJson) ? json_decode($certifiedJson, true) : $certifiedJson;
+                $codigoGeneracion = data_get($responseData, 'respuesta.codigoGeneracion', data_get($certifiedData, 'identificacion.codigoGeneracion', $dte->codigoGeneracion));
+                $numeroControl = data_get($responseData, 'respuesta.numeroControl', data_get($certifiedData, 'identificacion.numeroControl', $dte->numeroControl));
+                $sello = data_get($responseData, 'respuesta_dgi.selloRecibido', data_get($responseData, 'respuesta.selloRecepcion'));
+                $receivedDate = data_get($responseData, 'respuesta_dgi.fhProcesamiento');
+
+                if ($receivedDate) {
+                    $receivedDate = \Carbon\Carbon::createFromFormat('d/m/Y H:i:s', $receivedDate)->format('Y-m-d H:i:s');
+                }
+
+                $dte->update([
+                    'json_dte' => is_string($certifiedJson) ? $certifiedJson : json_encode($certifiedJson),
+                    'codigoGeneracion' => $codigoGeneracion,
+                    'numeroControl' => $numeroControl,
+                    'signed' => 1,
+                    'sign' => data_get($certifiedData, 'firmaElectronica'),
+                    'signed_by' => auth()->user()->id,
+                    'signed_date' => DB::raw('CURRENT_TIMESTAMP'),
+                    'received' => 1,
+                    'stamp' => $sello,
+                    'received_by' => auth()->user()->id,
+                    'received_date' => $receivedDate ?: DB::raw('CURRENT_TIMESTAMP')
+                ]);
+
+                return back()->with('message', 'Documento enviado satisfactoriamente a Infile!!');
+            }
+
+            $errors = [];
+            $errors[] = data_get($responseData, 'mensaje', 'Infile rechazo el documento.');
+
+            foreach ((array) data_get($responseData, 'errores', []) as $error) {
+                $errors[] = is_string($error) ? $error : json_encode($error);
+            }
+
+            return back()->with('errors', $errors);
+        } catch(\Exception $e) {
+            $errors[] = $e->getMessage();
+            return back()->with('errors', $errors);
+        }
+    }
 
     public function signDte($id)
     {

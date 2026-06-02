@@ -50,9 +50,6 @@
                 <label for="product_id">Producto Producido</label>
                 <select name="product_id" id="product_id" class="form-control">
                     <option value=""></option>
-                    @foreach ($products as $product)
-                    <option value="{{ $product->id }}" @if(old('product_id') == $product->id) selected @endif>{{ $product->product_name }}</option>
-                    @endforeach
                 </select>
             </div>
 
@@ -90,4 +87,67 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+<script>
+    $('#product_id').select2({
+        theme: 'bootstrap4',
+        placeholder: 'Seleccionar Producto...',
+        allowClear: true
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        var initialProductId = "{{ old('product_id', $round->product_id) }}";
+
+        function loadMachineProducts(selectedProductId) {
+            var machineId = $('#machine_id').val();
+            var productSelect = $('#product_id');
+
+            productSelect.empty().append(new Option('', '', false, false)).trigger('change');
+
+            if (!machineId) {
+                return $.Deferred().resolve().promise();
+            }
+
+            return $.get('/get-machine-products', { machine_id: machineId }, function(products) {
+                $.each(products, function(_, product) {
+                    var option = new Option(product.product_name + ' (id: ' + product.id + ')', product.id, false, false);
+                    productSelect.append(option);
+                });
+
+                if (selectedProductId) {
+                    productSelect.val(String(selectedProductId)).trigger('change');
+                }
+            });
+        }
+
+        function loadProductionSpeed() {
+            var machineId = $('#machine_id').val();
+            var productId = $('#product_id').val();
+
+            $.ajax({
+                url: '/get-production-speed',
+                method: 'GET',
+                data: { machine_id: machineId, product_id: productId },
+                success: function(response) {
+                    $('#production_speed').val(response.speed);
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        loadMachineProducts(initialProductId);
+        loadProductionSpeed();
+
+        $('#machine_id').change(function() {
+            loadMachineProducts(null);
+        });
+
+        $('#machine_id, #product_id').change(function() {
+            loadProductionSpeed();
+        });
+    });
+</script>
 @endsection

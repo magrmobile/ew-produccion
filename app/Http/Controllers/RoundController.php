@@ -91,7 +91,17 @@ class RoundController extends Controller
         if($user->role === 'admin' || $user->role === 'jeferondas') {
             $machines = Machine::all();
         } else {
-            $machines = Machine::where('warehouse', $user->warehouse)->orderBy('machine_name')->get();
+            $assignedProcessIds = $user->assignedProcesses()->pluck('processes.id');
+
+            $machinesQuery = Machine::where('warehouse', $user->warehouse)->orderBy('machine_name');
+
+            if($assignedProcessIds->isNotEmpty()) {
+                $machinesQuery->whereIn('process_id', $assignedProcessIds);
+            } else {
+                $machinesQuery->whereRaw('1 = 0');
+            }
+
+            $machines = $machinesQuery->get();
         }
 
         $machine_id_missing = $request->input('machine_id');
@@ -507,14 +517,36 @@ class RoundController extends Controller
         }
     }
 
+    public function getMachineProducts(Request $request)
+    {
+        $machineId = $request->input('machine_id');
+
+        if(!$machineId) {
+            return response()->json([]);
+        }
+
+        $machine = Machine::find($machineId);
+
+        if(!$machine) {
+            return response()->json([]);
+        }
+
+        $products = $machine->products()
+            ->select('products.id', 'products.product_name')
+            ->orderBy('products.product_name')
+            ->get();
+
+        return response()->json($products);
+    }
+
     public function getLastRoundProduct(Request $request) {
         $machineId = $request->input('machine_id');
 
         $round = Round::where('machine_id', $machineId)->latest()->first();
 
         return response()->json([
-            'product_id' => $round->product_id,
-            'code_id' => $round->code_id 
+            'product_id' => $round ? $round->product_id : null,
+            'code_id' => $round ? $round->code_id : null
         ]);
     }
 

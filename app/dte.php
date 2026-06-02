@@ -28,7 +28,9 @@ class dte extends Model
         'invalidate_stamp',
         'invalidate_by',
         'invalidate_date',
-        'tipoDte'
+        'tipoDte',
+        'provider',
+        'emisor_nit'
     ];
 
     public function customer()

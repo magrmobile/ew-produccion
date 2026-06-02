@@ -1,0 +1,366 @@
+<?php
+
+namespace App\Services;
+
+use App\Documents\DocumentBase;
+
+class InfileSimplifiedDteBuilder
+{
+    public function build($dteJson)
+    {
+        $data = is_array($dteJson) ? $dteJson : json_decode(json_encode($dteJson), true);
+        $data = self::withoutIvaPerception($data);
+        $data = $this->prepareFexeForInfile($data);
+
+        $documento = [
+            'tipo_dte' => data_get($data, 'identificacion.tipoDte'),
+            'establecimiento' => data_get($data, 'emisor.codEstable'),
+            'punto_venta' => data_get($data, 'emisor.codPuntoVenta'),
+            'condicion_pago' => data_get($data, 'resumen.condicionOperacion'),
+            'actividad_economica' => data_get($data, 'emisor.codActividad'),
+            'uuid' => null,
+            'numero_control' => null,
+            'fecha_emision' => data_get($data, 'identificacion.fecEmi'),
+            'hora_emision' => data_get($data, 'identificacion.horEmi'),
+            'descuento_no_sujeto' => data_get($data, 'resumen.descuNoSuj'),
+            'descuento_exentas' => data_get($data, 'resumen.descuExenta'),
+            'descuento_gravadas' => data_get($data, 'resumen.descuGravada'),
+            'porcentaje_descuento' => data_get($data, 'resumen.porcentajeDescuento'),
+            'renta_retenida' => data_get($data, 'resumen.reteRenta'),
+            'percibir_iva' => (float) data_get($data, 'resumen.ivaPerci1', 0) > 0,
+            'retener_iva' => (float) data_get($data, 'resumen.ivaRete1', 0) > 0,
+            'numero_pago_electronico' => data_get($data, 'resumen.numPagoElectronico'),
+            'documentos_relacionados' => $this->documentosRelacionados(data_get($data, 'documentoRelacionado')),
+            'receptor' => $this->receptor($data),
+            'items' => $this->items(data_get($data, 'cuerpoDocumento', []), data_get($data, 'identificacion.tipoDte')),
+            'pagos' => $this->pagos(data_get($data, 'resumen.pagos', [])),
+            'extension' => $this->extension(data_get($data, 'extension', [])),
+            'apendice' => $this->apendice(data_get($data, 'apendice', [])),
+        ];
+
+        if (data_get($data, 'identificacion.tipoDte') === '11') {
+            $documento['recinto_fiscal'] = data_get($data, 'emisor.recintoFiscal');
+            $documento['regimen'] = data_get($data, 'emisor.regimen');
+            $documento['tipo_item_exportacion'] = data_get($data, 'emisor.tipoItemExpor');
+            $documento['incoterms'] = data_get($data, 'resumen.codIncoterms');
+            $documento['codigo_incoterm'] = data_get($data, 'resumen.codIncoterms');
+            $documento['flete'] = data_get($data, 'resumen.flete');
+            $documento['seguro'] = data_get($data, 'resumen.seguro');
+            $documento['observaciones'] = data_get($data, 'resumen.observaciones');
+            $documento['descuento_global'] = data_get($data, 'resumen.descuento');
+        }
+
+        $documento = $this->clean($documento);
+        $documento['uuid'] = null;
+        $documento['numero_control'] = null;
+
+        return [
+            'documento' => $documento,
+        ];
+    }
+
+    private function receptor(array $data)
+    {
+        $receptor = data_get($data, 'receptor');
+
+        if (!$receptor) {
+            $receptor = data_get($data, 'sujetoRetencion');
+        }
+
+        if (!$receptor) {
+            $receptor = data_get($data, 'sujetoExcluido');
+        }
+
+        if (!$receptor) {
+            return null;
+        }
+
+        return $this->clean([
+            'nombre' => data_get($receptor, 'nombre'),
+            'tipo_documento' => data_get($receptor, 'tipoDocumento', data_get($receptor, 'tipoDoc')),
+            'numero_documento' => data_get($receptor, 'numDocumento', data_get($receptor, 'nit')),
+            'nrc' => data_get($receptor, 'nrc'),
+            'codigo_actividad' => data_get($receptor, 'codActividad'),
+            'descripcion_actividad' => data_get($receptor, 'descActividad'),
+            'nombre_comercial' => data_get($receptor, 'nombreComercial'),
+            'codigo_pais' => data_get($receptor, 'codPais'),
+            'tipo_persona' => data_get($receptor, 'tipoPersona'),
+            'complemento' => data_get($receptor, 'complemento', data_get($receptor, 'direccion.complemento')),
+            'direccion' => [
+                'departamento' => data_get($receptor, 'direccion.departamento'),
+                'municipio' => data_get($receptor, 'direccion.municipio'),
+                'complemento' => data_get($receptor, 'direccion.complemento', data_get($receptor, 'complemento')),
+            ],
+            'telefono' => data_get($receptor, 'telefono'),
+            'correo' => data_get($receptor, 'correo'),
+        ]);
+    }
+
+    private function documentosRelacionados($documentos)
+    {
+        if (!$documentos || !is_array($documentos)) {
+            return null;
+        }
+
+        $relacionados = [];
+
+        foreach ($documentos as $documento) {
+            $relacionados[] = $this->clean([
+                'tipo_documento' => data_get($documento, 'tipoDocumento'),
+                'tipo_generacion' => data_get($documento, 'tipoGeneracion'),
+                'numero_documento' => data_get($documento, 'numeroDocumento'),
+                'fecha_emision' => data_get($documento, 'fechaEmision'),
+            ]);
+        }
+
+        return $relacionados;
+    }
+
+    private function items($items, $tipoDte = null)
+    {
+        $simplificados = [];
+
+        foreach ((array) $items as $item) {
+            $noGravado = (float) data_get($item, 'noGravado', 0);
+            $precioUnitario = data_get($item, 'precioUni');
+
+            if ($tipoDte === '11') {
+                $precioUnitario = $this->precioUnitarioFexe($item, $precioUnitario);
+            }
+
+            if ($noGravado > 0 && (float) $precioUnitario == 0) {
+                $precioUnitario = $noGravado;
+            }
+
+            $simplificados[] = $this->clean([
+                'tipo' => data_get($item, 'tipoItem'),
+                'cantidad' => data_get($item, 'cantidad'),
+                'unidad_medida' => data_get($item, 'uniMedida'),
+                'descripcion' => data_get($item, 'descripcion'),
+                'precio_unitario' => $precioUnitario,
+                'tipo_venta' => $this->tipoVenta($item),
+                'venta_no_gravada' => $noGravado > 0 ? true : null,
+                'numero_documento' => data_get($item, 'numeroDocumento'),
+                'codigo' => data_get($item, 'codigo'),
+                'descuento' => data_get($item, 'montoDescu'),
+                'psv' => data_get($item, 'psv'),
+                'tributos' => $this->tributos(data_get($item, 'tributos'), $item),
+            ]);
+        }
+
+        return $simplificados;
+    }
+
+    private function precioUnitarioFexe($item, $fallback)
+    {
+        $cantidad = (float) data_get($item, 'cantidad', 0);
+        $ventaGravada = (float) data_get($item, 'ventaGravada', 0);
+
+        if ($cantidad > 0 && $ventaGravada > 0) {
+            return round($ventaGravada / $cantidad, 8);
+        }
+
+        return $fallback;
+    }
+
+    private function tipoVenta($item)
+    {
+        if ((float) data_get($item, 'ventaNoSuj', 0) > 0) {
+            return '2';
+        }
+
+        if ((float) data_get($item, 'ventaExenta', 0) > 0) {
+            return '3';
+        }
+
+        if ((float) data_get($item, 'noGravado', 0) > 0) {
+            return '4';
+        }
+
+        return '1';
+    }
+
+    private function tributos($tributos, $item = [])
+    {
+        if (!$tributos || !is_array($tributos)) {
+            return null;
+        }
+
+        $simplificados = [];
+
+        foreach ($tributos as $tributo) {
+            if (is_array($tributo)) {
+                $simplificados[] = $this->clean([
+                    'codigo' => data_get($tributo, 'codigo'),
+                    'monto' => data_get($tributo, 'valor'),
+                ]);
+            } else {
+                $simplificados[] = $this->clean([
+                    'codigo' => $tributo,
+                    'monto' => $this->montoTributo($tributo, $item),
+                ]);
+            }
+        }
+
+        return $simplificados;
+    }
+
+    private function montoTributo($codigo, $item)
+    {
+        if ($codigo === '20') {
+            return round((float) data_get($item, 'ventaGravada', 0) * 0.13, 8);
+        }
+
+        return null;
+    }
+
+    private function prepareFexeForInfile(array $data)
+    {
+        if (data_get($data, 'identificacion.tipoDte') !== '11') {
+            return $data;
+        }
+
+        $discount = 0;
+        $items = [];
+
+        foreach ((array) data_get($data, 'cuerpoDocumento', []) as $item) {
+            if ($this->isDiscountItem($item)) {
+                $discount += abs($this->itemAmount($item));
+                continue;
+            }
+
+            $items[] = $item;
+        }
+
+        if ($discount > 0) {
+            $data['cuerpoDocumento'] = $items;
+            $data['resumen']['descuento'] = round((float) data_get($data, 'resumen.descuento', 0) + $discount, 2);
+        }
+
+        return $data;
+    }
+
+    private function isDiscountItem($item)
+    {
+        $description = data_get($item, 'descripcion', '');
+
+        return stripos($description, 'DESCUENTO') !== false;
+    }
+
+    private function itemAmount($item)
+    {
+        foreach (['ventaGravada', 'ventaExenta', 'ventaNoSuj', 'noGravado', 'precioUni'] as $field) {
+            $value = (float) data_get($item, $field, 0);
+
+            if ($value != 0) {
+                return $value;
+            }
+        }
+
+        return 0;
+    }
+
+    public static function withoutIvaPerception(array $data)
+    {
+        $ivaPerci1 = (float) data_get($data, 'resumen.ivaPerci1', 0);
+
+        if ($ivaPerci1 <= 0) {
+            return $data;
+        }
+
+        $data['resumen']['ivaPerci1'] = 0;
+
+        if (isset($data['resumen']['totalPagar'])) {
+            $data['resumen']['totalPagar'] = round((float) $data['resumen']['totalPagar'] - $ivaPerci1, 2);
+        }
+
+        if (isset($data['resumen']['totalPagar'])) {
+            $data['resumen']['totalLetras'] = DocumentBase::numeroALetras($data['resumen']['totalPagar']);
+        }
+
+        if (!empty($data['resumen']['pagos']) && is_array($data['resumen']['pagos'])) {
+            foreach ($data['resumen']['pagos'] as $index => $pago) {
+                if (isset($pago['montoPago'])) {
+                    $data['resumen']['pagos'][$index]['montoPago'] = round((float) $pago['montoPago'] - $ivaPerci1, 2);
+                    break;
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    private function pagos($pagos)
+    {
+        if (!$pagos || !is_array($pagos)) {
+            return null;
+        }
+
+        $simplificados = [];
+
+        foreach ($pagos as $pago) {
+            $simplificados[] = $this->clean([
+                'tipo' => data_get($pago, 'codigo'),
+                'monto' => data_get($pago, 'montoPago'),
+                'referencia' => data_get($pago, 'referencia'),
+                'plazo' => data_get($pago, 'plazo'),
+                'periodo' => data_get($pago, 'periodo'),
+            ]);
+        }
+
+        return $simplificados;
+    }
+
+    private function extension($extension)
+    {
+        return $this->clean([
+            'nombre_entrega' => data_get($extension, 'nombEntrega'),
+            'documento_entrega' => data_get($extension, 'docuEntrega'),
+            'nombre_recibe' => data_get($extension, 'nombRecibe'),
+            'documento_recibe' => data_get($extension, 'docuRecibe'),
+            'observaciones' => data_get($extension, 'observaciones'),
+            'placa_vehiculo' => data_get($extension, 'placaVehiculo'),
+        ]);
+    }
+
+    private function apendice($apendice)
+    {
+        if (!$apendice || !is_array($apendice)) {
+            return null;
+        }
+
+        $simplificados = [];
+
+        foreach ($apendice as $item) {
+            $simplificados[] = $this->clean([
+                'campo' => data_get($item, 'campo'),
+                'etiqueta' => data_get($item, 'etiqueta'),
+                'valor' => data_get($item, 'valor'),
+            ]);
+        }
+
+        return $simplificados;
+    }
+
+    private function clean($value)
+    {
+        if (!is_array($value)) {
+            return $value;
+        }
+
+        foreach ($value as $key => $item) {
+            if (is_array($item)) {
+                $item = $this->clean($item);
+            }
+
+            if ($item === null || $item === '' || $item === []) {
+                unset($value[$key]);
+                continue;
+            }
+
+            $value[$key] = $item;
+        }
+
+        return $value;
+    }
+}

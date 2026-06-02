@@ -50,9 +50,6 @@
                 <label for="product_id">Producto Producido</label>
                 <select name="product_id" id="product_id" class="form-control">
                     <option value=""></option>
-                    @foreach ($products as $product)
-                    <option value="{{ $product->id }}" @if(old('product_id') == $product->id || $product->id == $current_product_id) selected @endif>{{ $product->product_name." (id: ".$product->id.")" }}</option>
-                    @endforeach
                 </select>
             </div>
 
@@ -105,23 +102,7 @@
     $('#product_id').select2({
         theme: 'bootstrap4',
         placeholder: 'Seleccionar Producto...',
-        allowClear: true,
-        ajax: {
-            url: '/ajax-autocomplete-search',
-            dataType: 'json',
-            delay: 250,
-            processResults: function(data) {
-                return {
-                    results: $.map(data, function(item){
-                        return {
-                            text: item.product_name,
-                            id: item.id
-                        }
-                    })
-                };
-            },
-            cache: true
-        }
+        allowClear: true
     });
 
     function submitForm(hour) {
@@ -131,7 +112,32 @@
 </script>
 <script>
     $(document).ready(function() {
+        var initialProductId = "{{ old('product_id', $current_product_id) }}";
+
+        function loadMachineProducts(selectedProductId) {
+            var machineId = $('#machine_id').val();
+            var productSelect = $('#product_id');
+
+            productSelect.empty().append(new Option('', '', false, false)).trigger('change');
+
+            if (!machineId) {
+                return $.Deferred().resolve().promise();
+            }
+
+            return $.get('/get-machine-products', { machine_id: machineId }, function(products) {
+                $.each(products, function(_, product) {
+                    var option = new Option(product.product_name + ' (id: ' + product.id + ')', product.id, false, false);
+                    productSelect.append(option);
+                });
+
+                if (selectedProductId) {
+                    productSelect.val(String(selectedProductId)).trigger('change');
+                }
+            });
+        }
+
         loadProductionSpeed();
+        loadMachineProducts(initialProductId);
 
         $('#machine_id, #round_date').change(function() {
             var machineId = $('#machine_id').val();
@@ -154,20 +160,27 @@
         $('#machine_id').change(function(){
             var machineId = $('#machine_id').val();
 
-            $.ajax({
-                url: '/get-lastround-product',
-                method: 'GET',
-                data: { machine_id: machineId },
-                success: function(response) {
-                    var product_id = response.product_id;
-                    var code_id = response.code_id;
+            if(!machineId) {
+                $('#code_id').val('').trigger('change');
+                return;
+            }
 
-                    var productSelect = $('#product_id');
-                    var codeSelect = $('#code_id');
+            loadMachineProducts(null).done(function() {
+                $.ajax({
+                    url: '/get-lastround-product',
+                    method: 'GET',
+                    data: { machine_id: machineId },
+                    success: function(response) {
+                        var product_id = response.product_id;
+                        var code_id = response.code_id;
 
-                    productSelect.val(product_id).trigger("change");
-                    codeSelect.val(code_id).trigger("change");
-                }
+                        var productSelect = $('#product_id');
+                        var codeSelect = $('#code_id');
+
+                        productSelect.val(product_id).trigger("change");
+                        codeSelect.val(code_id).trigger("change");
+                    }
+                });
             });
         });
 

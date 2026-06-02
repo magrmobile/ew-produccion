@@ -93,6 +93,7 @@ Route::middleware('auth')->group(function(){
 
     Route::get('/missing-rounds', 'RoundController@missingRounds')->name('rounds.missing');
     Route::get('/get-production-speed', 'RoundController@getProductionSpeed');
+    Route::get('/get-machine-products', 'RoundController@getMachineProducts');
     Route::get('/get-lastround-product', 'RoundController@getLastRoundProduct');
 
     // Route::get('/rounds/create', 'RoundController@create');

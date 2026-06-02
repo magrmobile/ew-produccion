@@ -13,6 +13,7 @@ use App\dte;
 use App\Documents\FacturaElectronica;
 use App\Documents\FacturaExportacionElectronica;
 use App\Documents\FacturaSujetoExcluidoElectronica;
+use App\Documents\DocumentBase;
 use App\Documents\NotaCreditoElectronica;
 use App\Documents\NotaDebitoElectronica;
 use App\Documents\NotaRemisionElectronica;
@@ -23,6 +24,7 @@ use JsonSchema\Validator;
 
 use Dompdf\Dompdf;
 use Illuminate\Support\Facades\View;
+use App\Services\InfileSimplifiedDteBuilder;
 
 use Exception;
 
@@ -36,10 +38,11 @@ class BillingController extends Controller
 
     public function upload(Request $request)
     {
-        /*$request->validate([
-            'file' => 'required|mimetypes:text/csv,text/plain,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        $request->validate([
+            'company' => 'required|in:enerwire,onewire',
+            'file' => 'required',
             'type' => 'required|in:01,03,04,05,06,07,11,14'
-        ]);*/
+        ]);
 
         $file = $request->file('file');
 
@@ -49,7 +52,12 @@ class BillingController extends Controller
 
         // Procesar el archivo Excel y generar el JSON correspondiente
         try{
+            $issuer = $this->resolveIssuer($request->input('company'));
+            DocumentBase::consumeLocalCorrelatives($issuer['provider'] !== 'infile');
             $json = $this->processExcel($file, $request->input('type'), $request);
+            DocumentBase::consumeLocalCorrelatives(true);
+            $json = $this->applyIssuerToJson($json, $issuer);
+            $json = $this->applyProviderAdjustmentsToJson($json, $issuer);
             //dd($json);
  
             // Cargar el JSON Schema
@@ -188,6 +196,7 @@ class BillingController extends Controller
 
                 //$filename = $data->identificacion->codigoGeneracion.'.pdf';
                 $filename = session()->getId().".pdf";
+                $this->ensureStorageDirectory('sessions');
                 file_put_contents(storage_path('app/sessions/'.$filename), $dompdf->output());
 
                 $filenameOriginal = $request->file('file')->getClientOriginalName();
@@ -214,14 +223,22 @@ class BillingController extends Controller
 
                 //dd($json);
 
-                $dte = $this->guardarDTE($json, $filenameOriginal);
+                $dte = $this->guardarDTE($json, $filenameOriginal, $issuer['provider'], $issuer['nit']);
                 
-                $confirm = 'PDF Generado Satisfactoriamente para el archivo '.$filenameOriginal." Desea enviar el documento a RRD?";
+                $providerName = $issuer['provider'] === 'infile' ? 'Infile' : 'RRD';
+                $confirm = 'PDF Generado Satisfactoriamente para el archivo '.$filenameOriginal." Desea enviar el documento a ".$providerName."?";
                 
                 $dteId = $dte->id;
 
                 $filename = $json_decode->identificacion->codigoGeneracion.'.json';
-                file_put_contents(storage_path('app/json/'.$filename), $json);
+                $jsonToStore = $json;
+
+                if ($issuer['provider'] === 'infile') {
+                    $jsonToStore = json_encode((new InfileSimplifiedDteBuilder())->build(json_decode($json)), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
+                }
+
+                $this->ensureStorageDirectory('json');
+                file_put_contents(storage_path('app/json/'.$filename), $jsonToStore);
                 
                 //return redirect()->route('upload', $dteId)->with('confirm', $message);
                 return redirect('/billing')->with(compact('confirm','dteId'));
@@ -240,13 +257,14 @@ class BillingController extends Controller
                 return redirect('/billing')->with(compact('errors'));
             }
         } catch(Exception $e) {
+            DocumentBase::consumeLocalCorrelatives(true);
             $errors[] = $e->getMessage();
             //dd($errors);
             return redirect('/billing')->with(compact('errors'));
         }
     }
 
-    private function guardarDTE($json, $file_csv) 
+    private function guardarDTE($json, $file_csv, $provider = 'rrd', $emisorNit = null) 
     {
         $json_decode = json_decode($json);
 
@@ -270,10 +288,118 @@ class BillingController extends Controller
             'json_dte' => $json,
             'created_by' => auth()->user()->id,
             'tipoDte' => $json_decode->identificacion->tipoDte,
+            'provider' => $provider,
+            'emisor_nit' => $emisorNit,
         ]);
 
         return $dte;
     } 
+
+    private function resolveIssuer($company)
+    {
+        $issuers = [
+            'enerwire' => [
+                'nit' => '06140411881014',
+                'provider' => 'rrd',
+                'env_prefix' => 'DTE_EMISOR',
+            ],
+            'onewire' => [
+                'nit' => '05011011221017',
+                'provider' => 'infile',
+                'env_prefix' => 'ONEWIRE_DTE_EMISOR',
+            ],
+        ];
+
+        if (!isset($issuers[$company])) {
+            throw new Exception('La empresa seleccionada no es valida.');
+        }
+
+        return $issuers[$company];
+    }
+
+    private function applyIssuerToJson($json, array $issuer)
+    {
+        if ($issuer['provider'] !== 'infile') {
+            return $json;
+        }
+
+        $data = json_decode($json, true);
+        $prefix = $issuer['env_prefix'];
+        $this->validateIssuerConfig($prefix);
+
+        $data['emisor']['nit'] = env($prefix.'_NIT', $issuer['nit']);
+        $data['emisor']['nrc'] = env($prefix.'_NRC', data_get($data, 'emisor.nrc'));
+        $data['emisor']['nombre'] = env($prefix.'_NOMBRE', data_get($data, 'emisor.nombre'));
+        $data['emisor']['codActividad'] = env($prefix.'_CODACTIVIDAD', data_get($data, 'emisor.codActividad'));
+        $data['emisor']['descActividad'] = env($prefix.'_DESCACTIVIDAD', data_get($data, 'emisor.descActividad'));
+        $data['emisor']['nombreComercial'] = env($prefix.'_NOMBRECOMERCIAL', data_get($data, 'emisor.nombreComercial'));
+        $data['emisor']['tipoEstablecimiento'] = env($prefix.'_TIPOESTABLECIMIENTO', data_get($data, 'emisor.tipoEstablecimiento'));
+        $data['emisor']['direccion']['departamento'] = env($prefix.'_DIRECCION_DEPARTAMENTO', data_get($data, 'emisor.direccion.departamento'));
+        $data['emisor']['direccion']['municipio'] = env($prefix.'_DIRECCION_MUNICIPIO', data_get($data, 'emisor.direccion.municipio'));
+        $data['emisor']['direccion']['complemento'] = env($prefix.'_DIRECCION_COMPLEMENTO', data_get($data, 'emisor.direccion.complemento'));
+        $data['emisor']['telefono'] = env($prefix.'_TELEFONO', data_get($data, 'emisor.telefono'));
+        $data['emisor']['correo'] = env($prefix.'_EMAIL', data_get($data, 'emisor.correo'));
+        $data['emisor']['codEstableMH'] = env($prefix.'_CODESTABLEMH', data_get($data, 'emisor.codEstableMH'));
+        $data['emisor']['codEstable'] = env($prefix.'_CODESTABLE', data_get($data, 'emisor.codEstable'));
+        $data['emisor']['codPuntoVentaMH'] = env($prefix.'_CODPUNTOVENTAMH', data_get($data, 'emisor.codPuntoVentaMH'));
+        $data['emisor']['codPuntoVenta'] = env($prefix.'_CODPUNTOVENTA', data_get($data, 'emisor.codPuntoVenta'));
+
+        $data['identificacion']['numeroControl'] = 'DTE-'.$data['identificacion']['tipoDte'].'-'.$data['emisor']['codEstable'].$data['emisor']['codPuntoVenta'].'-'.substr($data['identificacion']['numeroControl'], -15);
+
+        return json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
+    }
+
+    private function applyProviderAdjustmentsToJson($json, array $issuer)
+    {
+        if ($issuer['provider'] !== 'infile') {
+            return $json;
+        }
+
+        $data = InfileSimplifiedDteBuilder::withoutIvaPerception(json_decode($json, true));
+
+        return json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
+    }
+
+    private function validateIssuerConfig($prefix)
+    {
+        $required = [
+            'NIT',
+            'NRC',
+            'NOMBRE',
+            'CODACTIVIDAD',
+            'DESCACTIVIDAD',
+            'NOMBRECOMERCIAL',
+            'TIPOESTABLECIMIENTO',
+            'DIRECCION_DEPARTAMENTO',
+            'DIRECCION_MUNICIPIO',
+            'DIRECCION_COMPLEMENTO',
+            'TELEFONO',
+            'EMAIL',
+            'CODESTABLE',
+            'CODPUNTOVENTA',
+        ];
+
+        $missing = [];
+
+        foreach ($required as $key) {
+            if (env($prefix.'_'.$key) === null || env($prefix.'_'.$key) === '') {
+                $missing[] = $prefix.'_'.$key;
+            }
+        }
+
+        if ($missing) {
+            throw new Exception('Faltan variables de emisor para OneWire: '.implode(', ', $missing));
+        }
+    }
+
+    private function ensureStorageDirectory($directory)
+    {
+        $path = storage_path('app/'.$directory);
+
+        if (!is_dir($path)) {
+            mkdir($path, 0775, true);
+        }
+    }
 
     private function processExcel($file, $type, $request)
     {
