@@ -117,9 +117,6 @@ class RoundController extends Controller
             $current_product_id = $last_round->product_id;
         }
 
-        $min_round_date = Carbon::now()->subHours(24)->format('Y-m-d');
-        $max_round_date = Carbon::now()->format('Y-m-d');
-        
         return view('rounds.create', [
             'machines' => $machines,
             'codes' => $codes,
@@ -128,9 +125,7 @@ class RoundController extends Controller
             'hour_missing' => $hour_missing,
             'round_date_missing' => $round_date_missing,
             'current_machine_id' => $current_machine_id,
-            'current_product_id' => $current_product_id,
-            'min_round_date' => $min_round_date,
-            'max_round_date' => $max_round_date
+            'current_product_id' => $current_product_id
         ]);
         //return $existingRounds;
     }
@@ -189,7 +184,7 @@ class RoundController extends Controller
             });
 
         if (!$pendingHour) {
-            return redirect()->back()->withErrors(['hour' => 'La hora seleccionada no esta pendiente dentro de las ultimas 24 horas.']);
+            return redirect()->back()->withErrors(['hour' => 'La hora seleccionada no esta pendiente para la fecha indicada.']);
         }
 
         if($request->input('produced_meters') == 0) {

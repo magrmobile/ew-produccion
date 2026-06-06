@@ -47,14 +47,8 @@ class Round extends Model
     public static function getMissingRoundsForLast24Hours($machineId = null, $date = null)
     {
         $machines = $machineId ? Machine::where('id', $machineId)->get() : Machine::all();
-        $slots = self::last24HourSlots();
+        $slots = self::last24HourSlots($date);
         $missingRounds = collect();
-
-        if ($date) {
-            $slots = $slots->filter(function ($slot) use ($date) {
-                return $slot['round_date'] === $date;
-            });
-        }
 
         foreach ($machines as $machine) {
             foreach ($slots as $slot) {
@@ -77,17 +71,12 @@ class Round extends Model
         return $missingRounds;
     }
 
-    private static function last24HourSlots()
+    private static function last24HourSlots($date = null)
     {
-        $now = Carbon::now();
-        $windowStart = $now->copy()->subHours(24);
-        $cursor = $windowStart->copy()->minute(0)->second(0);
-
-        if ($cursor->lt($windowStart)) {
-            $cursor->addHour();
-        }
-
-        $windowEnd = $now->copy()->minute(0)->second(0);
+        $windowEnd = $date
+            ? Carbon::createFromFormat('Y-m-d H:i:s', $date . ' 23:00:00')
+            : Carbon::now()->minute(0)->second(0);
+        $cursor = $windowEnd->copy()->subHours(23);
         $slots = collect();
 
         while ($cursor->lte($windowEnd)) {
