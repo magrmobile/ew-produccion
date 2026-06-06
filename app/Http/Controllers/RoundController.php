@@ -92,8 +92,8 @@ class RoundController extends Controller
             $machines = Machine::all();
         } else {
             $assignedProcessIds = $user->assignedProcesses()->pluck('processes.id');
-
-            $machinesQuery = Machine::where('warehouse', $user->warehouse)->orderBy('machine_name');
+            
+            $machinesQuery = Machine::orderBy('machine_name');
 
             if($assignedProcessIds->isNotEmpty()) {
                 $machinesQuery->whereIn('process_id', $assignedProcessIds);
