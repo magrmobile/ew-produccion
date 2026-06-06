@@ -3,7 +3,6 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-
 use Carbon\Carbon;
 
 class Round extends Model
@@ -40,53 +39,66 @@ class Round extends Model
         }
     }
 
-    public static function getMissingRounds() {
-        // Obtener todas las maquinas
-        $user = auth()->user();
-        $machines = Machine::all();
+    public static function getMissingRounds()
+    {
+        return self::getMissingRoundsForLast24Hours();
+    }
 
-        // Calcular la fecha y hora límite (24 horas antes de ahora)
-        //$date = Carbon::now()->subHours(24);
-        $date = Carbon::now();
-
-        $newDate = Carbon::createFromFormat('Y-m-d H:i:s', $date)->format('Y-m-d');
-        
-        $hour_now = date("H");
-
-        if($hour_now >= 7 && $hour_now <= 18) {
-            $shift = 'D';
-        } else {
-            $shift = 'N';
-        }
-
-        // Obtener las horas del turno del usuario
-        $shiftHours = $user->getShiftHours($shift);
-
+    public static function getMissingRoundsForLast24Hours($machineId = null, $date = null)
+    {
+        $machines = $machineId ? Machine::where('id', $machineId)->get() : Machine::all();
+        $slots = self::last24HourSlots();
         $missingRounds = collect();
 
-        foreach($machines as $machine) {
-            foreach($shiftHours as $hour) {
-                // Formatear la hora para que coincida con el formato de la base de datos
-                $formattedHour = $hour.':00';
-                
+        if ($date) {
+            $slots = $slots->filter(function ($slot) use ($date) {
+                return $slot['round_date'] === $date;
+            });
+        }
+
+        foreach ($machines as $machine) {
+            foreach ($slots as $slot) {
                 $round = Round::where('machine_id', $machine->id)
-                    ->where('round_date', $newDate)
-                    ->where('hour', $formattedHour)
-                    ->where('shift', $shift)
+                    ->where('round_date', $slot['round_date'])
+                    ->where('hour', $slot['hour'])
                     ->first();
 
-                // Si no existe la ronda para la maquina, fecha y hora la agregamos a las horas faltantes
-                if(!$round) {
+                if (!$round) {
                     $missingRounds->push([
                         'machine_id' => $machine->id,
                         'machine_name' => $machine->machine_name,
-                        'round_date' => $newDate,
-                        'hour' => $hour,
+                        'round_date' => $slot['round_date'],
+                        'hour' => $slot['hour'],
                     ]);
                 }
             }
         }
 
         return $missingRounds;
+    }
+
+    private static function last24HourSlots()
+    {
+        $now = Carbon::now();
+        $windowStart = $now->copy()->subHours(24);
+        $cursor = $windowStart->copy()->minute(0)->second(0);
+
+        if ($cursor->lt($windowStart)) {
+            $cursor->addHour();
+        }
+
+        $windowEnd = $now->copy()->minute(0)->second(0);
+        $slots = collect();
+
+        while ($cursor->lte($windowEnd)) {
+            $slots->push([
+                'round_date' => $cursor->format('Y-m-d'),
+                'hour' => $cursor->format('H:00'),
+            ]);
+
+            $cursor->addHour();
+        }
+
+        return $slots;
     }
 }

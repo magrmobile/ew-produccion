@@ -116,6 +116,9 @@ class RoundController extends Controller
             $current_machine_id = $last_round->machine_id;
             $current_product_id = $last_round->product_id;
         }
+
+        $min_round_date = Carbon::now()->subHours(24)->format('Y-m-d');
+        $max_round_date = Carbon::now()->format('Y-m-d');
         
         return view('rounds.create', [
             'machines' => $machines,
@@ -125,7 +128,9 @@ class RoundController extends Controller
             'hour_missing' => $hour_missing,
             'round_date_missing' => $round_date_missing,
             'current_machine_id' => $current_machine_id,
-            'current_product_id' => $current_product_id
+            'current_product_id' => $current_product_id,
+            'min_round_date' => $min_round_date,
+            'max_round_date' => $max_round_date
         ]);
         //return $existingRounds;
     }
@@ -169,14 +174,22 @@ class RoundController extends Controller
         ], $customMessages);
 
         // Verificar si ya existe una ronda en la misma fecha y hora
-        $existingRound = Round::where('user_id', $user->id)
-            ->where('machine_id', $request->machine_id)
+        $existingRound = Round::where('machine_id', $request->machine_id)
             ->where('round_date', $request->round_date)
             ->where('hour', $request->hour)
             ->first();
     
         if ($existingRound) {
             return redirect()->back()->withErrors(['hour' => 'Ya existe una ronda para esta hora.']);
+        }
+
+        $pendingHour = Round::getMissingRoundsForLast24Hours($request->machine_id, $request->round_date)
+            ->contains(function ($round) use ($request) {
+                return $round['hour'] === $request->hour;
+            });
+
+        if (!$pendingHour) {
+            return redirect()->back()->withErrors(['hour' => 'La hora seleccionada no esta pendiente dentro de las ultimas 24 horas.']);
         }
 
         if($request->input('produced_meters') == 0) {
@@ -355,36 +368,26 @@ class RoundController extends Controller
 
     public function getMachineHours(Request $request)
     {
-        $user = auth()->user();
         $machineId = $request->machine_id;
         $date = $request->date;
 
-        $hour_now = date("H");
-
-        if($hour_now >= 7 && $hour_now <= 18) {
-            $shift = 'D';
-        } else {
-            $shift = 'N';
+        if (!$machineId || !$date) {
+            return view('rounds.hour-buttons', [
+                'hours' => [],
+            ])->render();
         }
 
-        // Obtén las horas del turno para el usuario autenticado
-        $hours = $user->getShiftHours($shift);
-
-        // Obtén las rondas existentes para la máquina y la fecha seleccionadas
-        // $rounds = Round::where('user_id', $user->id)->where('machine_id', $machineId)->where('round_date', $date)->get();
-        $rounds = Round::where('machine_id', $machineId)->where('round_date', $date)->get();
-
-        // Construye la matriz $existingRounds
-        $existingRounds = [];
-        foreach ($rounds as $round) {
-            $existingRounds[substr($round->hour,0,5)] = $round;
-        }
+        $hours = Round::getMissingRoundsForLast24Hours($machineId, $date)
+            ->pluck('hour')
+            ->values()
+            ->all();
 
         return view('rounds.hour-buttons', [
             'hours' => $hours,
-            'existingRounds' => $existingRounds,
         ])->render();
-        //return $existingRounds;
+
+        // Obtén las horas del turno para el usuario autenticado
+        // Obtén las rondas existentes para la máquina y la fecha seleccionadas
     }
 
     public function overallEfficiency()

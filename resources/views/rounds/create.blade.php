@@ -33,7 +33,7 @@
             @csrf
             <div class="form-group">
                 <label for="round_date">Fecha</label>
-                <input type="date" class="form-control" id="round_date" name="round_date" value="{{ old('round_date') }}">
+                <input type="date" class="form-control" id="round_date" name="round_date" value="{{ old('round_date', $round_date_missing ?: $max_round_date) }}" min="{{ $min_round_date }}" max="{{ $max_round_date }}">
             </div>
 
             <div class="form-group">
@@ -205,6 +205,10 @@
                 }
             });
             // alert(machineId + ' ' + productId);
+        }
+
+        if ($('#machine_id').val() && $('#round_date').val()) {
+            $('#machine_id').trigger('change');
         }
     });
 </script>

@@ -1,10 +1,11 @@
 <div class="form-group">
-@php
-    $time = date("H").":00";
-@endphp
-@foreach ($hours as $index => $hour)
-    <button type="button" class="btn btn-primary" onclick="submitForm('{{ $hour }}')" {{ (isset($existingRounds[$hour]) || $hour > $time) ? 'disabled' : '' }}>
+@forelse ($hours as $hour)
+    <button type="button" class="btn btn-primary" onclick="submitForm('{{ $hour }}')">
         {{ $hour }}
     </button>
-@endforeach
+@empty
+    <div class="alert alert-info" role="alert">
+        No hay horas pendientes para esta maquina y fecha dentro de las ultimas 24 horas.
+    </div>
+@endforelse
 </div>
