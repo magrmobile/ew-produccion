@@ -96,6 +96,16 @@ Route::middleware('auth')->group(function(){
     Route::get('/get-machine-products', 'RoundController@getMachineProducts');
     Route::get('/get-lastround-product', 'RoundController@getLastRoundProduct');
 
+    Route::middleware('jeferondas')->group(function() {
+        Route::get('/machine-products', 'MachineProductController@index')->name('machine-products.index');
+        Route::get('/machine-products/create', 'MachineProductController@create')->name('machine-products.create');
+        Route::get('/machine-products/check', 'MachineProductController@check')->name('machine-products.check');
+        Route::post('/machine-products', 'MachineProductController@store')->name('machine-products.store');
+        Route::get('/machine-products/{machine}/{product}/edit', 'MachineProductController@edit')->name('machine-products.edit');
+        Route::put('/machine-products/{machine}/{product}', 'MachineProductController@update')->name('machine-products.update');
+        Route::delete('/machine-products/{machine}/{product}', 'MachineProductController@destroy')->name('machine-products.destroy');
+    });
+
     // Route::get('/rounds/create', 'RoundController@create');
     // Route::post('/rounds', 'RoundController@store');
    

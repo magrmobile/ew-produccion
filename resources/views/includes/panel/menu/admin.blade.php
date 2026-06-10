@@ -64,6 +64,11 @@
     </a>
 </li>
 <li class="nav-item">
+    <a class="nav-link" href="{{ route('machine-products.index') }}">
+        <i class="fas fa-tachometer-alt text-info"></i> Velocidades
+    </a>
+</li>
+<li class="nav-item">
     <a class="nav-link" href="/customers">
         <i class="fas fa-users text-warning"></i> Clientes
     </a>

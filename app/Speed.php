@@ -10,6 +10,7 @@ use App\Product;
 class Speed extends Model
 {
     protected $table = 'machine_product';
+    public $incrementing = false;
 
     protected $fillable = [
         'machine_id',
