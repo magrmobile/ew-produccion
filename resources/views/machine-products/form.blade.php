@@ -4,7 +4,7 @@
         <option value="">Seleccionar Maquina</option>
         @foreach($machines as $machine)
             <option value="{{ $machine->id }}" @if(old('machine_id', isset($speed) ? $speed->machine_id : null) == $machine->id) selected @endif>
-                {{ $machine->machine_name }}
+                {{ $machine->machine_name." ".$machine->location." (id: ".$machine->id.")" }}
             </option>
         @endforeach
     </select>

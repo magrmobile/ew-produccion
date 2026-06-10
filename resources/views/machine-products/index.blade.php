@@ -1,5 +1,10 @@
 @extends('layouts.panel')
 
+@section('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+<link href="{{ asset('css/select2-bootstrap4.css') }}" rel="stylesheet">
+@endsection
+
 @section('content')
 <div class="card shadow">
     <div class="card-header border-1">
@@ -43,7 +48,7 @@
                         <option value="">Todas</option>
                         @foreach($machines as $machine)
                             <option value="{{ $machine->id }}" @if(request('machine_id') == $machine->id) selected @endif>
-                                {{ $machine->machine_name }}
+                                {{ $machine->machine_name." ".$machine->location." (id: ".$machine->id.")" }}
                             </option>
                         @endforeach
                     </select>
@@ -112,4 +117,27 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+<script>
+    $('#process_id').select2({
+        theme: 'bootstrap4',
+        placeholder: 'Todas',
+        allowClear: true
+    });
+
+    $('#machine_id').select2({
+        theme: 'bootstrap4',
+        placeholder: 'Todas',
+        allowClear: true
+    });
+
+    $('#product_id').select2({
+        theme: 'bootstrap4',
+        placeholder: 'Todos',
+        allowClear: true
+    });
+</script>
 @endsection
