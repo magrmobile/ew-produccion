@@ -369,20 +369,28 @@ class RoundController extends Controller
         if (!$machineId || !$date) {
             return view('rounds.hour-buttons', [
                 'hours' => [],
+                'existingRounds' => [],
             ])->render();
         }
 
-        $hours = Round::getMissingRoundsForLast24Hours($machineId, $date)
-            ->pluck('hour')
-            ->values()
-            ->all();
+        $hours = [];
+        for ($hour = 0; $hour <= 23; $hour++) {
+            $hours[] = str_pad($hour, 2, '0', STR_PAD_LEFT) . ':00';
+        }
+
+        $rounds = Round::where('machine_id', $machineId)
+            ->where('round_date', $date)
+            ->get();
+
+        $existingRounds = [];
+        foreach ($rounds as $round) {
+            $existingRounds[substr($round->hour, 0, 5)] = $round;
+        }
 
         return view('rounds.hour-buttons', [
             'hours' => $hours,
+            'existingRounds' => $existingRounds,
         ])->render();
-
-        // Obtén las horas del turno para el usuario autenticado
-        // Obtén las rondas existentes para la máquina y la fecha seleccionadas
     }
 
     public function overallEfficiency()

@@ -1,11 +1,14 @@
 <div class="form-group">
 @forelse ($hours as $hour)
-    <button type="button" class="btn btn-primary" onclick="submitForm('{{ $hour }}')">
+    @php
+        $exists = isset($existingRounds[$hour]);
+    @endphp
+    <button type="button" class="btn {{ $exists ? 'btn-info' : 'btn-primary' }}" onclick="submitForm('{{ $hour }}')" {{ $exists ? 'disabled' : '' }}>
         {{ $hour }}
     </button>
 @empty
     <div class="alert alert-info" role="alert">
-        No hay horas pendientes para esta maquina y fecha dentro de las ultimas 24 horas.
+        Debes seleccionar la fecha y la maquina.
     </div>
 @endforelse
 </div>

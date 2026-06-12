@@ -29,16 +29,30 @@ class MachineProductController extends Controller
             $query->where('product_id', $request->product_id);
         }
 
-        $speeds = $query->orderBy('machine_id')
-            ->orderBy('product_id')
+        $sort = in_array($request->get('sort'), ['machine', 'product']) ? $request->get('sort') : 'machine';
+        $direction = $request->get('direction') === 'desc' ? 'desc' : 'asc';
+
+        if ($sort === 'product') {
+            $query->leftJoin('products', 'machine_product.product_id', '=', 'products.id')
+                ->orderBy('products.product_name', $direction)
+                ->orderBy('machine_product.machine_id')
+                ->select('machine_product.*');
+        } else {
+            $query->leftJoin('machines', 'machine_product.machine_id', '=', 'machines.id')
+                ->orderBy('machines.machine_name', $direction)
+                ->orderBy('machine_product.product_id')
+                ->select('machine_product.*');
+        }
+
+        $speeds = $query
             ->paginate(20)
-            ->appends($request->only('process_id', 'machine_id', 'product_id'));
+            ->appends($request->only('process_id', 'machine_id', 'product_id', 'sort', 'direction'));
 
         $processes = Process::orderBy('description')->get();
         $machines = Machine::orderBy('machine_name')->get();
         $products = Product::orderBy('product_name')->get();
 
-        return view('machine-products.index', compact('speeds', 'processes', 'machines', 'products'));
+        return view('machine-products.index', compact('speeds', 'processes', 'machines', 'products', 'sort', 'direction'));
     }
 
     public function create()

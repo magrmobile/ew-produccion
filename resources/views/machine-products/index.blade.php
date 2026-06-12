@@ -72,12 +72,32 @@
         </form>
 
         <div class="table-responsive">
+            @php
+                $machineDirection = $sort === 'machine' && $direction === 'asc' ? 'desc' : 'asc';
+                $productDirection = $sort === 'product' && $direction === 'asc' ? 'desc' : 'asc';
+                $machineSortUrl = route('machine-products.index', array_merge(request()->except('page'), ['sort' => 'machine', 'direction' => $machineDirection]));
+                $productSortUrl = route('machine-products.index', array_merge(request()->except('page'), ['sort' => 'product', 'direction' => $productDirection]));
+            @endphp
             <table class="table table-striped table-bordered">
                 <thead>
                     <tr>
                         <th>Proceso</th>
-                        <th>Maquina</th>
-                        <th>Producto</th>
+                        <th>
+                            <a href="{{ $machineSortUrl }}">
+                                Maquina
+                                @if($sort === 'machine')
+                                    <i class="fas fa-sort-{{ $direction === 'asc' ? 'up' : 'down' }}"></i>
+                                @endif
+                            </a>
+                        </th>
+                        <th>
+                            <a href="{{ $productSortUrl }}">
+                                Producto
+                                @if($sort === 'product')
+                                    <i class="fas fa-sort-{{ $direction === 'asc' ? 'up' : 'down' }}"></i>
+                                @endif
+                            </a>
+                        </th>
                         <th>Velocidad</th>
                         <th>Creado por</th>
                         <th>Acciones</th>
