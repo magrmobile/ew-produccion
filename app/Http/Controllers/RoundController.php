@@ -37,7 +37,6 @@ class RoundController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $rounds = $user->rounds;
 
         $filter = $request->get('filter', 'day');
 
@@ -48,25 +47,25 @@ class RoundController extends Controller
         if($user->role === 'admin' || $user->role === 'jeferondas') {
             switch($filter) {
                 case 'day':
-                    $rounds = Round::with(['machine', 'product'])->whereDate('round_date', $newDate)->get();
+                    $rounds = Round::with(['machine', 'product', 'user'])->where('round_date', $newDate)->get();
                     break;
                 case 'year':
-                    $rounds = Round::with(['machine', 'product'])->whereYear('round_date', $date->year)->get();
+                    $rounds = Round::with(['machine', 'product', 'user'])->whereYear('round_date', $date->year)->get();
                     break;
                 default:
-                    $rounds = Round::with(['machine', 'product'])->whereMonth('round_date', $date->month)->whereYear('round_date', $date->year)->get();
+                    $rounds = Round::with(['machine', 'product', 'user'])->whereMonth('round_date', $date->month)->whereYear('round_date', $date->year)->get();
                     break;
             }
         } else {
             switch($filter) {
                 case 'day':
-                    $rounds = Round::where('user_id', $user->id)->whereDate('round_date', $newDate)->get();
+                    $rounds = Round::with(['machine', 'product', 'user'])->where('user_id', $user->id)->where('round_date', $newDate)->get();
                     break;
                 case 'year':
-                    $rounds = Round::where('user_id', $user->id)->whereYear('round_date', $date->year)->get();
+                    $rounds = Round::with(['machine', 'product', 'user'])->where('user_id', $user->id)->whereYear('round_date', $date->year)->get();
                     break;
                 default:
-                    $rounds = Round::where('user_id', $user->id)->whereMonth('round_date', $date->month)->whereYear('round_date', $date->year)->get();
+                    $rounds = Round::with(['machine', 'product', 'user'])->where('user_id', $user->id)->whereMonth('round_date', $date->month)->whereYear('round_date', $date->year)->get();
                     break;
             }
         }
@@ -110,7 +109,7 @@ class RoundController extends Controller
 
         $current_machine_id = 0;
         $current_product_id = 0;
-        $last_round = Round::where('user_id', $user->id)->latest()->get()->first();
+        $last_round = Round::where('user_id', $user->id)->latest()->first();
 
         if($last_round) {
             $current_machine_id = $last_round->machine_id;
@@ -172,47 +171,10 @@ class RoundController extends Controller
         $existingRound = Round::where('machine_id', $request->machine_id)
             ->where('round_date', $request->round_date)
             ->where('hour', $request->hour)
-            ->first();
+            ->exists();
     
         if ($existingRound) {
             return redirect()->back()->withErrors(['hour' => 'Ya existe una ronda para esta hora.']);
-        }
-
-        $pendingHour = Round::getMissingRoundsForLast24Hours($request->machine_id, $request->round_date)
-            ->contains(function ($round) use ($request) {
-                return $round['hour'] === $request->hour;
-            });
-
-        if (!$pendingHour) {
-            return redirect()->back()->withErrors(['hour' => 'La hora seleccionada no esta pendiente para la fecha indicada.']);
-        }
-
-        if($request->input('produced_meters') == 0) {
-            $machineId = $request->machine_id;
-            $roundDate = $request->round_date;
-
-            $lastRounds = Round::where('machine_id', $machineId)
-                        ->whereDate('round_date', $roundDate)
-                        ->orderBy('created_at', 'desc')
-                        ->take(4)
-                        ->get();
-            
-            // Notificacion de Rondas con produccion Cero
-            /*if($lastRounds->count() == 4 && $lastRounds->pluck('produced_meters')->sum() == 0) {
-                $supEmails = ['d.perez@enerwire.com', 'm.quintanilla@enerwire.com', 'g.quetglas@enerwire.com', 'r.obyrne@enerwire.com', 'rparada@rpbsoluciones.com', 'magrmobile@gmail.com', 'a.matal@enerwire.com'];
-                //$supEmails = ['rparada@rpbsoluciones.com', 'magrmobile@gmail.com'];
-
-                $supNotifiables = collect($supEmails)->map(function($email) {
-                    $notifiable = new CustomNotifiable();
-                    $notifiable->email = $email;
-                    return $notifiable;
-                });
-                
-                $machine = Machine::find($request->machine_id);
-                $shift = $user->shift;
-
-                Notification::send($supNotifiables, new RoundsZeroMetersNotification($machine, $shift));
-            }*/
         }
 
         // Crear la nueva ronda
