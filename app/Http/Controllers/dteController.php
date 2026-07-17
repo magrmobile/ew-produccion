@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use App\Services\InfileSimplifiedDteBuilder;
 
 use RealRashid\SweetAlert\Facades\Alert;
@@ -336,7 +337,8 @@ class dteController extends Controller
         $request->validate([
             'tipoAnulacion' => 'required',
             'motivoAnulacion' => 'required',
-            'codigoGeneracion' => [
+            'codigoGeneracion' => 'required',
+            'codigoGeneracionR' => [
                 'required_if:tipoAnulacion,1,3',
                 'sometimes',
                 function($attribute, $value, $fail) use ($dte) {
@@ -406,9 +408,10 @@ class dteController extends Controller
         unset($json["identificacion"]["tipoDte"]);
         
         $json["identificacion"]["version"] = 2;
+        $json["identificacion"]["codigoGeneracion"] = Str::upper(Str::uuid()->toString());
 
-        $json["documento"]["codigoGeneracion"] = $json["identificacion"]["codigoGeneracion"];
-        $json["documento"]["codigoGeneracionR"] = $request->codigoGeneracion;
+        $json["documento"]["codigoGeneracion"] = $request->codigoGeneracion;
+        $json["documento"]["codigoGeneracionR"] = $request->filled('codigoGeneracionR') ? $request->codigoGeneracionR : null;
 
         unset($json["identificacion"]["tipoModelo"]);
         unset($json["identificacion"]["tipoMoneda"]);

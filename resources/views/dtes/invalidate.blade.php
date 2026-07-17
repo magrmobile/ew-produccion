@@ -51,6 +51,7 @@
     <div class="card-body">
         <form name="anulardte" id="anulardte" action="{{ route('dtes.invalidateDte', $dte)}}" method="POST">
             @csrf
+            <input type="hidden" name="codigoGeneracion" value="{{ old('codigoGeneracion', $dte->codigoGeneracion) }}">
             <div class="row">
                 <div class="col">
                     <label for="type">Tipo de Anulacion:</label>
@@ -74,7 +75,7 @@
                 <div class="row">
                     <div class="col">
                         <label for="codigoGeneracionR">Codigo Generacion que Reemplaza</label>
-                        <input type="text" id="codigoGeneracion" name="codigoGeneracion" class="form-control"/>
+                        <input type="text" id="codigoGeneracionR" name="codigoGeneracionR" class="form-control" value="{{ old('codigoGeneracionR') }}"/>
                     </div>
                 </div>
             </div>
