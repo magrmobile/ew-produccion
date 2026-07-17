@@ -393,6 +393,9 @@ class dteController extends Controller
 
         $json["documento"]["fecEmi"] = $json["identificacion"]["fecEmi"];
 
+        $json["identificacion"]["fecAnula"] = $json["identificacion"]["fecEmi"];
+        $json["identificacion"]["horAnula"] = $json["identificacion"]["horEmi"];
+
         unset($json["identificacion"]["fecEmi"]);
         unset($json["identificacion"]["horEmi"]);
         $json["documento"]["tipoDte"] = $json["identificacion"]["tipoDte"];
@@ -422,9 +425,6 @@ class dteController extends Controller
         unset($json["identificacion"]["tipoContingencia"]);
         unset($json["identificacion"]["motivoContigencia"]);
         unset($json["identificacion"]["motivoContin"]);
-
-        $json["identificacion"]["fecAnula"] = date('Y-m-d');
-        $json["identificacion"]["horAnula"] = date('H:i:s');
 
         unset($json["cuerpoDocumento"]);
         unset($json["otrosDocumentos"]);
