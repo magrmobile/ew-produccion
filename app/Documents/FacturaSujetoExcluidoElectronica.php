@@ -36,8 +36,17 @@ class FacturaSujetoExcluidoElectronica extends DocumentBase
         $data['receptor']['correo'] =  isset($this->datosReceptor['correo']) ? $this->datosReceptor['correo'] : env('DTE_RECEPTOR_EMAIL');
         //$data['receptor']['correo'] = 'pruebas@enerwire.com';
         
+        $totalCompra = 0;
+        $descuentoGlobal = 0;
+        $numItem = 1;
+
         // Cuerpo Documento
         for($i=0; $i < count($this->detalleItems); $i++) {
+            if ($this->isGlobalDiscount($this->detalleItems[$i])) {
+                $descuentoGlobal += $this->globalDiscountAmount($this->detalleItems[$i]);
+                continue;
+            }
+
             $cat014 = DB::table('cat014')
                 ->where('id', $this->detalleItems[$i]['unidad'])
                 ->first();
@@ -49,7 +58,7 @@ class FacturaSujetoExcluidoElectronica extends DocumentBase
                 }
 
             $item = [
-                'numItem' => $i + 1,
+                'numItem' => $numItem,
                 'tipoItem' => 1,
                 'codigo' => null,
                 'descripcion' => $this->detalleItems[$i]['descripcion'],
@@ -60,17 +69,19 @@ class FacturaSujetoExcluidoElectronica extends DocumentBase
                 'compra' => (float) $this->detalleItems[$i]['monto'],
             ];
             
+            $totalCompra += $item['compra'];
             $data['cuerpoDocumento'][] = $item;
+            $numItem += 1;
         }
 
         // Resumen
-        $monto = round($this->detalleResumen['monto'],2);
+        $monto = round($totalCompra - $descuentoGlobal,2);
 
-        $data['resumen']['totalCompra'] = $monto;
+        $data['resumen']['totalCompra'] = round($totalCompra, 2);
         $data['resumen']['subTotal'] = $monto;
 
-        $data['resumen']['descu'] = 0;
-        $data['resumen']['totalDescu'] = 0;
+        $data['resumen']['descu'] = round($descuentoGlobal, 2);
+        $data['resumen']['totalDescu'] = round($descuentoGlobal, 2);
 
 
         $montoTotal = round($monto, 2);

@@ -56,8 +56,17 @@ class ComprobanteCreditoFiscalElectronico extends DocumentBase
         // Venta Tercero
         $data['ventaTercero'] = null;
 
+        $totalGravada = 0;
+        $descuentoGlobal = 0;
+        $numItem = 1;
+
         // Cuerpo Documento
         for($i=0; $i < count($this->detalleItems); $i++) {
+            if ($this->isGlobalDiscount($this->detalleItems[$i])) {
+                $descuentoGlobal += $this->globalDiscountAmount($this->detalleItems[$i]);
+                continue;
+            }
+
             $cat014 = DB::table('cat014')
             ->where('id', $this->detalleItems[$i]['unidad'])
             ->first();
@@ -69,7 +78,7 @@ class ComprobanteCreditoFiscalElectronico extends DocumentBase
             }
 
             $item = [
-                'numItem' => $i + 1,
+                'numItem' => $numItem,
                 'tipoItem' => 1,
                 'numeroDocumento' => null,
                 'codigo' => null,
@@ -87,22 +96,24 @@ class ComprobanteCreditoFiscalElectronico extends DocumentBase
                 'noGravado' => 0, 
             ];
             
+            $totalGravada += $item['ventaGravada'];
             $data['cuerpoDocumento'][] = $item;
+            $numItem += 1;
         }
 
         // Resumen
-        $monto = round($this->detalleResumen['monto'],2);
-        $monto_iva = round($this->detalleResumen['monto'] * 0.13, 2);
+        $monto = round($totalGravada - $descuentoGlobal, 2);
+        $monto_iva = round($monto * 0.13, 2);
 
         $data['resumen']['totalNoSuj'] = 0;
         $data['resumen']['totalExenta'] = 0;
-        $data['resumen']['totalGravada'] = $monto;
-        $data['resumen']['subTotalVentas'] = $monto;
+        $data['resumen']['totalGravada'] = round($totalGravada, 2);
+        $data['resumen']['subTotalVentas'] = round($totalGravada, 2);
         $data['resumen']['descuNoSuj'] = 0;
         $data['resumen']['descuExenta'] = 0;
-        $data['resumen']['descuGravada'] = 0;
+        $data['resumen']['descuGravada'] = round($descuentoGlobal, 2);
         $data['resumen']['porcentajeDescuento'] = 0;
-        $data['resumen']['totalDescu'] = 0;
+        $data['resumen']['totalDescu'] = round($descuentoGlobal, 2);
 
         $tributos = [
             'codigo' => "20",

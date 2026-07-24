@@ -346,6 +346,27 @@ class DocumentBase
         return str_pad((string) random_int(0, 999999999999999), 15, '0', STR_PAD_LEFT);
     }
 
+    protected function isGlobalDiscount($item)
+    {
+        $monto = (float) (isset($item['monto']) ? $item['monto'] : 0);
+        $descripcion = isset($item['descripcion']) ? $item['descripcion'] : '';
+        $nombreItem = isset($item['item']) ? $item['item'] : '';
+
+        if ($monto >= 0) {
+            return false;
+        }
+
+        return stripos($descripcion, 'DESCUENTO') !== false
+            || stripos($descripcion, 'REBAJA') !== false
+            || stripos($nombreItem, 'DESCUENTO') !== false
+            || stripos($nombreItem, 'REBAJA') !== false;
+    }
+
+    protected function globalDiscountAmount($item)
+    {
+        return abs((float) (isset($item['monto']) ? $item['monto'] : 0));
+    }
+
     public static function numeroALetras($numero)
     {
         $formatter = new NumeroALetras();

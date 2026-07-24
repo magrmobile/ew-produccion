@@ -68,6 +68,7 @@ class FacturaExportacionElectronica extends DocumentBase
         $totalNoGravada = 0;
         $seguro = 0;
         $flete = 0;
+        $descuentoGlobal = 0;
 
         $numItem = 1;
 
@@ -105,14 +106,18 @@ class FacturaExportacionElectronica extends DocumentBase
 
                 $numItem += 1;
             } else {
-                $is_seguro = str_contains($this->detalleItems[$i]['descripcion'],'SEGURO');
-                $is_transporte = str_contains($this->detalleItems[$i]['descripcion'],'TRANSPORTE');
+                $is_seguro = stripos($this->detalleItems[$i]['descripcion'], 'SEGURO') !== false;
+                $is_transporte = stripos($this->detalleItems[$i]['descripcion'], 'TRANSPORTE') !== false;
+                $is_descuento_global = $this->isGlobalDiscount($this->detalleItems[$i]);
 
                 if($is_seguro) {
                     $seguro = round((float)$this->detalleItems[$i]['monto'],2);
                     $item = [];
                 } elseif($is_transporte) {
                     $flete = round((float)$this->detalleItems[$i]['monto'],2);
+                    $item = [];
+                } elseif($is_descuento_global) {
+                    $descuentoGlobal += $this->globalDiscountAmount($this->detalleItems[$i]);
                     $item = [];
                 } else {
                     $item = [
@@ -141,12 +146,12 @@ class FacturaExportacionElectronica extends DocumentBase
         }
 
         // Resumen
-        $data['resumen']['descuento'] = 0;
+        $data['resumen']['descuento'] = round($descuentoGlobal, 2);
 
         $data['resumen']['porcentajeDescuento'] = 0;
-        $data['resumen']['totalDescu'] = $totalDescu;
+        $data['resumen']['totalDescu'] = round($totalDescu + $descuentoGlobal, 2);
 
-        $montoTotalOperacion = $totalGravada + $seguro + $flete - $totalDescu;
+        $montoTotalOperacion = $totalGravada + $seguro + $flete - $totalDescu - $descuentoGlobal;
         $montoTotal = $montoTotalOperacion + $totalNoGravada;
 
         $data['resumen']['montoTotalOperacion'] = round($montoTotalOperacion, 2);
@@ -189,4 +194,5 @@ class FacturaExportacionElectronica extends DocumentBase
         
         return $data;
     }
+
 }

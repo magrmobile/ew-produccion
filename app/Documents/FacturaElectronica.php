@@ -60,12 +60,19 @@ class FacturaElectronica extends DocumentBase
         $totalExentas = 0;
         $totalGravada = 0;
         $totalIva = 0;
+        $descuentoGlobal = 0;
 
         $totalAdj = 0;
+        $numItem = 1;
         
 
         // Cuerpo Documento
         for($i=0; $i < count($this->detalleItems); $i++) {
+            if ($this->isGlobalDiscount($this->detalleItems[$i])) {
+                $descuentoGlobal += round($this->globalDiscountAmount($this->detalleItems[$i]) * 1.13, 2);
+                continue;
+            }
+
             $cat014 = DB::table('cat014')
             ->where('id', $this->detalleItems[$i]['unidad'])
             ->first();
@@ -93,7 +100,7 @@ class FacturaElectronica extends DocumentBase
             //$totalAdj += $adjItem;
 
             $item = [
-                'numItem' => $i + 1,
+                'numItem' => $numItem,
                 'tipoItem' => 1,
                 'numeroDocumento' => null,
                 'codigo' => null,
@@ -113,6 +120,7 @@ class FacturaElectronica extends DocumentBase
             ];
             
             $data['cuerpoDocumento'][] = $item;
+            $numItem += 1;
         }
 
         // Resumen
@@ -128,9 +136,9 @@ class FacturaElectronica extends DocumentBase
         $data['resumen']['subTotalVentas'] = round($totalNoSuj + $totalExentas + $totalGravada, 2);
         $data['resumen']['descuNoSuj'] = 0;
         $data['resumen']['descuExenta'] = 0;
-        $data['resumen']['descuGravada'] = 0;
+        $data['resumen']['descuGravada'] = round($descuentoGlobal, 2);
         $data['resumen']['porcentajeDescuento'] = 0;
-        $data['resumen']['totalDescu'] = 0;
+        $data['resumen']['totalDescu'] = round($descuentoGlobal, 2);
 
         $montoTotal = round($monto + $monto_iva, 2);
 
@@ -141,7 +149,7 @@ class FacturaElectronica extends DocumentBase
         }
 
         $data['resumen']['tributos'] = null;
-        $data['resumen']['subTotal'] = round($data['resumen']['subTotalVentas'] - $data['resumen']['descuNoSuj'] + $data['resumen']['descuExenta'] + $data['resumen']['totalDescu'], 2);
+        $data['resumen']['subTotal'] = round($data['resumen']['subTotalVentas'] - $data['resumen']['descuNoSuj'] - $data['resumen']['descuExenta'] - $data['resumen']['totalDescu'], 2);
         $data['resumen']['ivaRete1'] = 0;
         //$data['resumen']['ivaPerci1'] = $ivaPerci1;
         $data['resumen']['reteRenta'] = 0;
