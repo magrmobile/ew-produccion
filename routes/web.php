@@ -97,6 +97,8 @@ Route::middleware('auth')->group(function(){
     Route::get('/get-lastround-product', 'RoundController@getLastRoundProduct');
 
     Route::middleware('jeferondas')->group(function() {
+        // Operators
+        Route::resource('operators', 'OperatorController');
         Route::get('/machine-products', 'MachineProductController@index')->name('machine-products.index');
         Route::get('/machine-products/create', 'MachineProductController@create')->name('machine-products.create');
         Route::get('/machine-products/check', 'MachineProductController@check')->name('machine-products.check');
