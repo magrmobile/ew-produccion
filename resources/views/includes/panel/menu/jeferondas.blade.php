@@ -1,4 +1,9 @@
 <li class="nav-item">
+    <a class="nav-link" href="/operators">
+        <i class="fas fa-user text-red"></i> Operadores
+    </a>
+</li>
+<li class="nav-item">
     <a class="nav-link" href="/rounds">
         <i class="fas fa-history text-purple"></i> Rondas
     </a>
