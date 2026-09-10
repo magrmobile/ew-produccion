@@ -28,9 +28,6 @@ Route::get('/getmacexec', function() {
 
 // Admin
 Route::middleware(['auth','admin'])->namespace('Admin')->group(function() {
-    // Operators
-    Route::resource('operators', 'OperatorController');
-
     // Supervisors
     Route::resource('supervisors', 'SupervisorController');
 
@@ -96,9 +93,12 @@ Route::middleware('auth')->group(function(){
     Route::get('/get-machine-products', 'RoundController@getMachineProducts');
     Route::get('/get-lastround-product', 'RoundController@getLastRoundProduct');
 
-    Route::middleware('jeferondas')->group(function() {
+    Route::middleware('jeferondas')->namespace('Admin')->group(function() {
         // Operators
         Route::resource('operators', 'OperatorController');
+    });
+
+    Route::middleware('jeferondas')->group(function() {
         Route::get('/machine-products', 'MachineProductController@index')->name('machine-products.index');
         Route::get('/machine-products/create', 'MachineProductController@create')->name('machine-products.create');
         Route::get('/machine-products/check', 'MachineProductController@check')->name('machine-products.check');
