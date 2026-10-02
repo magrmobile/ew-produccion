@@ -363,17 +363,17 @@
                                 <tr>
                                     <td colspan="4"></td>
                                     <td colspan="5" style="text-align: right; padding: 3px;" class="celda">IVA Percibido:</td>
-                                    <td class="celda">{{ number_format($data->resumen->ivaPerci1,2) }}</td>
+                                    <td class="celda">{{ number_format(data_get($data, 'resumen.ivaPerci', data_get($data, 'resumen.ivaPerci1', 0)),2) }}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="4"></td>
                                     <td colspan="5" style="text-align: right; padding: 3px;" class="celda">IVA Retenido:</td>
-                                    <td class="celda">{{ number_format($data->resumen->ivaRete1,2) }}</td>
+                                    <td class="celda">{{ number_format(data_get($data, 'resumen.ivaRete', data_get($data, 'resumen.ivaRete1', 0)),2) }}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="4"></td>
                                     <td colspan="5" style="text-align: right; padding: 3px;" class="celda">Retención Renta:</td>
-                                    <td class="celda">{{ number_format($data->resumen->reteRenta,2) }}</td>
+                                    <td class="celda">{{ number_format(data_get($data, 'resumen.reteRenta', 0),2) }}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="4"></td>
@@ -411,7 +411,7 @@
                                 </tr>
                                 <tr>
                                     <td>Observaciones:</td>
-                                    <td colspan="3">{{ $data->extension->observaciones }}</td>
+                                    <td colspan="3">{{ data_get($data, 'resumen.observaciones', data_get($data, 'extension.observaciones')) }}</td>
                                 </tr>
                             </table>
                         </td>

@@ -36,7 +36,7 @@ class CustomerController extends Controller
         $tipos_establecimiento = DB::table('cat009')->get();
         $departamentos = DB::table('cat012')->get();
         $municipios = DB::table('cat013')->get();
-        $distritos = 
+        $distritos = DB::table('cat008')->get();
         $codigos_pais = DB::table('cat020')->get();
         $codigos_domiciliado = DB::table('cat032')->get();
         $bienes_titulo = DB::table('cat025')->get();
@@ -49,6 +49,7 @@ class CustomerController extends Controller
             'tipos_establecimiento' => $tipos_establecimiento,
             'departamentos' => $departamentos,
             'municipios' => $municipios,
+            'distritos' => $distritos,
             'codigos_pais' => $codigos_pais,
             'codigos_domiciliado' => $codigos_domiciliado,
             'bienes_titulo' => $bienes_titulo,
@@ -66,8 +67,7 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        $rules = [
-        ];
+        $rules = $this->districtRules($request);
 
         $this->validate($request, $rules);
 
@@ -81,6 +81,7 @@ class CustomerController extends Controller
                 'tipoEstablecimiento' => $request->tipoEstablecimiento,
                 'departamento' => $request->departamento,
                 'municipio' => $request->municipio,
+                'distrito' => $request->distrito,
                 'complemento' => $request->complemento,
                 'codPais' => $request->codPais,
                 'codDomiciliado' => $request->codDomiciliado,
@@ -130,6 +131,7 @@ class CustomerController extends Controller
         $tipos_establecimiento = DB::table('cat009')->get();
         $departamentos = DB::table('cat012')->get();
         $municipios = DB::table('cat013')->get();
+        $distritos = DB::table('cat008')->get();
         $codigos_pais = DB::table('cat020')->get();
         $codigos_domiciliado = DB::table('cat032')->get();
         $bienes_titulo = DB::table('cat025')->get();
@@ -143,6 +145,7 @@ class CustomerController extends Controller
             'tipos_establecimiento',
             'departamentos',
             'municipios',
+            'distritos',
             'codigos_pais',
             'codigos_domiciliado',
             'bienes_titulo',
@@ -161,6 +164,7 @@ class CustomerController extends Controller
      */
     public function update(Request $request, Customer $customer)
     {
+        $request->validate($this->districtRules($request));
         try {
             $customer->fill($request->post())->save();
             $notification = "Cliente Actualizado Satisfactoriamente";
@@ -179,5 +183,17 @@ class CustomerController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    private function districtRules(Request $request)
+    {
+        return [
+            'distrito' => ['required_with:municipio', 'nullable', 'string', 'max:10',
+                \Illuminate\Validation\Rule::exists('cat008', 'id')->where(function ($query) use ($request) {
+                    $query->where('departamento', $request->departamento)
+                        ->where('municipio', $request->municipio);
+                }),
+            ],
+        ];
     }
 }

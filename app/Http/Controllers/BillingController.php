@@ -20,7 +20,7 @@ use App\Documents\NotaRemisionElectronica;
 use App\Documents\ComprobanteCreditoFiscalElectronico;
 use App\Documents\ComprobanteRetencionElectronico;
 
-use JsonSchema\Validator;
+use App\Services\DteSchema;
 
 use Dompdf\Dompdf;
 use Illuminate\Support\Facades\View;
@@ -59,47 +59,39 @@ class BillingController extends Controller
             $json = $this->applyIssuerToJson($json, $issuer);
             $json = $this->applyProviderAdjustmentsToJson($json, $issuer);
             //dd($json);
- 
+
             // Cargar el JSON Schema
             switch($request->type) {
                 // FCE - Factura Electrónica
                 case '01':
-                    $schema_file = base_path('resources/fe_schemas/fe-fc-v1.json');
                     $pdf_template = 'pdf.fe';
                     break;
                 // CCFE - Comprobante de Credito Fiscal Electrónico
                 case '03':
-                    $schema_file = base_path('resources/fe_schemas/fe-ccf-v3.json');
                     $pdf_template = 'pdf.ccf';
                     break;
                 // NRE - Nota de Remision Electrónica   
                 case '04':
-                    $schema_file = base_path('resources/fe_schemas/fe-nr-v3.json');
                     $pdf_template = 'pdf.nr';
                     break;
                 // NCE - Nota de Credito Electrónica
                 case '05':
-                    $schema_file = base_path('resources/fe_schemas/fe-nc-v3.json');
                     $pdf_template = 'pdf.nc';
                     break;
                 // NDE - Nota de Debito Electrónica
                 case '06':
-                    $schema_file = base_path('resources/fe_schemas/fe-nd-v3.json');
                     $pdf_template = 'pdf.nd';
                     break;
                 // CRE - Comprobante de Retención Electrónico
                 case '07':
-                    $schema_file = base_path('resources/fe_schemas/fe-cr-v1.json');
                     $pdf_template = 'pdf.cr';
                     break;
                 // FEXE - Factura de Exportación Electrónica
                 case '11':
-                    $schema_file = base_path('resources/fe_schemas/fe-fex-v1.json');
                     $pdf_template = 'pdf.fexe';
                     break;
                 // FSEE - Factura de Sujeto Excluido Electrónica
                 case '14':
-                    $schema_file = base_path('resources/fe_schemas/fe-fse-v1.json');
                     $pdf_template = 'pdf.fse';
                     break;
                 default:
@@ -107,22 +99,27 @@ class BillingController extends Controller
                     break;
             }
 
-            $schema = json_decode(file_get_contents($schema_file));
+            $schema = DteSchema::schema($request->type);
             
             // JSON generado
             $json_decode = json_decode($json);
             //dd(json_decode($json));
 
             // Validar el JSON contra el JSON Schema
-            $validator = new Validator();
-            $validator->validate($json_decode, $schema);
+            $errors = DteSchema::errors($json_decode, $schema);
 
-            //dd($validator);
 
-            if($validator->isValid()) {
+            if (!$errors) {
                 $data = $json_decode;
                 $nombre_contacto = "";
                 $numdoc_contacto = "";
+                $dir_emi = ['desc_depto' => '', 'desc_muni' => ''];
+                $dir_rec = ['desc_depto' => '', 'desc_muni' => ''];
+                $tipo_doc = '';
+                $cond_opera = '';
+                $rec_fiscal = '';
+                $regimen = '';
+                $tipo_establec = $this->getIssuerEstablishmentDescription($data, $issuer);
 
                 if(isset($data->emisor->direccion)) {
                     $dir_emi = [
@@ -150,9 +147,6 @@ class BillingController extends Controller
                 $modelo_fact = DB::table('cat003')->where('id', $data->identificacion->tipoModelo)->first()->valor;
                 $tipo_trans = DB::table('cat004')->where('id', $data->identificacion->tipoOperacion)->first()->valor;
                 
-                if(isset($data->emisor->tipoEstablecimiento)) {
-                    $tipo_establec = DB::table('cat009')->where('id', $data->emisor->tipoEstablecimiento)->first()->valor;
-                }
                 
                 if(isset($data->resumen->condicionOperacion)) {
                     $cond_opera = DB::table('cat016')->where('id', $data->resumen->condicionOperacion)->first()->valor;
@@ -201,26 +195,6 @@ class BillingController extends Controller
 
                 $filenameOriginal = $request->file('file')->getClientOriginalName();
 
-                // Dependiendo del tipo se pasa si es Receptor, Sujeto Excluido, Donante, Sujeto de Retencion o Afiliado
-                switch($request->type) {
-                    case '07': // 07 - Comprobante de Retencion (Sujeto de Retencion)
-                        $tmp_json_decode = json_decode($json, true);
-                        $tmp_json_decode['sujetoRetencion'] = $tmp_json_decode['receptor'];
-                        unset(
-                            $tmp_json_decode['receptor']
-                        );
-                        $json = json_encode($tmp_json_decode, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
-                        break;
-                    case '14': // 14 - Factura de Sujeto Excluido (Sujeto Excluido)
-                        $tmp_json_decode = json_decode($json, true);
-                        $tmp_json_decode['sujetoExcluido'] = $tmp_json_decode['receptor'];
-                        unset(
-                            $tmp_json_decode['receptor']
-                        );
-                        $json = json_encode($tmp_json_decode, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
-                        break;
-                }
-
                 //dd($json);
 
                 $dte = $this->guardarDTE($json, $filenameOriginal, $issuer['provider'], $issuer['nit']);
@@ -248,10 +222,6 @@ class BillingController extends Controller
                 
                 //return response()->download(storage_path('app/'.$filename))->deleteFileAfterSend(true);
             } else {
-                $errors = [];
-                foreach($validator->getErrors() as $error) {
-                    $errors[] = "Error en '{$error['property']}': {$error['message']}";
-                }
 
                 // return response()->json(['errors' => $errors], 400);
                 return redirect('/billing')->with(compact('errors'));
@@ -264,16 +234,23 @@ class BillingController extends Controller
         }
     }
 
+    private function getIssuerEstablishmentDescription($data, array $issuer)
+    {
+        $code = data_get($data, 'emisor.tipoEstablecimiento') ?: env($issuer['env_prefix'].'_TIPOESTABLECIMIENTO');
+
+        return $code ? (DB::table('cat009')->where('id', $code)->value('valor') ?: '') : '';
+    }
+
     private function guardarDTE($json, $file_csv, $provider = 'rrd', $emisorNit = null) 
     {
         $json_decode = json_decode($json);
 
         switch($json_decode->identificacion->tipoDte){
             case '07':
-                $customer = Customer::where('nit', isset($json_decode->sujetoRetencion->numDocumento) ? $json_decode->sujetoRetencion->numDocumento : $json_decode->sujetoRetencion->nit)->first();
+                $customer = Customer::where('nit', $json_decode->receptor->numDocumento)->first();
                 break;
             case '14':
-                $customer = Customer::where('nit', isset($json_decode->sujetoExcluido->numDocumento) ? $json_decode->sujetoExcluido->numDocumento : $json_decode->sujetoExcluido->nit)->first();
+                $customer = Customer::where('nit', $json_decode->receptor->numDocumento)->first();
                 break;
             default:
                 $customer = Customer::where('nit', isset($json_decode->receptor->numDocumento) ? $json_decode->receptor->numDocumento : $json_decode->receptor->nit)->first();
@@ -336,6 +313,7 @@ class BillingController extends Controller
         $data['emisor']['tipoEstablecimiento'] = env($prefix.'_TIPOESTABLECIMIENTO', data_get($data, 'emisor.tipoEstablecimiento'));
         $data['emisor']['direccion']['departamento'] = env($prefix.'_DIRECCION_DEPARTAMENTO', data_get($data, 'emisor.direccion.departamento'));
         $data['emisor']['direccion']['municipio'] = env($prefix.'_DIRECCION_MUNICIPIO', data_get($data, 'emisor.direccion.municipio'));
+        $data['emisor']['direccion']['distrito'] = env($prefix.'_DIRECCION_DISTRITO');
         $data['emisor']['direccion']['complemento'] = env($prefix.'_DIRECCION_COMPLEMENTO', data_get($data, 'emisor.direccion.complemento'));
         $data['emisor']['telefono'] = env($prefix.'_TELEFONO', data_get($data, 'emisor.telefono'));
         $data['emisor']['correo'] = env($prefix.'_EMAIL', data_get($data, 'emisor.correo'));
@@ -346,7 +324,7 @@ class BillingController extends Controller
 
         $data['identificacion']['numeroControl'] = 'DTE-'.$data['identificacion']['tipoDte'].'-'.$data['emisor']['codEstable'].$data['emisor']['codPuntoVenta'].'-'.substr($data['identificacion']['numeroControl'], -15);
 
-        return json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
+        return json_encode(DteSchema::normalize($data), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
     }
 
     private function applyProviderAdjustmentsToJson($json, array $issuer)
@@ -372,6 +350,7 @@ class BillingController extends Controller
             'TIPOESTABLECIMIENTO',
             'DIRECCION_DEPARTAMENTO',
             'DIRECCION_MUNICIPIO',
+            'DIRECCION_DISTRITO',
             'DIRECCION_COMPLEMENTO',
             'TELEFONO',
             'EMAIL',
@@ -417,8 +396,8 @@ class BillingController extends Controller
         /*$reader = $collection->map(function($row) {
             return array_map(function($value) {
             return str_replace(['á', 'é', 'í', 'ó', 'ú', 'Á', 'É', 'Í', 'Ó', 'Ú'], 
-                                   ['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'], 
-                                   $value);
+                                ['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'],
+                                $value);
             }, $row->toArray());
         });*/
         
@@ -479,6 +458,7 @@ class BillingController extends Controller
                 'nombreComercial' => $receptor->nombreComercial,
                 'departamento' => $receptor->departamento,
                 'municipio' => $receptor->municipio,
+                'distrito' => $receptor->distrito,
                 'complemento' => $receptor->complemento,
                 'codPais' => $receptor->codPais,
                 'codDomiciliado' => $receptor->codDomiciliado,
@@ -603,68 +583,42 @@ class BillingController extends Controller
             case '01':
                 $documento = new FacturaElectronica($datosReceptor, $detalleItems, $detalleResumen);
                 $data = $documento->toArray();
-                $data['extension']['observaciones'] = $observaciones;
+                $data['resumen']['observaciones'] = $observaciones ?: null;
                 $json = json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
                 break;
             // CCFE - Comprobante de Credito Fiscal Electrónico
             case '03':
                 $documento = new ComprobanteCreditoFiscalElectronico($datosReceptor, $detalleItems, $detalleResumen);
                 $data = $documento->toArray();
-                $data['extension']['observaciones'] = $observaciones;
+                $data['resumen']['observaciones'] = $observaciones ?: null;
                 $json = json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
                 break;
             // NRE - Nota de Remision Electrónica   
             case '04':
                 $documento = new NotaRemisionElectronica($datosReceptor, $detalleItems, $detalleResumen);
                 $data = $documento->toArray();
-                unset(
-                    $data['otrosDocumentos']
-                );
-                $data['extension']['observaciones'] = $observaciones;
+                $data['resumen']['observaciones'] = $observaciones ?: null;
                 $json = json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
                 break;
             // NCE - Nota de Credito Electrónica
             case '05':
                 $documento = new NotaCreditoElectronica($datosReceptor, $detalleItems, $detalleResumen);
                 $data = $documento->toArray();
-                unset(
-                    $data['emisor']['codEstableMH'],
-                    $data['emisor']['codEstable'],
-                    $data['emisor']['codPuntoVentaMH'],
-                    $data['emisor']['codPuntoVenta'],
-                    $data['otrosDocumentos']
-                );
-                $data['extension']['observaciones'] = $observaciones;
+                $data['resumen']['observaciones'] = $observaciones ?: null;
                 $json = json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
                 break;
             // NDE - Nota de Debito Electrónica
             case '06':
                 $documento = new NotaDebitoElectronica($datosReceptor, $detalleItems, $detalleResumen);
                 $data = $documento->toArray();
-                unset(
-                    $data['emisor']['codEstableMH'],
-                    $data['emisor']['codEstable'],
-                    $data['emisor']['codPuntoVentaMH'],
-                    $data['emisor']['codPuntoVenta'],
-                    $data['otrosDocumentos']
-                );
-                $data['extension']['observaciones'] = $observaciones;
+                $data['resumen']['observaciones'] = $observaciones ?: null;
                 $json = json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
                 break;
             // CRE - Comprobante de Retención Electrónico
             case '07':
                 $documento = new ComprobanteRetencionElectronico($datosReceptor, $detalleItems, $detalleResumen);
                 $data = $documento->toArray();
-                unset(
-                    $data['emisor']['codEstableMH'],
-                    $data['emisor']['codEstable'],
-                    $data['emisor']['codPuntoVentaMH'],
-                    $data['emisor']['codPuntoVenta'],
-                    $data['documentoRelacionado'],
-                    $data['ventaTercero'],
-                    $data['otrosDocumentos']
-                );
-                $data['extension']['observaciones'] = $observaciones;
+                $data['resumen']['observaciones'] = $observaciones ?: null;
                 $json = json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
                 break;
             // FEXE - Factura de Exportación Electrónica
@@ -693,7 +647,6 @@ class BillingController extends Controller
 
                 $documento = new FacturaExportacionElectronica($datosReceptor, $detalleItems, $detalleResumen, $datosEmisor);
                 $data = $documento->toArray();
-                unset($data['documentoRelacionado'], $data['extension']);
                 $data['resumen']['observaciones'] = $observaciones;
                 $json = json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
                 break;
@@ -701,14 +654,6 @@ class BillingController extends Controller
             case '14':
                 $documento = new FacturaSujetoExcluidoElectronica($datosReceptor, $detalleItems, $detalleResumen);
                 $data = $documento->toArray();
-                unset(
-                    $data['emisor']['nombreComercial'],
-                    $data['emisor']['tipoEstablecimiento'],
-                    $data['documentoRelacionado'],
-                    $data['otrosDocumentos'],
-                    $data['ventaTercero'],
-                    $data['extension']
-                );
                 $data['resumen']['observaciones'] = $observaciones;
                 $json = json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
                 break;
@@ -719,7 +664,8 @@ class BillingController extends Controller
 
         //dd($data);
         //return $this->generarJson($type, $json);
-        return $json;
+        $data = json_decode($json, true);
+        return json_encode(DteSchema::normalize($data), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
     }
 
     public function getCustomerData(Request $request) {

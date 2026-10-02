@@ -58,7 +58,11 @@ class DatatableController extends Controller
     }
 
     public function customer() {
-        $customers = Customer::all();
+        $customers = Customer::leftJoin('cat008', function ($join) {
+            $join->on('customers.distrito', '=', 'cat008.id')
+                ->on('customers.departamento', '=', 'cat008.departamento')
+                ->on('customers.municipio', '=', 'cat008.municipio');
+        })->select('customers.*', 'cat008.valor as distrito_nombre')->get();
         return datatables()->of($customers)
             ->addColumn('action', function($customer){
                 $btn = '

@@ -106,17 +106,8 @@ class DocumentBase
 
     public function toArray()
     {
-        switch($this->type) {
-            case '03':
-            case '04':
-            case '05':
-            case '06':
-                $version = 3;
-                break;
-            default:
-                $version = 1;
-                break;
-        }
+        $schema = \App\Services\DteSchema::schema($this->type);
+        $version = $schema->properties->identificacion->properties->version->const;
 
         //$numeroControl = "DTE-".$this->type."-".env('DTE_ESTABLECIMIENTO').env('DTE_PUNTOVENTA')."-".$this->generarCodigo();
         $correlativo = self::$consumeLocalCorrelatives
@@ -135,7 +126,7 @@ class DocumentBase
                 'tipoModelo' => 1,
                 'tipoOperacion' => 1,
                 'tipoContingencia' => null,
-                ($this->type != '11') ? 'motivoContin' : 'motivoContigencia' => null,
+                'motivoContin' => null,
                 'fecEmi' => date('Y-m-d'),
                 'horEmi' => date('H:i:s'),
                 'tipoMoneda' => 'USD'
@@ -153,6 +144,7 @@ class DocumentBase
                 'direccion' => [
                     'departamento' => env('DTE_EMISOR_DIRECCION_DEPARTAMENTO'),
                     'municipio' => env('DTE_EMISOR_DIRECCION_MUNICIPIO'),
+                    'distrito' => env('DTE_EMISOR_DIRECCION_DISTRITO'),
                     'complemento' => env('DTE_EMISOR_DIRECCION_COMPLEMENTO')
                 ],
                 'telefono' => env('DTE_EMISOR_TELEFONO'),

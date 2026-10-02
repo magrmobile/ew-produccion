@@ -15,6 +15,7 @@ class Customer extends Model
         'tipoEstablecimiento', 
         'departamento',
         'municipio',
+        'distrito',
         'complemento',
         'codPais',
         'codDomiciliado',

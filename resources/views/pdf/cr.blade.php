@@ -233,8 +233,8 @@
                                 @foreach($data->cuerpoDocumento as $item)
                                 <tr>
                                     <td class="celda">{{ $item->numItem }}</td>
-                                    <td class="celda">{{ $item->tipoDoc }}</td>
-                                    <td class="celda">{{ $item->numDocumento }}</td>
+                                    <td class="celda">{{ data_get($item, 'tipoGeneracion', data_get($item, 'tipoDoc')) }}</td>
+                                    <td class="celda">{{ data_get($item, 'numeroDocumento', data_get($item, 'numDocumento')) }}</td>
                                     <td class="celda">{{ $item->fechaEmision }}</td>
                                     <td class="celda">{{ $item->descripcion }}</td>
                                     <td class="celda">{{ number_format($item->montoSujetoGrav,2) }}</td>
@@ -250,7 +250,7 @@
                                 <tr>
                                     <td colspan="4"></td>
                                     <td colspan="2" style="text-align: right; padding: 3px;" class="celda">Total IVA Retenido:</td>
-                                    <td class="celda">{{ number_format($data->resumen->totalIVAretenido,2) }}</td>
+                                    <td class="celda">{{ number_format(data_get($data, 'resumen.totalIvaRetenido', data_get($data, 'resumen.totalIVAretenido', 0)),2) }}</td>
                                 </tr>
                             </table>
                         </td>
@@ -266,7 +266,7 @@
                             <table style="width: 100%">
                                 <tr>
                                     <td>Valor en Letras IVA Retenido:</td>
-                                    <td>{{ $data->resumen->totalIVAretenido }}</td>
+                                    <td>{{ data_get($data, 'resumen.totalLetras', data_get($data, 'resumen.totalIVAretenidoLetras')) }}</td>
                                 </tr>
                             </table>
                         </td>
@@ -298,7 +298,7 @@
                                 </tr>
                                 <tr>
                                     <td style="width: 25%;">Observaciones:</td>
-                                    <td colspan="3">{{ $data->extension->observaciones }}</td>
+                                    <td colspan="3">{{ data_get($data, 'resumen.observaciones', data_get($data, 'extension.observaciones')) }}</td>
                                 </tr>
                             </table>
                         </td>

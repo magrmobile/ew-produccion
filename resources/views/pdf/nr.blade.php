@@ -335,7 +335,7 @@
                                 </tr>
                                 <tr>
                                     <td>Observaciones:</td>
-                                    <td>{{ $data->extension->observaciones }}</td>
+                                    <td>{{ data_get($data, 'resumen.observaciones', data_get($data, 'extension.observaciones')) }}</td>
                                 </tr>
                             </table>
                         </td>

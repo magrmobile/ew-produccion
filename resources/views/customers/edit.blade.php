@@ -91,7 +91,7 @@
                             <select name="departamento" id="departamento" class="form-control">
                                 <option value="">Seleccionar Departamento</option>
                                 @foreach($departamentos as $departamento)
-                                <option value="{{ $departamento->id }}" @if($customer->departamento == $departamento->id) selected @endif>{{ $departamento->id.' - '.$departamento->valor }}</option>
+                                <option value="{{ $departamento->id }}" @if(old('departamento', $customer->departamento) == $departamento->id) selected @endif>{{ $departamento->id.' - '.$departamento->valor }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -102,13 +102,14 @@
                             <select name="municipio" id="municipio" class="form-control">
                                 <option value="">Seleccionar Municipio</option>
                                 @foreach($municipios as $municipio)
-                                <option value="{{ $municipio->id }}" data-departamento="{{ $municipio->departamento }}" @if($customer->municipio == $municipio->id) selected @endif>{{ $municipio->id.' - '.$municipio->valor }}</option>
+                                <option value="{{ $municipio->id }}" data-departamento="{{ $municipio->departamento }}" @if(old('municipio', $customer->municipio) == $municipio->id) selected @endif>{{ $municipio->id.' - '.$municipio->valor }}</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
                 </div>
                 <!-- Complemento Direccion -->
+                @include('customers.district')
                 <div class="row">
                     <div class="col">
                         <div class="form-group">
@@ -240,10 +241,5 @@
 </div>
 @endsection
 @section('scripts')
-<script>
-    $(document).ready(function(){
-        var departamentos = @json($departamentos);
-        var selectedDepartamentoId = {{ $customer->departamento }};
-    });
-</script>
+@include('customers.address-script')
 @endsection

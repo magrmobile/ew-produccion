@@ -27,8 +27,8 @@ class InfileSimplifiedDteBuilder
             'descuento_gravadas' => data_get($data, 'resumen.descuGravada'),
             'porcentaje_descuento' => data_get($data, 'resumen.porcentajeDescuento'),
             'renta_retenida' => data_get($data, 'resumen.reteRenta'),
-            'percibir_iva' => (float) data_get($data, 'resumen.ivaPerci1', 0) > 0,
-            'retener_iva' => (float) data_get($data, 'resumen.ivaRete1', 0) > 0,
+            'percibir_iva' => (float) data_get($data, 'resumen.ivaPerci', data_get($data, 'resumen.ivaPerci1', 0)) > 0,
+            'retener_iva' => (float) data_get($data, 'resumen.ivaRete', data_get($data, 'resumen.ivaRete1', 0)) > 0,
             'numero_pago_electronico' => data_get($data, 'resumen.numPagoElectronico'),
             'documentos_relacionados' => $this->documentosRelacionados(data_get($data, 'documentoRelacionado')),
             'receptor' => $this->receptor($data),
@@ -47,7 +47,7 @@ class InfileSimplifiedDteBuilder
             $documento['flete'] = data_get($data, 'resumen.flete');
             $documento['seguro'] = data_get($data, 'resumen.seguro');
             $documento['observaciones'] = data_get($data, 'resumen.observaciones');
-            $documento['descuento_global'] = data_get($data, 'resumen.descuento');
+            $documento['descuento_global'] = data_get($data, 'resumen.descuGravada', data_get($data, 'resumen.descuento'));
         }
 
         $documento = $this->clean($documento);
@@ -89,6 +89,7 @@ class InfileSimplifiedDteBuilder
             'direccion' => [
                 'departamento' => data_get($receptor, 'direccion.departamento'),
                 'municipio' => data_get($receptor, 'direccion.municipio'),
+                'distrito' => data_get($receptor, 'direccion.distrito'),
                 'complemento' => data_get($receptor, 'direccion.complemento', data_get($receptor, 'complemento')),
             ],
             'telefono' => data_get($receptor, 'telefono'),
@@ -234,7 +235,8 @@ class InfileSimplifiedDteBuilder
 
         if ($discount > 0) {
             $data['cuerpoDocumento'] = $items;
-            $data['resumen']['descuento'] = round((float) data_get($data, 'resumen.descuento', 0) + $discount, 2);
+            $discountKey = array_key_exists('descuGravada', $data['resumen']) ? 'descuGravada' : 'descuento';
+            $data['resumen'][$discountKey] = round((float) data_get($data, 'resumen.'.$discountKey, 0) + $discount, 2);
         }
 
         return $data;
@@ -262,13 +264,14 @@ class InfileSimplifiedDteBuilder
 
     public static function withoutIvaPerception(array $data)
     {
-        $ivaPerci1 = (float) data_get($data, 'resumen.ivaPerci1', 0);
+        $perceptionKey = array_key_exists('ivaPerci', $data['resumen']) ? 'ivaPerci' : 'ivaPerci1';
+        $ivaPerci1 = (float) data_get($data, 'resumen.'.$perceptionKey, 0);
 
         if ($ivaPerci1 <= 0) {
             return $data;
         }
 
-        $data['resumen']['ivaPerci1'] = 0;
+        $data['resumen'][$perceptionKey] = 0;
 
         if (isset($data['resumen']['totalPagar'])) {
             $data['resumen']['totalPagar'] = round((float) $data['resumen']['totalPagar'] - $ivaPerci1, 2);

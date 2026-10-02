@@ -169,6 +169,6 @@ class ComprobanteCreditoFiscalElectronico extends DocumentBase
         // Apendice
         $data['apendice'] = null;
 
-        return $data;
+        return \App\Services\DteSchema::normalize($data, data_get($this->datosReceptor, 'distrito', env('DTE_RECEPTOR_DIRECCION_DISTRITO')));
     }
 }

@@ -68,6 +68,7 @@
                         <th>NIT</th>
                         <th>NRC</th>
                         <th>Nombre Comercial</th>
+                        <th>Distrito</th>
                         <th>Opciones</th>
                     </tr>
                 </thead>
@@ -90,11 +91,14 @@
     });
 
     var table = $('#customers-table').DataTable({
+        stateSave: true,
+        stateDuration: -1,
         "ajax": "{{ route('datatable.customers') }}",
         "columns": [
             { data: "nit" },
             { data: "nrc" },
             { data: "nombreComercial" },
+            { data: "distrito_nombre", defaultContent: "" },
             { data: 'action', name: 'action', orderable: false, searchable: false }  
         ],
         responsive: true,

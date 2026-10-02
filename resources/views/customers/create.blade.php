@@ -90,7 +90,7 @@
                             <select name="departamento" id="departamento" class="form-control">
                                 <option value="">Seleccionar Departamento</option>
                                 @foreach($departamentos as $departamento)
-                                <option value="{{ $departamento->id }}">{{ $departamento->id.' - '.$departamento->valor }}</option>
+                                <option value="{{ $departamento->id }}" {{ (string) old('departamento') === (string) $departamento->id ? 'selected' : '' }}>{{ $departamento->id.' - '.$departamento->valor }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -101,13 +101,14 @@
                             <select name="municipio" id="municipio" class="form-control">
                                 <option value="">Seleccionar Municipio</option>
                                 @foreach($municipios as $municipio)
-                                <option value="{{ $municipio->id }}" data-departamento="{{ $municipio->departamento }}" >{{ $municipio->id.' - '.$municipio->valor }}</option>
+                                <option value="{{ $municipio->id }}" data-departamento="{{ $municipio->departamento }}" {{ (string) old('municipio') === (string) $municipio->id ? 'selected' : '' }}>{{ $municipio->id.' - '.$municipio->valor }}</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
                 </div>
                 <!-- Complemento Direccion -->
+                @include('customers.district')
                 <div class="row">
                     <div class="col">
                         <div class="form-group">
@@ -239,21 +240,5 @@
 </div>
 @endsection
 @section('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function(){
-        const departamentoSelect = document.getElementById('departamento');
-        const municipioSelect = document.getElementById('municipio');
-
-        departamentoSelect.addEventListener('change', function(){
-            const selectDepartamento = departamentoSelect.value;
-            for(const option of municipioSelect.options){
-                if(option.getAttribute('data-departamento') === selectDepartamento || selectDepartamento === ''){
-                    option.style.display = 'block';
-                } else {
-                    option.style.display = 'none';
-                }
-            }
-        });
-    });
-</script>
+@include('customers.address-script')
 @endsection

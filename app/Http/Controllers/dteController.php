@@ -9,13 +9,12 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use App\Services\InfileSimplifiedDteBuilder;
 
 use RealRashid\SweetAlert\Facades\Alert;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 
-use JsonSchema\Validator;
+use App\Services\DteSchema;
 
 class dteController extends Controller
 {
@@ -356,108 +355,13 @@ class dteController extends Controller
             ]
         ]);
 
-        $json = json_decode($dte->json_dte, true);
-        $tipoDte = $json["identificacion"]["tipoDte"];
+        $json = DteSchema::invalidation(json_decode($dte->json_dte, true), $request->only([
+            'codigoGeneracion', 'codigoGeneracionR', 'tipoAnulacion', 'motivoAnulacion',
+        ]));
+        $schema = json_decode(file_get_contents(base_path('resources/fe_schemas/v3/invalidacion-schema-v3.json')));
+        $errors = DteSchema::errors(json_decode(json_encode($json)), $schema);
 
-        unset($json["emisor"]["nrc"]);
-        unset($json["emisor"]["regimen"]);
-        unset($json["emisor"]["direccion"]);
-        unset($json["emisor"]["codActividad"]);
-        unset($json["emisor"]["descActividad"]);
-        unset($json["emisor"]["recintoFiscal"]);
-        unset($json["emisor"]["tipoItemExpor"]);
-        unset($json["emisor"]["nombreComercial"]);
-
-        $json['emisor']['nomEstablecimiento'] = 'PROVISIONAL';
-
-        
-        unset($json["apendice"]);
-
-        if(in_array($tipoDte, ["03","05","06"])) {
-            $json["documento"]["tipoDocumento"] = "37";
-            $json["documento"]["numDocumento"] = $json["receptor"]["nit"];
-        } else {
-            $json["documento"]["tipoDocumento"] = $json["receptor"]["tipoDocumento"];
-            $json["documento"]["numDocumento"] = $json["receptor"]["numDocumento"];
-        }
-        
-        $json["documento"]["nombre"] = $json["receptor"]["nombre"];
-        $json["documento"]["telefono"] = $json["receptor"]["telefono"];
-        $json["documento"]["correo"] = $json["receptor"]["correo"];
-
-        unset($json["receptor"]);
-        unset($json["ventaTercero"]);
-
-        $json["documento"]["selloRecibido"] = $json["selloRecibido"];
-        unset($json["selloRecibido"]);
-
-        $json["documento"]["fecEmi"] = $json["identificacion"]["fecEmi"];
-
-        $json["identificacion"]["fecAnula"] = $json["identificacion"]["fecEmi"];
-        $json["identificacion"]["horAnula"] = $json["identificacion"]["horEmi"];
-
-        unset($json["identificacion"]["fecEmi"]);
-        unset($json["identificacion"]["horEmi"]);
-        $json["documento"]["tipoDte"] = $json["identificacion"]["tipoDte"];
-
-        $dte_monto = array("03","01","11");
-
-        if(in_array($json["identificacion"]["tipoDte"], $dte_monto)) {
-            $json["documento"]["montoIva"] = $json["resumen"]["montoTotalOperacion"];
-        } else {
-            $json["documento"]["montoIva"] = 0.00;
-        }
-
-        unset($json["identificacion"]["tipoDte"]);
-        
-        $json["identificacion"]["version"] = 2;
-        $json["identificacion"]["codigoGeneracion"] = Str::upper(Str::uuid()->toString());
-
-        $json["documento"]["codigoGeneracion"] = $request->codigoGeneracion;
-        $json["documento"]["codigoGeneracionR"] = $request->filled('codigoGeneracionR') ? $request->codigoGeneracionR : null;
-
-        unset($json["identificacion"]["tipoModelo"]);
-        unset($json["identificacion"]["tipoMoneda"]);
-
-        $json["documento"]["numeroControl"] = $json["identificacion"]["numeroControl"];
-        unset($json["identificacion"]["numeroControl"]);
-        unset($json["identificacion"]["tipoOperacion"]);
-        unset($json["identificacion"]["tipoContingencia"]);
-        unset($json["identificacion"]["motivoContigencia"]);
-        unset($json["identificacion"]["motivoContin"]);
-
-        unset($json["cuerpoDocumento"]);
-        unset($json["otrosDocumentos"]);
-        unset($json["firmaElectronica"]);
-        unset($json["documentoRelacionado"]);
-        unset($json["extension"]);
-
-        unset($json["resumen"]);
-
-        $json["motivo"]["tipoAnulacion"] = (int) $request->tipoAnulacion;
-        $json["motivo"]["motivoAnulacion"] = $request->motivoAnulacion;
-        $json["motivo"]["nombreResponsable"] = $json["emisor"]["nombre"];
-        $json["motivo"]["tipDocResponsable"] = "37";
-        $json["motivo"]["numDocResponsable"] = $json["emisor"]["nit"];
-        //$json["motivo"]["nombreSolicita"] = auth()->user()->name;
-        $json["motivo"]["nombreSolicita"] = $json["documento"]["nombre"];
-        //$json["motivo"]["tipDocSolicita"] = "36";
-        $json["motivo"]["tipDocSolicita"] = $json["documento"]["tipoDocumento"];
-        //$json["motivo"]["numDocSolicita"] = auth()->user()->numDocumento;
-        $json["motivo"]["numDocSolicita"] = $json["documento"]["numDocumento"];
-
-        $json_encode = json_encode($json);
-
-        $schema_file = base_path('resources/fe_schemas/anulacion-schema-v2.json');
-        $schema = json_decode(file_get_contents($schema_file), true);
-
-        $schema_encode = json_encode($schema);
-
-        // Validar el JSON contra el JSON Schema
-        $validator = new Validator();
-        $validator->validate($json_encode, $schema_encode);
-
-        if($validator->isValid()) {
+        if (!$errors) {
             $signedInvalidate = $this->signInvalidate($json);
             
             $client = new Client(['verify' => false]);
@@ -521,9 +425,6 @@ class dteController extends Controller
                 return redirect()->back()->with('exceptionError', $exceptionError);
             }
         } else {
-            foreach($validator->getErrors() as $error) {
-                $errors[] = "Error en '{$error['property']}': {$error['message']}";
-            }
 
             //return response()->json(['errors' => $errors], 400);
             return redirect('/invalidate/'.$dte->id)->with('errors', $errors);

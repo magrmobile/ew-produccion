@@ -171,7 +171,7 @@
                                             </tr>
                                             <tr>
                                                 <td align="right">NIT:</td>
-                                                <td>{{ $data->receptor->nit }}</td>
+                                                <td>{{ data_get($data, 'receptor.numDocumento', data_get($data, 'receptor.nit')) }}</td>
                                             </tr>
                                             <tr>
                                                 <td align="right">NRC:</td>
@@ -282,17 +282,17 @@
                                 <tr>
                                     <td colspan="4"></td>
                                     <td colspan="4" style="text-align: right; padding: 3px;" class="celda">Monto global Desc., Rebajas y otros a ventas no sujetas:</td>
-                                    <td class="celda">{{ number_format($data->resumen->descuNoSuj,2) }}</td>
+                                    <td class="celda">{{ number_format(data_get($data, 'resumen.descuNoSuj', 0),2) }}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="4"></td>
                                     <td colspan="4" style="text-align: right; padding: 3px;" class="celda">Monto global Desc., Rebajas y otros a ventas exentas:</td>
-                                    <td class="celda">{{ number_format($data->resumen->descuExenta,2) }}</td>
+                                    <td class="celda">{{ number_format(data_get($data, 'resumen.descuExenta', 0),2) }}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="4"></td>
                                     <td colspan="4" style="text-align: right; padding: 3px;" class="celda">Monto global Desc., Rebajas y otros a ventas gravadas:</td>
-                                    <td class="celda">{{ number_format($data->resumen->descuGravada,2) }}</td>
+                                    <td class="celda">{{ number_format(data_get($data, 'resumen.descuGravada', 0),2) }}</td>
                                 </tr>
                                 @if(isset($data->resumen->tributos))
                                 @foreach($data->resumen->tributos as $tributo)
@@ -306,17 +306,17 @@
                                 <tr>
                                     <td colspan="4"></td>
                                     <td colspan="4" style="text-align: right; padding: 3px;" class="celda">Sub-Total:</td>
-                                    <td class="celda">{{ number_format($data->resumen->subTotal,2) }}</td>
+                                    <td class="celda">{{ number_format(data_get($data, 'resumen.subTotal', $data->resumen->subTotalVentas - $data->resumen->totalDescu),2) }}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="4"></td>
                                     <td colspan="4" style="text-align: right; padding: 3px;" class="celda">IVA Percibido:</td>
-                                    <td class="celda">{{ number_format($data->resumen->ivaPerci1,2) }}</td>
+                                    <td class="celda">{{ number_format(data_get($data, 'resumen.ivaPerci', data_get($data, 'resumen.ivaPerci1', 0)),2) }}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="4"></td>
                                     <td colspan="4" style="text-align: right; padding: 3px;" class="celda">IVA Retenido:</td>
-                                    <td class="celda">{{ number_format($data->resumen->ivaRete1,2) }}</td>
+                                    <td class="celda">{{ number_format(data_get($data, 'resumen.ivaRete', data_get($data, 'resumen.ivaRete1', 0)),2) }}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="4"></td>
@@ -345,7 +345,7 @@
                                 </tr>
                                 <tr>
                                     <td>Observaciones:</td>
-                                    <td>{{ $data->extension->observaciones }}</td>
+                                    <td>{{ data_get($data, 'resumen.observaciones', data_get($data, 'extension.observaciones')) }}</td>
                                 </tr>
                             </table>
                         </td>

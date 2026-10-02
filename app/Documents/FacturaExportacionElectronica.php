@@ -192,7 +192,7 @@ class FacturaExportacionElectronica extends DocumentBase
 
         //dd($data);
         
-        return $data;
+        return \App\Services\DteSchema::normalize($data);
     }
 
 }
