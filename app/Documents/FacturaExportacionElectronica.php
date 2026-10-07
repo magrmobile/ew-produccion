@@ -33,7 +33,7 @@ class FacturaExportacionElectronica extends DocumentBase
         $data['emisor']['tipoItemExpor'] = (int)env('DTE_EMISOR_TIPOITEMEXPOR');
         $data['emisor']['recintoFiscal'] = $this->datosEmisor['recintoFiscal'];
         $data['emisor']['regimen'] = $this->datosEmisor['regimen'];
-        $data['emisor']['tipoRegimen'] = $this->datosEmisor['tipo_regimen'];
+        $data['emisor']['tipoRegimen'] = isset($this->datosEmisor['tipo_regimen']) && $this->datosEmisor['tipo_regimen'] !== '' ? $this->datosEmisor['tipo_regimen'] : null;
 
         // Receptor
         $data['receptor']['tipoDocumento'] = "37";

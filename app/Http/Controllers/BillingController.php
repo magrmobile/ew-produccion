@@ -158,8 +158,8 @@ class BillingController extends Controller
                     $rec_fiscal = DB::table('cat027')->where('id', $request->input('recintoFiscal'))->first()->valor;
                 }
                 
-                if($request->input('tipoRegimen') != '') {
-                    $tipo_regimen = DB::table('cat033')->where('id', $request->input('tipoRegimen'))->first()->valor;
+                if($request->input('tipo_regimen') != '') {
+                    $tipo_regimen = DB::table('cat033')->where('id', $request->input('tipo_regimen'))->first()->valor;
                 }
 
                 if($request->input('regimen') != '') {
@@ -632,10 +632,12 @@ class BillingController extends Controller
             case '11':
                 $recintoFiscal = $request->input('recintoFiscal');
                 $regimen = $request->input('regimen');
+                $tipoRegimen = $request->input('tipo_regimen');
 
                 $datosEmisor = [
                     'recintoFiscal' => $recintoFiscal,
                     'regimen' => $regimen,
+                    'tipo_regimen' => $tipoRegimen,
                 ];
 
                 //dd($datosEmisor);
