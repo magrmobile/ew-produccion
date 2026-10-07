@@ -190,7 +190,7 @@ class FacturaExportacionElectronica extends DocumentBase
         // Apendice
         $data['apendice'] = null;
 
-        //dd($data);
+        dd($data);
         
         return \App\Services\DteSchema::normalize($data);
     }
