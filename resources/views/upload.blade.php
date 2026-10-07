@@ -101,11 +101,11 @@
                         </select>
                     </div>
                     <div class="col">
-                        <label for="tipo_regimen">Tipo Regimen de Exportación</label>
-                        <select name="tipo_regimen" id="tipo_regimen" class="form-control">
-                            <option value="">Seleccionar Tipo Regimen de Exportacion</option>
-                            @foreach($tipo_regimenes as $tipo_regimen)
-                            <option value="{{ $tipo_regimen->id }}" @if($tipo_regimen->id == 'EX-1') selected @endif >{{ $tipo_regimen->id.' - '.$tipo_regimen->valor }}</option>
+                        <label for="tipoRegimen">Tipo Regimen de Exportación</label>
+                        <select name="tipoRegimen" id="tipoRegimen" class="form-control">
+                            <option value="">Seleccionar Tipo Regimen de Exportación</option>
+                            @foreach($tipo_regimenes as $tipoRegimen)
+                            <option value="{{ $tipoRegimen->id }}" @if($tipoRegimen->id == 'EX-1') selected @endif >{{ $tipoRegimen->id.' - '.$tipoRegimen->valor }}</option>
                             @endforeach
                         </select>
                     </div>

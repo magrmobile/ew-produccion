@@ -120,6 +120,7 @@ class BillingController extends Controller
                 $cond_opera = '';
                 $rec_fiscal = '';
                 $regimen = '';
+                $tipo_regimen = '';
                 $tipo_establec = $this->getIssuerEstablishmentDescription($data, $issuer);
 
                 if(isset($data->emisor->direccion)) {
@@ -156,6 +157,10 @@ class BillingController extends Controller
                 if($request->input('recintoFiscal') != '') {
                     $rec_fiscal = DB::table('cat027')->where('id', $request->input('recintoFiscal'))->first()->valor;
                 }
+                
+                if($request->input('tipoRegimen') != '') {
+                    $tipo_regimen = DB::table('cat033')->where('id', $request->input('tipoRegimen'))->first()->valor;
+                }
 
                 if($request->input('regimen') != '') {
                     $regimen = DB::table('cat028')->where('id', $request->input('regimen'))->first()->valor;
@@ -181,6 +186,7 @@ class BillingController extends Controller
                     'tipo_establec',
                     'cond_opera',
                     'rec_fiscal',
+                    'tipo_regimen',
                     'regimen',
                     'nombre_contacto',
                     'numdoc_contacto'
