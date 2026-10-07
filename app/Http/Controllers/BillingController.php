@@ -632,7 +632,7 @@ class BillingController extends Controller
             case '11':
                 $recintoFiscal = $request->input('recintoFiscal');
                 $regimen = $request->input('regimen');
-                $tipoRegimen = $request->input('tipo_regimen');
+                $tipoRegimen = $request->input('tipoRegimen');
 
                 $datosEmisor = [
                     'recintoFiscal' => $recintoFiscal,
