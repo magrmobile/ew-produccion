@@ -40,6 +40,7 @@ class InfileSimplifiedDteBuilder
 
         if (data_get($data, 'identificacion.tipoDte') === '11') {
             $documento['recinto_fiscal'] = data_get($data, 'emisor.recintoFiscal');
+            $documento['tipo_regimen'] = data_get($data, 'emisor.tipoRegimen');
             $documento['regimen'] = data_get($data, 'emisor.regimen');
             $documento['tipo_item_exportacion'] = data_get($data, 'emisor.tipoItemExpor');
             $documento['incoterms'] = data_get($data, 'resumen.codIncoterms');
