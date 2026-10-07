@@ -33,7 +33,8 @@ class BillingController extends Controller
     public function index() {
         $recintos = DB::table('cat027')->get();
         $regimenes = DB::table('cat028')->get();
-        return view('upload', compact('recintos', 'regimenes'));
+        $tipo_regimenes = DB::table('cat033')->get();
+        return view('upload', compact('recintos', 'regimenes', 'tipo_regimenes'));
     }
 
     public function upload(Request $request)

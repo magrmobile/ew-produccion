@@ -101,11 +101,20 @@
                         </select>
                     </div>
                     <div class="col">
+                        <label for="tipo_regimen">Tipo Regimen de Exportación</label>
+                        <select name="tipo_regimen" id="tipo_regimen" class="form-control">
+                            <option value="">Seleccionar Tipo Regimen de Exportacion</option>
+                            @foreach($tipo_regimenes as $tipo_regimen)
+                            <option value="{{ $tipo_regimen->id }}" @if($tipo_regimen->id == 'EX-1') selected @endif >{{ $tipo_regimen->id.' - '.$tipo_regimen->valor }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col">
                         <label for="regimen">Regimen de Exportación</label>
                         <select name="regimen" id="regimen" class="form-control">
                             <option value="">Seleccionar Regimen de Exportacion</option>
                             @foreach($regimenes as $regimen)
-                            <option value="{{ $regimen->id }}" @if($regimen->id == 'EX-1.1000.000') selected @endif >{{ $regimen->id.' - '.$regimen->valor }}</option>
+                            <option value="{{ $regimen->id }}" data-tipo-regimen="{{ $regimen->tipo_regimen }}" @if($regimen->id == '1000.000') selected @endif >{{ $regimen->id.' - '.$regimen->valor }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -176,6 +185,29 @@
 <script>
     const typeSelect = document.getElementById('type');
     const additionalFieldsDiv = document.getElementById('additionalFields');
+    const tipoRegimenSelect = document.getElementById('tipo_regimen');
+    const regimenSelect = document.getElementById('regimen');
+
+    function filterRegimenes() {
+        const tipoRegimen = tipoRegimenSelect.value;
+
+        Array.from(regimenSelect.options).forEach(function(option) {
+            if(option.value === '') {
+                return;
+            }
+
+            const matchesTipoRegimen = option.dataset.tipoRegimen === tipoRegimen;
+            option.hidden = !matchesTipoRegimen;
+            option.disabled = !matchesTipoRegimen;
+
+            if(!matchesTipoRegimen && option.selected) {
+                regimenSelect.value = '';
+            }
+        });
+    }
+
+    tipoRegimenSelect.addEventListener('change', filterRegimenes);
+    filterRegimenes();
 
     typeSelect.addEventListener('change', function() {
         if(typeSelect.value === '11') {
