@@ -179,6 +179,8 @@ class FacturaExportacionElectronica extends DocumentBase
         $data['resumen']['seguro'] = $seguro;
         $data['resumen']['flete'] = $flete;
 
+        $data['resumen']['tributos'] = null;
+
         //$data['resumen']['codIncoterms'] = "04";
 
         $descIncoterms = DB::table('cat031')->where('id', $this->detalleResumen['codIncoterms'])->first();
