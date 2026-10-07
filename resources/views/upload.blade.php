@@ -185,7 +185,7 @@
 <script>
     const typeSelect = document.getElementById('type');
     const additionalFieldsDiv = document.getElementById('additionalFields');
-    const tipoRegimenSelect = document.getElementById('tipoRegimen');
+    const tipoRegimenSelect = document.getElementById('tipo_regimen');
     const regimenSelect = document.getElementById('regimen');
 
     function filterRegimenes() {
