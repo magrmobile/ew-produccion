@@ -179,7 +179,13 @@ class FacturaExportacionElectronica extends DocumentBase
         $data['resumen']['seguro'] = $seguro;
         $data['resumen']['flete'] = $flete;
 
-        $data['resumen']['tributos'] = null;
+        $tributos = [
+            'codigo' => "C3",
+            'descripcion' => "Impuesto al Valor Agregado (exportaciones) 0%",
+            'valor' => 0,
+        ];
+
+        $data['resumen']['tributos'][] = $tributos;
 
         //$data['resumen']['codIncoterms'] = "04";
 
