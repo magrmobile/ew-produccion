@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+﻿@extends('layouts.panel')
 
 @section('content')
 <style>
@@ -185,7 +185,7 @@
 <script>
     const typeSelect = document.getElementById('type');
     const additionalFieldsDiv = document.getElementById('additionalFields');
-    const tipoRegimenSelect = document.getElementById('tipo_regimen');
+    const tipoRegimenSelect = document.getElementById('tipoRegimen');
     const regimenSelect = document.getElementById('regimen');
 
     function filterRegimenes() {

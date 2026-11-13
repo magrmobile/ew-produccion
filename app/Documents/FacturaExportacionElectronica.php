@@ -29,6 +29,8 @@ class FacturaExportacionElectronica extends DocumentBase
     {
         $data = parent::toArray();
 
+        //dd($data);
+
         // Campos Especificos
         $data['emisor']['tipoItemExpor'] = (int)env('DTE_EMISOR_TIPOITEMEXPOR');
         $data['emisor']['recintoFiscal'] = $this->datosEmisor['recintoFiscal'];
@@ -89,12 +91,14 @@ class FacturaExportacionElectronica extends DocumentBase
                 $item = [
                     'numItem' => $numItem,
                     'codigo' => null,
+                    'tipoItem' => 1, 
                     'descripcion' => (string) $this->detalleItems[$i]['item'],
                     'cantidad' => (isset($this->detalleItems[$i]['cantidad']) || is_string($this->detalleItems[$i]['cantidad']))  ? (float) $this->detalleItems[$i]['cantidad'] : 1,
                     'uniMedida' => (int) $unidad,
                     'precioUni' => (float) $this->detalleItems[$i]['precio'],
                     'montoDescu' => 0,
                     'ventaGravada' => (float) $this->detalleItems[$i]['monto'],
+                    'codTributo' => null,
                     'tributos' => array("C3"),
                     'noGravado' => 0, 
                 ];
@@ -124,6 +128,7 @@ class FacturaExportacionElectronica extends DocumentBase
                     $item = [
                         'numItem' => $numItem,
                         'codigo' => null,
+                        'tipoItem' => 2,
                         'descripcion' => (string) $this->detalleItems[$i]['descripcion'],
                         //'cantidad' => (isset($this->detalleItems[$i]['cantidad']) || is_string($this->detalleItems[$i]['cantidad']))  ? (float) $this->detalleItems[$i]['cantidad'] : 1,
                         'cantidad' => 1,
@@ -131,6 +136,7 @@ class FacturaExportacionElectronica extends DocumentBase
                         'precioUni' => 0,
                         'montoDescu' => 0,
                         'ventaGravada' => 0,
+                        'codTributo' => null,
                         'tributos' => null,
                         'noGravado' => (float) $this->detalleItems[$i]['monto'], 
                     ];
@@ -179,7 +185,15 @@ class FacturaExportacionElectronica extends DocumentBase
         $data['resumen']['seguro'] = $seguro;
         $data['resumen']['flete'] = $flete;
 
-        $data['resumen']['tributos'] = null;
+        $tributos = [
+            'codigo' => "C3",
+            'descripcion' => "Impuesto al Valor Agregado (exportaciones) 0%",
+            'valor' => 0,
+        ];
+
+        $data['resumen']['tributos'][] = $tributos;
+        
+        //$data['resumen']['tributos'] = null;
 
         //$data['resumen']['codIncoterms'] = "04";
 

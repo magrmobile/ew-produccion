@@ -146,6 +146,7 @@ class InfileSimplifiedDteBuilder
                 'codigo' => data_get($item, 'codigo'),
                 'descuento' => data_get($item, 'montoDescu'),
                 'psv' => data_get($item, 'psv'),
+                'codigo_tributo' => data_get($item, 'codTributo'),
                 'tributos' => $this->tributos(data_get($item, 'tributos'), $item),
             ]);
         }

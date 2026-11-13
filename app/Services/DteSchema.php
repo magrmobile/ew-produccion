@@ -95,7 +95,17 @@ class DteSchema
             unset($item);
         }
 
-        return self::project($data, $schema);
+        $extension = isset($schema->properties->extension) ? null : data_get($data, 'extension');
+        $data = self::project($data, $schema);
+
+        // Los esquemas sin "extension" la descartan, pero el payload de Infile la necesita.
+        if ($extension) {
+            $data['extension'] = $extension;
+        }
+
+        //dd($data);
+
+        return $data;
     }
 
     // Remove obsolete properties, while leaving missing non-nullable data for validation.
@@ -141,13 +151,15 @@ class DteSchema
         $establishment = data_get($emisor, 'codEstable') ?: env($prefix.'_CODESTABLE');
         $pointOfSale = data_get($emisor, 'codPuntoVenta') ?: env($prefix.'_CODPUNTOVENTA');
         $receptor = data_get($source, 'receptor', data_get($source, 'sujetoRetencion', data_get($source, 'sujetoExcluido')));
-        return [
+        $docInvalidation = [
             'identificacion' => [
                 'version' => 3,
                 'ambiente' => $source['identificacion']['ambiente'],
                 'codigoGeneracion' => Str::upper(Str::uuid()->toString()),
-                'fecEmi' => date('Y-m-d'),
-                'horEmi' => date('H:i:s'),
+                //'fecEmi' => date('Y-m-d'),
+                'fecEmi' => $source['identificacion']['fecEmi'],
+                //horEmi' => date('H:i:s'),
+                'horEmi' => $source['identificacion']['horEmi'],
                 'fusion' => null,
             ],
             'emisor' => [
@@ -184,6 +196,10 @@ class DteSchema
                 'numDocSolicita' => data_get($receptor, 'numDocumento', data_get($receptor, 'nit')),
             ],
         ];
+
+        //dd($docInvalidation);
+
+        return $docInvalidation;
     }
 
     private static function errorMessages($error, array &$messages)

@@ -337,6 +337,14 @@ class BillingController extends Controller
     private function applyProviderAdjustmentsToJson($json, array $issuer)
     {
         if ($issuer['provider'] !== 'infile') {
+            $data = json_decode($json, true);
+            $schema = DteSchema::schema($data['identificacion']['tipoDte']);
+
+            if (isset($data['extension']) && !isset($schema->properties->extension)) {
+                unset($data['extension']);
+                return json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
+            }
+            
             return $json;
         }
 
@@ -644,6 +652,8 @@ class BillingController extends Controller
 
                 if(in_array('INCOTERMS', $encabezados)){
                     $codIncoterms = $reader[2][17];
+
+                    //dd($codIncoterms);
                     
                     $incoterms = DB::table('cat031')->where('codigo', $codIncoterms)->first();
                     //dd($incoterms);

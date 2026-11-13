@@ -579,8 +579,7 @@
             "type": "number",
             "description": "Cantidad",
             "exclusiveMinimum": 0,
-            "exclusiveMaximum": 100000000000,
-            "multipleOf": 1e-08
+            "exclusiveMaximum": 100000000000
           },
           "codigo": {
             "description": "Código",
@@ -616,22 +615,19 @@
             "type": "number",
             "description": "Precio Unitario",
             "minimum": 0,
-            "exclusiveMaximum": 100000000000,
-            "multipleOf": 1e-08
+            "exclusiveMaximum": 100000000000
           },
           "montoDescu": {
             "type": "number",
             "description": "Descuento por ítem",
             "minimum": 0,
-            "exclusiveMaximum": 100000000000,
-            "multipleOf": 1e-08
+            "exclusiveMaximum": 100000000000
           },
           "ventaGravada": {
             "type": "number",
             "description": "Ventas Gravadas",
             "minimum": 0,
-            "exclusiveMaximum": 100000000000,
-            "multipleOf": 1e-08
+            "exclusiveMaximum": 100000000000
           },
           "tributos": {
             "description": "Código del Tributo",
@@ -651,8 +647,7 @@
             "type": "number",
             "description": "Cargos/Abonos que no afectan la base imponible",
             "exclusiveMaximum": 100000000000,
-            "exclusiveMinimum": -100000000000,
-            "multipleOf": 1e-08
+            "exclusiveMinimum": -100000000000
           }
         },
         "additionalProperties": false,
@@ -683,36 +678,31 @@
           "type": "number",
           "description": "Total de Operaciones Gravadas",
           "minimum": 0,
-          "exclusiveMaximum": 100000000000,
-          "multipleOf": 0.01
+          "exclusiveMaximum": 100000000000
         },
         "descuGravada": {
           "type": "number",
           "description": "Descuento global a ventas gravadas",
           "exclusiveMaximum": 100000000000,
-          "minimum": 0,
-          "multipleOf": 0.01
+          "minimum": 0
         },
         "porcentajeDescuento": {
           "type": "number",
           "description": "Porcentaje de Descuento",
           "minimum": 0,
-          "maximum": 100,
-          "multipleOf": 0.01
+          "maximum": 100
         },
         "totalDescu": {
           "type": "number",
           "description": "Total de Descuentos",
           "minimum": 0,
-          "exclusiveMaximum": 100000000000,
-          "multipleOf": 0.01
+          "exclusiveMaximum": 100000000000
         },
         "seguro": {
           "type": "number",
           "description": "Seguro",
           "minimum": 0,
-          "exclusiveMaximum": 100000000000,
-          "multipleOf": 0.01
+          "exclusiveMaximum": 100000000000
         },
         "flete": {
           "type": [
@@ -721,8 +711,7 @@
           ],
           "description": "Flete",
           "minimum": 0,
-          "exclusiveMaximum": 100000000000,
-          "multipleOf": 0.01
+          "exclusiveMaximum": 100000000000
         },
         "tributos": {
           "type": [
@@ -750,8 +739,7 @@
                 "description": "Valor del Tributo",
                 "type": "number",
                 "minimum": 0,
-                "exclusiveMaximum": 100000000000,
-                "multipleOf": 0.01
+                "exclusiveMaximum": 100000000000
               }
             },
             "additionalProperties": false,
@@ -766,29 +754,25 @@
           "type": "number",
           "description": "Monto Total de la Operación",
           "minimum": 0,
-          "exclusiveMaximum": 100000000000,
-          "multipleOf": 0.01
+          "exclusiveMaximum": 100000000000
         },
         "totalNoGravado": {
           "type": "number",
           "description": "Total Cargos/Abonos que no afectan la base imponible",
           "exclusiveMaximum": 100000000000,
-          "exclusiveMinimum": -100000000000,
-          "multipleOf": 0.01
+          "exclusiveMinimum": -100000000000
         },
         "totalNoOnerosas": {
           "type": "number",
           "description": "Transferencias de bienes no onerosas",
           "minimum": 0,
-          "exclusiveMaximum": 100000000000,
-          "multipleOf": 0.01
+          "exclusiveMaximum": 100000000000
         },
         "totalPagar": {
           "type": "number",
           "description": "Total a pagar",
           "minimum": 0,
-          "exclusiveMaximum": 100000000000,
-          "multipleOf": 0.01
+          "exclusiveMaximum": 100000000000
         },
         "totalLetras": {
           "type": [
@@ -803,8 +787,7 @@
           "type": "number",
           "description": "Saldo a Favor",
           "exclusiveMinimum": -100000000000,
-          "exclusiveMaximum": 100000000000,
-          "multipleOf": 0.01
+          "exclusiveMaximum": 100000000000
         },
         "condicionOperacion": {
           "type": "number",
@@ -831,8 +814,7 @@
                 "type": "number",
                 "description": "Monto por forma de pago",
                 "minimum": 0,
-                "exclusiveMaximum": 100000000000,
-                "multipleOf": 0.01
+                "exclusiveMaximum": 100000000000
               },
               "referencia": {
                 "type": [
