@@ -192,8 +192,6 @@ class FacturaExportacionElectronica extends DocumentBase
         ];
 
         $data['resumen']['tributos'][] = $tributos;
-        
-        //$data['resumen']['tributos'] = null;
 
         //$data['resumen']['codIncoterms'] = "04";
 
