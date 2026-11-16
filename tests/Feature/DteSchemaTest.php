@@ -101,7 +101,9 @@ class DteSchemaTest extends TestCase
     public function test_generated_document_matches_current_schema($type)
     {
         $data = $this->document($type);
-        $errors = DteSchema::errors(json_decode(json_encode($data)), DteSchema::schema($type));
+        $schema = DteSchema::schema($type);
+        $validationDocument = DteSchema::forValidation(json_decode(json_encode($data)), $schema);
+        $errors = DteSchema::errors($validationDocument, $schema);
         $this->assertSame([], $errors, implode("\n", $errors));
         $this->assertSame('01', $data['emisor']['direccion']['distrito']);
         if ($type !== '11') {
@@ -120,6 +122,33 @@ class DteSchemaTest extends TestCase
         $this->assertNotEmpty(DteSchema::errors(json_decode(json_encode($data)), DteSchema::schema('03')));
         $data['cuerpoDocumento'][0]['cantidad'] = 100000000000;
         $this->assertNotEmpty(DteSchema::errors(json_decode(json_encode($data)), DteSchema::schema('03')));
+    }
+
+    public function test_ccf_extension_is_preserved_for_infile_but_not_in_schema_validation()
+    {
+        $document = json_decode(json_encode($this->document('03')));
+        $document->extension->observaciones = 'Entrega de prueba';
+        $schema = DteSchema::schema('03');
+        $this->assertNotEmpty(DteSchema::errors($document, $schema));
+        $validated = DteSchema::forValidation($document, $schema);
+        $this->assertFalse(property_exists($validated, 'extension'));
+        $this->assertTrue(property_exists($document, 'extension'));
+        $this->assertSame([], DteSchema::errors($validated, $schema));
+        $payload = (new InfileSimplifiedDteBuilder())->build($document)['documento'];
+        $this->assertSame('Usuario de prueba', $payload['extension']['nombre_entrega']);
+        $this->assertSame('Contacto de prueba', $payload['extension']['nombre_recibe']);
+        $this->assertSame('Entrega de prueba', $payload['extension']['observaciones']);
+        $validated->unknown_property = 'Must not be ignored';
+        $this->assertNotEmpty(DteSchema::errors($validated, $schema));
+    }
+
+    public function test_validation_preserves_extension_when_the_schema_explicitly_allows_it()
+    {
+        $schema = json_decode('{"type":"object","properties":{"extension":{"type":"object"}},"additionalProperties":false}');
+        $document = (object) ['extension' => (object) ['observaciones' => 'Prueba']];
+        $validated = DteSchema::forValidation($document, $schema);
+        $this->assertSame($document->extension, $validated->extension);
+        $this->assertSame([], DteSchema::errors($validated, $schema));
     }
 
     /** @dataProvider types */

@@ -58,7 +58,7 @@
                     <select class="form-control" id="tipoAnulacion" name="tipoAnulacion" required>
                         <option value="">Seleccionar el tipo de Invalidacion</option>
                         @foreach ($tiposAnulacion as $tipoAnulacion)
-                        <option value="{{ $tipoAnulacion->id }}">{{ $tipoAnulacion->valor }}</option>
+                        <option value="{{ $tipoAnulacion->id }}" {{ (string) old('tipoAnulacion') === (string) $tipoAnulacion->id ? 'selected' : '' }}>{{ $tipoAnulacion->valor }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -67,7 +67,7 @@
             <div class="row">
                 <div class="col">
                     <label for="motivoAnulacion">Motivo de Anulacion:</label>
-                    <input type="text" name="motivoAnulacion" id="motivoAnulacion" class="form-control" required></textarea>
+                    <input type="text" name="motivoAnulacion" id="motivoAnulacion" class="form-control" value="{{ old('motivoAnulacion') }}" required>
                 </div>
             </div>
             <div class="row">&nbsp;</div>
@@ -103,13 +103,18 @@
     const typeSelect = document.getElementById('tipoAnulacion');
     const additionalFieldsDiv = document.getElementById('additionalFields');
 
-    typeSelect.addEventListener('change', function() {
+    function updateReplacementField() {
+        const replacementInput = document.getElementById('codigoGeneracionR');
         if(typeSelect.value == 1 || typeSelect.value == 3) {
             additionalFieldsDiv.style.display = 'block';
+            replacementInput.required = true;
         } else {    
             additionalFieldsDiv.style.display = 'none';
+            replacementInput.required = false;
         }
-    });
+    }
+    typeSelect.addEventListener('change', updateReplacementField);
+    updateReplacementField();
 
     $(document).ready(function() {
         $("#anulardte").submit(function() {

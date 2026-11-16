@@ -55,7 +55,8 @@ class dte extends Model
 
     public function invalidate_user()
     {
-        return $this->belongsTo(User::class, 'invalidate_by');
+        $column = array_key_exists('invalidate_by', $this->attributes) ? 'invalidate_by' : 'invalidated_by';
+        return $this->belongsTo(User::class, $column);
     }
 
     public function tipoDocumento()

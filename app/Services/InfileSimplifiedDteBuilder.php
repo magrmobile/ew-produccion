@@ -17,7 +17,7 @@ class InfileSimplifiedDteBuilder
             'establecimiento' => data_get($data, 'emisor.codEstable'),
             'punto_venta' => data_get($data, 'emisor.codPuntoVenta'),
             'condicion_pago' => data_get($data, 'resumen.condicionOperacion'),
-            'actividad_economica' => data_get($data, 'emisor.codActividad'),
+            'actividad_economica' => (env('INFILE_ENVIRONMENT') === 'test') ? null : data_get($data, 'emisor.codActividad'),
             'uuid' => null,
             'numero_control' => null,
             'fecha_emision' => data_get($data, 'identificacion.fecEmi'),
@@ -214,7 +214,7 @@ class InfileSimplifiedDteBuilder
             return round((float) data_get($item, 'ventaGravada', 0) * 0.13, 8);
         }
 
-        return null;
+        return 0;
     }
 
     private function prepareFexeForInfile(array $data)

@@ -134,6 +134,21 @@ class DteSchema
         return $data;
     }
 
+    public static function forValidation($data, $schema)
+    {
+        if (isset($schema->properties->extension) && $schema->properties->extension !== false) {
+            return $data;
+        }
+        // Infile metadata must not become an extra property of the official DTE.
+        if (is_object($data)) {
+            $data = clone $data;
+            unset($data->extension);
+        } elseif (is_array($data)) {
+            unset($data['extension']);
+        }
+        return $data;
+    }
+
     public static function errors($data, $schema)
     {
         $result = (new Validator())->dataValidation($data, $schema, 100);

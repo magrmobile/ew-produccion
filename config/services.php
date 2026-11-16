@@ -2,6 +2,14 @@
 
 return [
 
+    'infile' => [
+        'environment' => env('INFILE_ENVIRONMENT', 'test'),
+        'invalidate_url' => env('INFILE_INVALIDATE_URL'),
+        'api_key' => env('INFILE_API_KEY'),
+        'ca_bundle' => env('INFILE_CA_BUNDLE'),
+        'invalidation_response_confirmed' => filter_var(env('INFILE_INVALIDATION_RESPONSE_CONFIRMED', true), FILTER_VALIDATE_BOOLEAN),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services

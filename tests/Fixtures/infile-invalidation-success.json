@@ -1,0 +1,70 @@
+{
+    "ok": true,
+    "mensaje": "Documento anulado correctamente",
+    "transaccion_id": "TEST00000001",
+    "respuesta": {
+        "codigoGeneracion": "3E8DAED0-E95E-485F-9B03-6ED868ED1EA9",
+        "numeroControl": null,
+        "identificador": null,
+        "fechaEmision": "2026-11-14 08:03:00",
+        "selloRecepcion": "202689015DABD4E84A62B3A6DBE79B024A61GIKF"
+    },
+    "respuesta_dgi": {
+        "version": 3,
+        "ambiente": "00",
+        "versionApp": 2,
+        "estado": "PROCESADO",
+        "codigoGeneracion": "3E8DAED0-E95E-485F-9B03-6ED868ED1EA9",
+        "selloRecibido": "202689015DABD4E84A62B3A6DBE79B024A61GIKF",
+        "fhProcesamiento": "14/11/2026 08:03:00",
+        "clasificaMsg": null,
+        "codigoMsg": "001",
+        "descripcionMsg": "Invalidacion Recibida y Procesada",
+        "observaciones": []
+    },
+    "pdf_path": "https://certificador.infile.com.sv/api/v1/reporte/reporte_anulacion?uuid=623FC453-B37B-42BC-8072-890DF6CB440C&formato=pdf",
+    "json": {
+        "identificacion": {
+            "version": 3,
+            "ambiente": "00",
+            "codigoGeneracion": "3E8DAED0-E95E-485F-9B03-6ED868ED1EA9",
+            "fecEmi": "2026-11-14",
+            "horEmi": "07:23:23",
+            "fusion": null
+        },
+        "emisor": {
+            "nit": "05011011221017",
+            "nombre": "Emisor de prueba",
+            "codEstableMH": "M001",
+            "codEstable": "M001",
+            "codPuntoVentaMH": "P001",
+            "codPuntoVenta": "P001",
+            "telefono": "22223333",
+            "correo": "emisor@example.com"
+        },
+        "documento": {
+            "tipoDte": "03",
+            "codigoGeneracion": "623FC453-B37B-42BC-8072-890DF6CB440C",
+            "selloRecibido": "20261046A5D4D6884927A45FD3752C7A3222CUZZ",
+            "numeroControl": "DTE-03-M001P001-000000000000009",
+            "fecEmi": "2026-11-13",
+            "codigoGeneracionR": null,
+            "tipoDocumento": "36",
+            "numDocumento": "06141405101010",
+            "nombre": "Cliente de prueba",
+            "telefono": null,
+            "correo": "cliente@example.com"
+        },
+        "motivo": {
+            "tipoAnulacion": 2,
+            "motivoAnulacion": "Prueba controlada",
+            "nombreResponsable": "Emisor de prueba",
+            "tipDocResponsable": "36",
+            "numDocResponsable": "05011011221017",
+            "nombreSolicita": "Cliente de prueba",
+            "tipDocSolicita": "36",
+            "numDocSolicita": "06141405101010"
+        },
+        "firmaElectronica": "REDACTED"
+    }
+}

@@ -107,7 +107,8 @@ class BillingController extends Controller
             //dd(json_decode($json));
 
             // Validar el JSON contra el JSON Schema
-            $errors = DteSchema::errors($json_decode, $schema);
+            $validationDocument = DteSchema::forValidation($json_decode, $schema);
+            $errors = DteSchema::errors($validationDocument, $schema);
 
 
             if (!$errors) {

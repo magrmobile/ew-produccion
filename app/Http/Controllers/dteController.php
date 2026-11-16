@@ -10,6 +10,13 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Services\InfileSimplifiedDteBuilder;
+use App\Services\InfileInvalidation;
+use App\Services\InfileDateTime;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 use RealRashid\SweetAlert\Facades\Alert;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
@@ -20,9 +27,21 @@ class dteController extends Controller
 {
     protected $token;
 
-    public function __construct()
+    protected function httpClient(array $options = [])
     {
-        $this->token = $this->obtenerTokenJWT();
+        return new Client($options);
+    }
+
+    protected function rrdToken()
+    {
+        if (!$this->token) {
+            $token = $this->obtenerTokenJWT();
+            if (!is_string($token) || $token === '') {
+                throw new \RuntimeException('No se pudo obtener el token de RRD.');
+            }
+            $this->token = $token;
+        }
+        return $this->token;
     }
     /**
      * Display a listing of the resource.
@@ -120,14 +139,14 @@ class dteController extends Controller
         //dd($signed_dte->json_dte);
 
         $dteJson = json_decode($signed_dte->json_dte);
-        $client = new Client(['verify' => false]);
+        $client = $this->httpClient(['verify' => false]);
 
         $url = env('API_RECEIVED_URL');
 
         $headers = [
             'User-Agent' => '',
             'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer '.$this->token,
+            'Authorization' => 'Bearer '.$this->rrdToken(),
         ];
 
         $params = [
@@ -190,7 +209,7 @@ class dteController extends Controller
 
     private function sendInfileDte(dte $dte)
     {
-        $client = new Client(['verify' => false]);
+        $client = $this->httpClient(['verify' => false]);
         $dteJson = json_decode($dte->json_dte);
         $payload = (new InfileSimplifiedDteBuilder())->build($dteJson);
 
@@ -230,10 +249,12 @@ class dteController extends Controller
                 $codigoGeneracion = data_get($responseData, 'respuesta.codigoGeneracion', data_get($certifiedData, 'identificacion.codigoGeneracion', $dte->codigoGeneracion));
                 $numeroControl = data_get($responseData, 'respuesta.numeroControl', data_get($certifiedData, 'identificacion.numeroControl', $dte->numeroControl));
                 $sello = data_get($responseData, 'respuesta_dgi.selloRecibido', data_get($responseData, 'respuesta.selloRecepcion'));
-                $receivedDate = data_get($responseData, 'respuesta_dgi.fhProcesamiento');
-
-                if ($receivedDate) {
-                    $receivedDate = \Carbon\Carbon::createFromFormat('d/m/Y H:i:s', $receivedDate)->format('Y-m-d H:i:s');
+                $receivedDate = InfileDateTime::databaseValue(data_get($responseData, 'respuesta_dgi.fhProcesamiento'))
+                    ?: InfileDateTime::databaseValue(data_get($responseData, 'respuesta.fechaEmision'));
+                if (!$receivedDate) {
+                    Log::warning('Fecha de certificacion Infile no reconocida; se utiliza la fecha local de recepcion.', [
+                        'dte_id' => $dte->id,
+                    ]);
                 }
 
                 $dte->update([
@@ -273,7 +294,7 @@ class dteController extends Controller
 
         //dd($this->token);
 
-        $client = new Client(['verify' => false]);
+        $client = $this->httpClient(['verify' => false]);
 
         $dteJson = json_decode($dte->json_dte);
 
@@ -284,7 +305,7 @@ class dteController extends Controller
 
         $headers = [
             'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer '.$this->token,
+            'Authorization' => 'Bearer '.$this->rrdToken(),
         ];
 
         $params = [
@@ -333,27 +354,44 @@ class dteController extends Controller
     }
 
     public function invalidateDte(dte $dte, Request $request) {
+        if ((int) $dte->received !== 1 || (int) $dte->invalidate === 1) {
+            return back()->withErrors(['Solo se pueden invalidar documentos certificados que no esten invalidados.']);
+        }
         $request->validate([
-            'tipoAnulacion' => 'required',
-            'motivoAnulacion' => 'required',
-            'codigoGeneracion' => 'required',
+            'tipoAnulacion' => 'required|integer|in:1,2,3',
+            'motivoAnulacion' => 'required|string',
+            'codigoGeneracion' => ['required', 'string', Rule::in([$dte->codigoGeneracion])],
             'codigoGeneracionR' => [
                 'required_if:tipoAnulacion,1,3',
-                'sometimes',
+                'nullable',
+                'string',
+                'size:36',
                 function($attribute, $value, $fail) use ($dte) {
                     if($value != "") {
-                        $exists = DB::table('dtes')
+                        $replacement = dte::query()
                             ->where('codigoGeneracion', $value)
                             ->where('customer_id', $dte->customer_id)
-                            ->exists();
-                        
-                        if(!$exists) {
-                            $fail("El campo $attribute no existe para el customer_id de $dte->customer_id en la tabla dtes.");
+                            ->where('received', 1)
+                            ->where('invalidate', 0)
+                            ->where('id', '<>', $dte->id)
+                            ->first();
+                        $issuer = $dte->emisor_nit ?: data_get(json_decode($dte->json_dte, true), 'emisor.nit');
+                        $replacementIssuer = $replacement ? ($replacement->emisor_nit ?: data_get(json_decode($replacement->json_dte, true), 'emisor.nit')) : null;
+                        if (!$replacement || !$issuer || $issuer !== $replacementIssuer
+                            || ($dte->provider ?: 'rrd') !== ($replacement->provider ?: 'rrd')) {
+                            $fail('El documento sustituto debe estar certificado, no invalidado y pertenecer al mismo cliente, emisor y proveedor.');
                         }
                     }
                 }
             ]
         ]);
+
+        if ($dte->provider === 'infile') {
+            return $this->invalidateInfileDte($dte, $request);
+        }
+        if ($dte->provider && $dte->provider !== 'rrd') {
+            return back()->withErrors(['El proveedor del documento no admite invalidacion.']);
+        }
 
         $json = DteSchema::invalidation(json_decode($dte->json_dte, true), $request->only([
             'codigoGeneracion', 'codigoGeneracionR', 'tipoAnulacion', 'motivoAnulacion',
@@ -364,14 +402,14 @@ class dteController extends Controller
         if (!$errors) {
             $signedInvalidate = $this->signInvalidate($json);
             
-            $client = new Client(['verify' => false]);
+            $client = $this->httpClient(['verify' => false]);
 
             $url = env('API_INVALIDATE_URL');
 
             $headers = [
                 'User-Agent' => '',
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer '.$this->token,
+                'Authorization' => 'Bearer '.$this->rrdToken(),
             ];
 
             $params = [
@@ -399,12 +437,7 @@ class dteController extends Controller
                             $fechaHora =  $responseData['fhProcesamiento'];
                             $fechaHoraFormateada = \Carbon\Carbon::createFromFormat('d/m/Y H:i:s', $fechaHora)->format('Y-m-d H:i:s');
     
-                            $dte->update([
-                                'invalidate' => 1,
-                                'invalidate_stamp' => $selloRecibido,
-                                'invalidate_by' => auth()->user()->id,
-                                'invalidate_date' => $fechaHoraFormateada
-                            ]);
+                            $this->recordInvalidation($dte, $selloRecibido, $fechaHoraFormateada);
     
                             //Alert::success('Transmision Realizada', 'El Documento fue enviado Satisfactoriamente');
                             return redirect()->back()->with('message', 'Documento Anulado satisfactoriamente!!');
@@ -437,9 +470,119 @@ class dteController extends Controller
         //return response()->json($params);*/
     } 
 
+    private function recordInvalidation(dte $dte, $stamp, $date)
+    {
+        $actorColumn = Schema::hasColumn('dtes', 'invalidate_by') ? 'invalidate_by' : 'invalidated_by';
+        $dte->forceFill([
+            'invalidate' => 1,
+            'invalidate_stamp' => $stamp,
+            'invalidate_date' => $date,
+            $actorColumn => auth()->id(),
+        ])->save();
+    }
+
+    private function invalidateInfileDte(dte $dte, Request $request)
+    {
+        $infile = new InfileInvalidation();
+        $stage = 'preparacion';
+        $status = null;
+        $receipt = null;
+        $receiptSaved = false;
+        $reference = \Illuminate\Support\Str::uuid()->toString();
+        try {
+            $url = $infile->url($dte);
+            if ($infile->environment($dte) === 'prod' && !config('services.infile.invalidation_response_confirmed')) {
+                return back()->withErrors(['La invalidacion Infile en produccion requiere confirmar primero el contrato de respuesta con una prueba en Sandbox.']);
+            }
+            $payload = $infile->payload($dte, $request->only(['tipoAnulacion', 'motivoAnulacion', 'codigoGeneracionR']));
+            $headers = $infile->headers($dte);
+            $caBundle = $infile->caBundle();
+            $stage = 'envio';
+            $response = $this->httpClient()->post($url, [
+                'headers' => $headers,
+                'json' => $payload,
+                'http_errors' => false,
+                'allow_redirects' => false,
+                'connect_timeout' => 10,
+                'timeout' => 30,
+                'verify' => $caBundle,
+            ]);
+            $body = $response->getBody()->getContents();
+            $responseData = json_decode($body, true);
+            $status = $response->getStatusCode();
+            $stage = 'guardar_respuesta';
+            $receipt = 'infile/invalidations/'.$dte->id.'/'.$reference.'.json';
+            $receiptSaved = Storage::disk('local')->put($receipt, json_encode([
+                'http_status' => $status,
+                'dte_id' => $dte->id,
+                'received_at' => now()->toIso8601String(),
+                'response' => is_array($responseData) ? $responseData : $body,
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            if (!$receiptSaved) {
+                throw new \RuntimeException('No se pudo guardar la respuesta de Infile.');
+            }
+
+            $stage = 'validar_respuesta';
+            if ($status >= 200 && $status < 300 && is_array($responseData)) {
+                $confirmed = $infile->confirmedResult($responseData, $dte);
+                if ($confirmed) {
+                    $stage = 'actualizar_registro';
+                    $this->recordInvalidation($dte, $confirmed['stamp'], $confirmed['date']);
+                    return back()->with('message', 'Documento anulado satisfactoriamente en Infile.');
+                }
+            }
+            $errors = ['Infile HTTP '.$status.': '.(is_array($responseData) ? data_get($responseData, 'mensaje', 'Respuesta de invalidacion no confirmada.') : 'Respuesta no valida.')];
+            foreach ((array) data_get($responseData, 'errores', []) as $error) {
+                $errors[] = is_string($error) ? $error : json_encode($error, JSON_UNESCAPED_UNICODE);
+            }
+            if ($status >= 200 && $status < 300 && data_get($responseData, 'ok') !== false) {
+                $errors[] = 'La solicitud pudo haber sido procesada. Verifique su estado en Infile antes de reenviarla; el registro local no fue marcado como invalidado.';
+            }
+            $errors[] = 'Referencia de respuesta: '.$receipt;
+            return back()->withErrors($errors);
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (\InvalidArgumentException $e) {
+            return back()->withErrors([$e->getMessage()]);
+        } catch (\Exception $e) {
+            $context = method_exists($e, 'getHandlerContext') ? $e->getHandlerContext() : [];
+            $curlError = isset($context['errno']) ? (int) $context['errno'] : null;
+            // Never log the raw exception, request headers, payload or SQL bindings.
+            Log::warning('Fallo en invalidacion Infile', [
+                'reference' => $reference,
+                'dte_id' => $dte->id,
+                'stage' => $stage,
+                'exception_class' => get_class($e),
+                'exception_code' => $e->getCode(),
+                'curl_errno' => $curlError,
+                'http_status' => $status,
+                'receipt' => $receiptSaved ? $receipt : null,
+            ]);
+            $message = 'No se pudo confirmar la invalidacion en Infile.';
+            if ($curlError === 60 || $curlError === 77) {
+                $message = 'No se pudo validar el certificado HTTPS de Infile. Revise el paquete CA y la configuracion INFILE_CA_BUNDLE.';
+            } elseif ($curlError === 28) {
+                $message = 'Se agoto el tiempo de espera al comunicarse con Infile.';
+            } elseif ($curlError === 6) {
+                $message = 'No se pudo resolver el nombre del servidor de Infile.';
+            } elseif ($curlError === 7) {
+                $message = 'No se pudo establecer conexion con Infile.';
+            } elseif ($stage === 'guardar_respuesta') {
+                $message = 'Infile respondio, pero no se pudo guardar la respuesta en el almacenamiento local.';
+            } elseif ($stage === 'actualizar_registro') {
+                $message = 'Infile confirmo la invalidacion, pero fallo la actualizacion del registro local.';
+            }
+            $errors = [$message, 'Verifique el estado en Infile antes de reenviar la solicitud.', 'Referencia de diagnostico: '.$reference];
+            if ($receiptSaved) {
+                $errors[] = 'Referencia de respuesta: '.$receipt;
+            }
+            return back()->withErrors($errors);
+        }
+    }
+
     public function signInvalidate($json)
     {
-        $client = new Client(['verify' => false]);
+        $client = $this->httpClient(['verify' => false]);
 
         //dd(json_encode($json));
 
@@ -450,7 +593,7 @@ class dteController extends Controller
 
         $headers = [
             'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer '.$this->token,
+            'Authorization' => 'Bearer '.$this->rrdToken(),
         ];
 
         $params = [
@@ -481,7 +624,6 @@ class dteController extends Controller
         }
     }
 
-
     public function obtenerTokenJWT()
     {
         // Verificar si el token ya esta en cache
@@ -499,7 +641,7 @@ class dteController extends Controller
         $client_secret = env('API_CLIENT_SECRET');
         $resource = env('API_RESOURCE');
 
-        $client = new Client([
+        $client = $this->httpClient([
             'verify' => false,
         ]);
 
