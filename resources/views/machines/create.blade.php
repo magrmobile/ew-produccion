@@ -64,6 +64,11 @@
                         @if(old('location') == 'Santa Elena') checked @endif value="Santa Elena">
                     <label for="location2" class="custom-control-label">Santa Elena</label>
                 </div>
+                <div class="custom-control custom-radio mb-3">
+                    <input name="location" class="custom-control-input" id="location3" type="radio"
+                        @if(old('location') == 'San Luis Talpa') checked @endif value="San Luis Talpa">
+                    <label for="location3" class="custom-control-label">San Luis Talpa</label>
+                </div>
             </div>
             <div id="div_device" class="form-group">
                 <label for="device_id">Dispositivo</label>
